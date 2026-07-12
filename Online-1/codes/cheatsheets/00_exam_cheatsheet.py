@@ -357,13 +357,13 @@ def error_reference():
     │               ERROR FORMULA REFERENCE CARD                      │
     ├─────────────────────────────────────────────────────────────────┤
     │  True Error:         E_t  = true - approx                       │
-    │  True Rel. Error:    epsilon_t% = |true-approx|/|true| x 100         │
-    │  Approx Rel. Error:  ea% = |x_new-x_old|/|x_new| x 100       │
-    │  Scarborough (n SF): es% = 0.5 x 10^(2-n) %                   │
-    │                                                                  │
+    │  True Rel. Error:    epsilon_t% = |true-approx|/|true| x 100    │
+    │  Approx Rel. Error:  ea% = |x_new-x_old|/|x_new| x 100          │
+    │  Scarborough (n SF): es% = 0.5 x 10^(2-n) %                     │
+    │                                                                 │
     │  Bisection formula:      xr = (xl + xu) / 2                     │
-    │  False Position formula: xr = xu - f(xu)*(xl-xu)/(f(xl)-f(xu)) │
-    │  Newton-Raphson formula: x_{i+1} = x_i - f(x_i)/f'(x_i)       │
+    │  False Position formula: xr = xu - f(xu)*(xl-xu)/(f(xl)-f(xu))  │
+    │  Newton-Raphson formula: x_{i+1} = x_i - f(x_i)/f'(x_i)         │
     └─────────────────────────────────────────────────────────────────┘
     """)
 

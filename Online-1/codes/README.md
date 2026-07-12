@@ -11,12 +11,12 @@
 | [`basic/01_errors_and_approximations.py`](basic/01_errors_and_approximations.py) | 🐍 Python | Round-off, truncation, Taylor series, machine epsilon |
 | [`basic/02_visualization_and_plotting.py`](basic/02_visualization_and_plotting.py) | 🐍 Python | All plot templates: standard, log scale, multi-root, convergence |
 | [`basic/scanner.py`](basic/scanner.py) | 🐍 Python | **Incremental search scanner utility for root-finding intervals** |
-| [`basic/08_error_tradeoff_plotter.py`](basic/08_error_tradeoff_plotter.py) | 🐍 Python | **Round-off vs. Truncation error tradeoff curve simulation & plot** |
+| [`basic/07_error_tradeoff_plotter.py`](basic/07_error_tradeoff_plotter.py) | 🐍 Python | **Round-off vs. Truncation error tradeoff curve simulation & plot** |
 | [`methods/03_bisection_and_false_position.py`](methods/03_bisection_and_false_position.py) | 🐍 Python | Bisection + False Position with full tables, comparison, multi-root |
 | [`methods/04_newton_raphson.py`](methods/04_newton_raphson.py) | 🐍 Python | Newton-Raphson with failure demos, dipstick, diode, convergence plot |
 | [`methods/05_bairstow_method.py`](methods/05_bairstow_method.py) | 🐍 Python | Bairstow's method — all roots of polynomials, step-by-step tables |
-| [`prev_year_solves/06_previous_year_practice.py`](prev_year_solves/06_previous_year_practice.py) | 🐍 Python | Previous year problems: FP, dipstick, break-even, Section B, diode |
-| [`prev_year_solves/07_prev_batch_all.py`](prev_year_solves/07_prev_batch_all.py) | 🐍 Python | **Previous batch online exam questions (A2, B2, A1) with exact formulations** |
+| [`prev_year_solves/06_prev_batch_all.py`](prev_year_solves/06_prev_batch_all.py) | 🐍 Python | **Previous batch online exam questions (A2, B2, A1) with exact formulations** |
+| [`prev-section/`](prev-section/) | 📁 Folder | **Modular solutions for previous years' sections (A1, B1, B2, C1/C2)** |
 | [`docs/STUDY_GUIDE.md`](docs/STUDY_GUIDE.md) | 📖 Docs | **Full study guide** — formulas, tables, exam tips, method comparison |
 | [`docs/NEWTON_RAPHSON_DEEP_DIVE.md`](docs/NEWTON_RAPHSON_DEEP_DIVE.md) | 📖 Docs | NR geometry proof, quadratic convergence, all 5 failure modes |
 | [`docs/BAIRSTOW_DEEP_DIVE.md`](docs/BAIRSTOW_DEEP_DIVE.md) | 📖 Docs | Bairstow algorithm derivation with worked numeric example |
