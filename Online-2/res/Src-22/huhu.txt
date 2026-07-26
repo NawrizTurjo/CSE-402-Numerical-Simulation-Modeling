@@ -1,0 +1,25 @@
+np.linalg.det(A)
+np.linalg.inv(A)
+np.trace(A)
+np.linalg.norm(A)
+
+np.linalg.norm(v)
+
+deflation works for symmetric matrices — their eigenvectors are always orthogonal
+x = np.linalg.inv(A) @ b
+x = np.linalg.solve(A, b)
+vals = np.linalg.eigvals(A)
+vals, vecs = np.linalg.eig(A)
+vals, vecs = np.linalg.eigh(A) for symmetric
+np.linalg.matrix_power(A, 5)
+
+V = np.column_stack((v1,v2))
+
+n = int(input())
+
+A = np.array([list(map(float, input().split())) for _ in range(n)])
+
+b = np.array(list(map(float, input().split())))
+
+print(A)
+print(b)

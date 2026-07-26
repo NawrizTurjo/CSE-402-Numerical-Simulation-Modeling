@@ -124,6 +124,34 @@ def is_oscillating(history, tail=8, tol=1e-4):
     return sign_changes >= tail // 2 and not_converged
 
 
+def verify_power_method(A, lam, v, tol=1e-6, verbose=True):
+    A, v = np.asarray(A, float), np.asarray(v, float)
+    
+    # 1. Unit normalize vector
+    v_unit = v / np.linalg.norm(v)
+    
+    # 2. Residual ||Av - lam*v||
+    res = float(np.linalg.norm(A @ v_unit - lam * v_unit))
+    
+    # 3. Dominant eigenpair from np.linalg.eig
+    vals, vecs = np.linalg.eig(A)
+    dom = int(np.argmax(np.abs(vals)))
+    lam_lib = float(vals[dom].real)
+    v_lib = vecs[:, dom].real
+    
+    # 4. Eigenvector gap (handles sign flips v vs -v)
+    vec_gap = float(min(np.linalg.norm(v_unit - v_lib), np.linalg.norm(v_unit + v_lib)))
+    
+    ok = res < tol and abs(lam - lam_lib) < tol and vec_gap < tol
+    if verbose:
+        print("\n--- Verify: Power Method (Dominant Eigenpair) ---")
+        print("Our lambda:          ", round(lam, 6), f"(np.linalg.eig: {round(lam_lib, 6)})")
+        print("Residual ||Av-lam*v||:", round(res, 8))
+        print("Eigenvector Gap:     ", round(vec_gap, 8))
+        print("Status:              ", "PASS" if ok else "FAIL")
+    return ok
+
+
 def _self_test():
     """Self-test power iteration on 4x4 matrix with dominant eigenvalue 10.0."""
     A = np.array([[8, 2, 0, 0], [2, 8, 0, 0], [0, 0, 3, 1], [0, 0, 1, 3]], dtype=float)
@@ -131,6 +159,20 @@ def _self_test():
     lam, v, hist = power_iteration(A, x0)
     assert abs(lam - 10.0) < 1e-6, lam
     assert not is_oscillating(hist)
+    assert verify_power_method(A, lam, v, verbose=False)
+
+    # A sign-flipped eigenvector must still pass -- v and -v are both valid
+    assert verify_power_method(A, lam, -v, verbose=False)
+    # A wrong eigenvalue must not
+    assert not verify_power_method(A, lam + 0.5, v, verbose=False)
+
+    # Negative dominant eigenvalue: catches the np.max(y) vs y[argmax|y|] bug,
+    # which would return +9 here instead of the true -12.
+    B = np.array([[-12, 0, 0], [0, 9, 0], [0, 0, 2]], dtype=float)
+    lam_b, v_b, _ = power_iteration(B, np.array([1, 1, 1], dtype=float))
+    assert abs(lam_b + 12.0) < 1e-6, lam_b
+    assert verify_power_method(B, lam_b, v_b, verbose=False)
+
     print("power_method.py: all self-tests passed")
 
 

@@ -142,12 +142,61 @@ def find_all_eigenpairs(A, x0, tol=1e-8, max_iter=1000, hand_written=True, verbo
     return np.array(eigenvalues), np.column_stack(eigenvectors)
 
 
+def verify_deflation(A, A_deflated, lam1, v1, lam2=None, v2=None, tol=1e-6, verbose=True):
+    A, A_def = np.asarray(A, float), np.asarray(A_deflated, float)
+    v1 = np.asarray(v1, float)
+    v1_unit = v1 / np.linalg.norm(v1)
+    
+    # 1. Check if lambda_1 is muted (A_deflated @ v1 ~= 0)
+    muted_res = float(np.linalg.norm(A_def @ v1_unit))
+    ok_muted = muted_res < tol
+    
+    # 2. Check spectrum of A_deflated (lam1 replaced by 0)
+    by_dist = sorted(np.linalg.eigvals(A).real, key=lambda val: abs(val - lam1))
+    expected_spec = sorted([0.0] + list(by_dist[1:]))
+    actual_spec = sorted(np.linalg.eigvals(A_def).real)
+    ok_spec = bool(np.allclose(expected_spec, actual_spec, atol=1e-6))
+    
+    ok = ok_muted and ok_spec
+    
+    if lam2 is not None and v2 is not None:
+        v2 = np.asarray(v2, float)
+        v2_unit = v2 / np.linalg.norm(v2)
+        
+        # 3. Check second eigenpair on original A
+        res2 = float(np.linalg.norm(A @ v2_unit - lam2 * v2_unit))
+        # 4. Check orthogonality v1 . v2 ~= 0
+        dot = float(abs(np.dot(v1_unit, v2_unit)))
+        
+        ordered = sorted(np.linalg.eigvals(A).real, key=lambda val: -abs(val))
+        ok_second = abs(lam2 - ordered[1]) < tol
+        ok &= (res2 < tol) and (dot < tol) and ok_second
+    
+    if verbose:
+        print("\n--- Verify: Deflation ---")
+        print("Muted lambda_1 residual ||A_def @ v1||:", round(muted_res, 8))
+        print("Spectrum preserved:                  ", ok_spec)
+        print("Status:                              ", "PASS" if ok else "FAIL")
+    return ok
+
+
 def _self_test():
     """Self-test deflation on 4x4 matrix with true eigenvalues [10, 6, 4, 2]."""
     A = np.array([[8, 2, 0, 0], [2, 8, 0, 0], [0, 0, 3, 1], [0, 0, 1, 3]], dtype=float)
     x0 = np.array([1, 2, 3, -1], dtype=float)  # Generic asymmetric guess
-    eigvals, _ = find_all_eigenpairs(A, x0)
+    eigvals, eigvecs = find_all_eigenpairs(A, x0)
     assert np.allclose(sorted(eigvals, reverse=True), [10, 6, 4, 2], atol=1e-6), eigvals
+
+    # One explicit deflation step, verified end to end
+    lam1, v1 = _power_iteration(A, x0)
+    A2 = deflate(A, lam1, v1)
+    lam2, v2 = _power_iteration(A2, x0)
+    assert verify_deflation(A, A2, lam1, v1, lam2, v2, verbose=False)
+
+    # Deflating with the WRONG eigenvalue must be rejected
+    A_bad = deflate(A, lam1 + 1.0, v1)
+    assert not verify_deflation(A, A_bad, lam1, v1, verbose=False)
+
     print("deflation.py: all self-tests passed")
 
 

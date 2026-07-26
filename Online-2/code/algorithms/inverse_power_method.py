@@ -236,6 +236,34 @@ def inverse_power_via_lu(A, x0, tol=1e-8, max_iter=500, hand_written=True, verbo
     return 1.0 / history[-1], x, history
 
 
+def verify_inverse_power_method(A, lam, v, tol=1e-6, verbose=True):
+    A, v = np.asarray(A, float), np.asarray(v, float)
+    
+    # 1. Unit normalize vector
+    v_unit = v / np.linalg.norm(v)
+    
+    # 2. Residual ||Av - lam*v||
+    res = float(np.linalg.norm(A @ v_unit - lam * v_unit))
+    
+    # 3. Smallest-magnitude eigenpair from np.linalg.eig
+    vals, vecs = np.linalg.eig(A)
+    smallest = int(np.argmin(np.abs(vals)))
+    lam_lib = float(vals[smallest].real)
+    v_lib = vecs[:, smallest].real
+    
+    # 4. Eigenvector gap (handles sign flips v vs -v)
+    vec_gap = float(min(np.linalg.norm(v_unit - v_lib), np.linalg.norm(v_unit + v_lib)))
+    
+    ok = res < tol and abs(lam - lam_lib) < tol and vec_gap < tol
+    if verbose:
+        print("\n--- Verify: Inverse Power Method (Smallest Eigenpair) ---")
+        print("Our lambda:          ", round(lam, 6), f"(np.linalg.eig: {round(lam_lib, 6)})")
+        print("Residual ||Av-lam*v||:", round(res, 8))
+        print("Eigenvector Gap:     ", round(vec_gap, 8))
+        print("Status:              ", "PASS" if ok else "FAIL")
+    return ok
+
+
 def _self_test():
     """Self-test on A1 question matrix [[4,1,0,0],[1,3,1,0],[0,1,2,1],[0,0,1,1]]."""
     A = np.array([[4, 1, 0, 0], [1, 3, 1, 0], [0, 1, 2, 1], [0, 0, 1, 1]], dtype=float)
@@ -248,6 +276,14 @@ def _self_test():
     lam_true = eigvals[np.argmin(np.abs(eigvals))]
 
     assert abs(lam1 - lam_true) < 1e-6 and abs(lam2 - lam_true) < 1e-6
+    assert verify_inverse_power_method(A, lam1, v1, verbose=False)
+    assert verify_inverse_power_method(A, lam2, v2, verbose=False)
+    assert verify_inverse_power_method(A, lam1, -v1, verbose=False)   # sign flip is fine
+
+    # The classic silent bug: reporting mu (dominant eigenvalue of A^-1)
+    # instead of 1/mu. Must be rejected.
+    assert not verify_inverse_power_method(A, 1.0 / lam1, v1, verbose=False)
+
     print("inverse_power_method.py: all self-tests passed")
 
 

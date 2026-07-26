@@ -254,6 +254,81 @@ def lu_inverse(A, hand_written=True):
     return Ainv, P, L, U
 
 
+def lu_solve_multiple_rhs(A, rhs_list, hand_written=True, verbose=False):
+    """
+    Solves A x = b for SEVERAL right-hand sides using ONE factorization.
+
+    This is the C2 question turned into a reusable function, and the whole
+    reason LU exists as a separate method from Gauss elimination.
+
+    THEORETICAL COST ARGUMENT:
+    - L and U depend only on A, never on b. Factor once: ~(2/3) n^3 flops.
+    - Each extra right-hand side is then just forward + backward substitution:
+      ~2 n^2 flops. So m right-hand sides cost O(n^3) + m*O(n^2) instead of
+      m*O(n^3) if you re-ran Gauss elimination per b.
+    - The identity's columns are a special case of "many right-hand sides",
+      which is exactly what lu_inverse() above does.
+
+    Returns:
+        solutions (list of ndarray): One solution vector per right-hand side.
+        P, L, U: The single factorization that was reused for all of them.
+    """
+    A = np.asarray(A, dtype=float)
+    # --- FACTOR ONCE (the expensive O(n^3) part) ---
+    P, L, U, _ = plu_decomposition(A, hand_written=hand_written, verbose=verbose)
+
+    solutions = []
+    for index, b in enumerate(rhs_list):
+        b = np.asarray(b, dtype=float)
+        # --- PER RHS: only the two cheap O(n^2) triangular solves ---
+        # Note P @ b: the factorization permuted A's rows, so b must follow.
+        z = forward_substitution(L, P @ b, hand_written=hand_written)
+        x = backward_substitution(U, z, hand_written=hand_written)
+        solutions.append(x)
+        if verbose:
+            print(f"  rhs #{index + 1}: z = {np.round(z, 6)}  ->  x = {np.round(x, 6)}")
+
+    return solutions, P, L, U
+
+
+def verify_lu(A, L=None, U=None, P=None, x=None, b=None,
+              A_inv=None, det_value=None, verbose=True):
+    A = np.asarray(A, float)
+    n = A.shape[0]
+    ok = True
+
+    if L is not None and U is not None:
+        L, U = np.asarray(L, float), np.asarray(U, float)
+        target = A if P is None else np.asarray(P, float) @ A
+        err = float(np.linalg.norm(target - L @ U))
+        unit_lower = np.allclose(L, np.tril(L), atol=1e-9) and np.allclose(np.diag(L), 1.0, atol=1e-9)
+        upper = np.allclose(U, np.triu(U), atol=1e-9)
+        ok &= (err < 1e-8 and unit_lower and upper)
+
+    if x is not None and b is not None:
+        x, b = np.asarray(x, float), np.asarray(b, float)
+        res = float(np.linalg.norm(A @ x - b))
+        gap = float(np.linalg.norm(x - np.linalg.solve(A, b)))
+        ok &= (res < 1e-8 and gap < 1e-8)
+
+    if A_inv is not None:
+        inv = np.asarray(A_inv, float)
+        I_err = float(np.linalg.norm(A @ inv - np.eye(n)))
+        gap = float(np.linalg.norm(inv - np.linalg.inv(A)))
+        ok &= (I_err < 1e-8 and gap < 1e-8)
+
+    if det_value is not None:
+        lib_det = float(np.linalg.det(A))
+        scale = max(1.0, abs(lib_det))
+        ok &= (abs(det_value - lib_det) / scale < 1e-8)
+
+    if verbose:
+        print("\n--- Verify: LU Factorization ---")
+        print("Status: ", "PASS" if ok else "FAIL")
+
+    return bool(ok)
+
+
 def _self_test():
     """Numerical verification of LU functions."""
     A = np.array([[0, 2, 1], [1, 1, 1], [2, 1, 3]], dtype=float)
@@ -268,6 +343,25 @@ def _self_test():
 
     Ainv, *_ = lu_inverse(A2)
     assert np.linalg.norm(A2 @ Ainv - np.eye(3)) < 1e-8
+
+    # One factorization reused across several right-hand sides (the C2 pattern)
+    rhs = [np.array([5, 3, 6], float), np.array([1, 2, 3], float),
+           np.array([0, -4, 7], float)]
+    sols, P2, L2, U2 = lu_solve_multiple_rhs(A, rhs)
+    for b_i, x_i in zip(rhs, sols):
+        assert np.allclose(x_i, np.linalg.solve(A, b_i)), (b_i, x_i)
+    # L, U must be IDENTICAL to the single-solve factorization -- that is the
+    # whole point of reusing them rather than recomputing per right-hand side.
+    assert np.allclose(L2, L) and np.allclose(U2, U) and np.allclose(P2, P)
+
+    # verify_lu accepts correct results...
+    assert verify_lu(A, L=L, U=U, P=P, x=x, b=b, verbose=False)
+    assert verify_lu(A2, A_inv=Ainv, det_value=det, verbose=False)
+    # ...and rejects wrong ones
+    assert not verify_lu(A, L=L, U=U + 0.1, P=P, verbose=False)
+    assert not verify_lu(A, L=L, U=U, P=None, verbose=False)   # forgot P@A
+    assert not verify_lu(A, x=x + 0.1, b=b, verbose=False)
+    assert not verify_lu(A2, det_value=det + 5.0, verbose=False)
 
     print("lu_decomposition.py: all self-tests passed")
 

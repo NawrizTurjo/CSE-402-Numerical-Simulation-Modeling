@@ -1,4 +1,4 @@
-1. We were asked to implement the Power Iteration Method to compute the dominant eigenvalue and its corresponding eigenvector.
+1. (C1 question) We were asked to implement the Power Iteration Method to compute the dominant eigenvalue and its corresponding eigenvector.
 
 A 4×4 matrix was provided, along with the algorithmic steps for implementing the Power Iteration Method.
 
@@ -67,3 +67,24 @@ given A= a 3*3 matrix and b1= 3*1 matrix, b2= 3*1 matrix.
 5. which part of computation was reused, why is it unnecessary to calculate L,U again?
 6. verify solution with np.linalg.solve().
 7. calculate residual |Ax-b| for both.
+
+5.
+B2 question
+Given a 3x3 matrix A, two 3x1 matrices b1 and b2.
+
+A = [1 1 1      b1 = [1 2 1]    b2 = [2 1 -1]
+        1 2 3
+        1 3 6]
+
+Construct the augmented matrix A|b1|b2.
+Run gauss jordan on the augmented matrix. No row swapping is necessary.
+Find the solution vectors x1 and x2. 
+Replace b1|b2 such that the right side becomes A^-1. Use the same gauss jordan function.
+Verify solution using np.linalg.solve and verify inverse using np.linalg.inv
+
+Written questions:
+Why does using A|b1|b2 work with Gauss Jordan to solve both systems of equations?
+What if both systems of equations have different coefficient matrices, can that be solved in this way?
+It is necessarily twice as expensive than solving one system of equations if gauss jordan is used?
+What matrix is replaced by b1|b2 to get A^-1? Why does it work?
+

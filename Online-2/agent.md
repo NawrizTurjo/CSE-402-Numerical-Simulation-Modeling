@@ -10,7 +10,7 @@ Modeling, BUET (Nafis Tahmid).
 > Eigenvalue decomposition: power method — including all relevant topics
 > covered in theory class.
 
-You are section **A2**. Sections **A1, B1, C1, and C2** have already completed their online exams — their transcribed questions and requirements (from A1, B1, C2) are collected in [res/Online Questions.txt](res/Online%20Questions.txt) and fully solved under `code/prev-solutions/`. These serve as the single best signal for what your own exam will look like (same instructor, same syllabus block, staggered by section).
+You are section **A2**. Sections **A1, B1, C1, C2, and B2** have already completed their online exams — their transcribed questions and requirements are collected in [res/Online Questions.txt](res/Online%20Questions.txt) and fully solved under `code/prev-solutions/`. These serve as the single best signal for what your own exam will look like (same instructor, same syllabus block, staggered by section).
 
 ## What to actually do with this repo
 
@@ -29,16 +29,24 @@ cross-checked against `np.linalg` and against hand-worked slide examples).
 
 `code/` is organized by role, not just by topic:
 - `code/algorithms/` — canonical library functions (source of truth).
+  Includes `manual_ops.py` (hand-written norms/products — the pieces NumPy is
+  *not* allowed to compute, see the marking rule below) and `verification.py`
+  (one function per result type that compares your answer to the library one).
+  Every topic module also exposes its own `verify_<topic>(...)`.
 - `code/docs/` — one `.md` per algorithm, algorithm-level math vs.
   code-level implementation notes, paired 1:1 with `algorithms/`.
 - `code/templates/` — full worked exam-answer scripts (grab the whole
   file, swap in the question's matrix).
+- `code/practice/` — 13 timed mock questions (25–35 min each) with full
+  worked solutions, plus `questions.md` holding the statements alone so you
+  can attempt them blind. Covers every syllabus topic, including the ones no
+  real past question has touched yet.
 - `code/complex_cases/` — harder variants (rank deficiency >1, singular
   matrices, ill-conditioning, complex/tied eigenvalues, larger n) with the
   symptom you'd see live and the fix.
-- `code/prev-solutions/` — solutions mapped to the actual 4 transcribed
-  past questions below, plus a closest available Gauss-Jordan reference
-  (the only syllabus topic with no exact transcribed question yet).
+- `code/prev-solutions/` — solutions mapped to the actual 5 transcribed
+  past questions below, plus a slides-based Gauss-Jordan reference kept
+  alongside B2's real one for cross-checking against the lecture.
 
 The rest of this document is *why* `code/` looks the way it does — the
 source material and reasoning, kept here so you can go back to primary
@@ -63,8 +71,20 @@ sources if you need more than the templates cover.
      step-by-step annotations are included in template scripts.
   3. **Verify against NumPy** (`np.linalg.solve`/`inv`/`det`/`eig`) and print
      a residual/error norm (`||Ax-b||_2`, `||A-LU||_F`, `||A-LU||_2`, etc.) as the last
-     step of almost every question.
-  4. A **written/theory question** tacked onto the end of the coding task
+     step of almost every question. `code/algorithms/verification.py` has this
+     as one call per result type.
+  4. **The residual/norm itself must be hand-computed first** — this is a
+     rubric rule, confirmed by a classmate who saw the real marking scheme
+     (`res/A2_Prep.md` §1). NumPy may only re-derive the *same* number
+     afterwards as a cross-check; print both. The trap is that the offending
+     calls look too trivial to matter: `np.linalg.norm(x)` to normalize *your*
+     eigenvector, `A @ x` inside *your* residual, `np.linalg.norm(A - L@U)` to
+     check *your* decomposition, `np.outer(v,v)` in *your* deflation — all of
+     these compute part of your own answer with a library. Hand-written
+     versions of every one are in `code/algorithms/manual_ops.py`; a few lines
+     each (`sum(v*v for v in vec) ** 0.5` for an L2 norm, a row-by-row dot
+     product loop for `A @ x`).
+  5. A **written/theory question** tacked onto the end of the coding task
      (e.g. "does a zero pivot always mean no solution?", "why is LU cheaper
      for many right-hand sides?"). These come straight out of the theory
      slides — see `code/cheatsheet.md` for a compiled quick-answer bank.
@@ -74,9 +94,12 @@ sources if you need more than the templates cover.
 
 ### Actual past questions (transcribed, [res/Online Questions.txt](res/Online%20Questions.txt))
 
-1. **Power Iteration** — 4×4 matrix given, implement dominant eigenvalue +
-   eigenvector, verify with NumPy. Must normalize before comparing; sign
-   flip vs NumPy is fine.
+1. **C1's Power Iteration** — 4×4 matrix given, implement dominant eigenvalue
+   + eigenvector, verify with NumPy. Must normalize before comparing; sign
+   flip vs NumPy is fine. Exact matrix recovered from `res/A2_Prep.md` §5:
+   `[[12,2,1,0],[2,5,0,1],[1,0,3,1],[0,1,1,2]]`, dominant eigenvalue
+   ≈ `12.640124`. Exact solved match:
+   `code/prev-solutions/power_method/q_dominant_eigenpair_4x4.py`.
 2. **B1's system-of-equations question** (30→35 min) — three 3-variable
    systems given. Gauss elimination with hand-written partial pivoting;
    classify each as unique/no-solution/infinite-solution; print every pivot
@@ -106,8 +129,52 @@ sources if you need more than the templates cover.
    computation was reused, and why is recomputing L, U for the second RHS
    unnecessary? (Answer: L, U depend only on A, not b — factor once,
    O(n³); each RHS after that is just two O(n²) triangular solves. Full
-   argument in the trailing comment of the solved file.) Exact solved match:
+   argument in the trailing comment of the solved file.) Exact data recovered
+   from `res/A2_Prep.md` §6: `A=[[4,3,2],[2,5,3],[1,2,4]]`, `b1=[1,2,3]`,
+   `b2=[4,5,6]` — no pivoting needed, `||A-LU|| = 0`. Exact solved match:
    `code/prev-solutions/lu_decomposition/c2_lu_two_rhs_reuse_factorization.py`.
+5. **B2's Gauss-Jordan question** — 3×3 matrix `A` given with *two* RHS
+   vectors `b1`, `b2` directly in the prompt. Construct the augmented
+   `[A|b1|b2]`, run Gauss-Jordan (no row swap needed for this A), read off
+   solution vectors `x1`, `x2`; then replace `b1|b2` with the identity and
+   run the *same* function again to get `A⁻¹`; verify solutions with
+   `np.linalg.solve` and the inverse with `np.linalg.inv`. Written follow-ups:
+   why does augmenting with multiple RHS work with one elimination sweep, does
+   it need a shared coefficient matrix, is it ~2x the cost of one solve, and
+   what replaces `b1|b2` to get `A⁻¹` and why. Exact data, given directly:
+   `A=[[1,1,1],[1,2,3],[1,3,6]]`, `b1=[1,2,1]`, `b2=[2,1,-1]`. Exact solved
+   match: `code/prev-solutions/gauss_jordan/b2_two_rhs_and_inverse.py`.
+
+All five reconstructions now use the **real** matrices, and this repo's
+outputs match the numbers recorded in `res/A2_Prep.md` (B2's were given
+outright in the transcribed question, no reconstruction needed). Treat them
+as what was actually graded, and read them for what a full-credit answer had
+to *print*, not just compute.
+
+### Coverage of the syllabus beyond those five
+
+`res/A2_Prep.md` §2 maps all 20 syllabus topics against what had been tested
+*as of when it was written* (before B2 surfaced): 6 rows ✅ (A1/B1/C1/C2), 14
+untested. B2 has since confirmed two more — Gauss-Jordan and matrix inverse
+via `[A|I]` — marked below; the rest are still the real risk surface, and
+every one of them has a worked, executed practice question in `code/practice/`:
+
+| Topic | Practice question |
+|---|---|
+| Round-off error, why pivoting exists | `a2prep/p2` |
+| Determinant via elimination | `a2prep/p1a`, `extra/e1`, `extra/e3` |
+| Gauss-Jordan / RREF ✅ B2 | `a2prep/p1a`, `extra/e2`, `prev-solutions/gauss_jordan/b2` |
+| Matrix inverse via `[A\|I]` ✅ B2 | `a2prep/p1b`, `extra/e2`, `prev-solutions/gauss_jordan/b2` |
+| Matrix inverse via LU | `a2prep/p1b` |
+| LU with pivoting (`PA=LU`) | `extra/e3` |
+| Complexity / flop counts | `a2prep/p2`, `a2prep/p1b` |
+| Characteristic polynomial `det(A-λI)=0` | `a2prep/p3` |
+| Eigen-coordinates, `V`/`V⁻¹` as translators | `a2prep/p4` |
+| Eigendecomposition `A=VΛV⁻¹` | `a2prep/p4`, `extra/e6` |
+| Matrix powers `Aᵏ` via `VΛᵏV⁻¹` | `a2prep/p4`, `extra/e6` |
+| Deflation (highest risk — last topic taught) | `a2prep/p5`, `extra/e5` |
+| Condition number | `extra/e4` |
+| Multiple free variables (rank ≤ n-2) | `extra/e7` |
 
 ### Question banks used to build the templates
 
@@ -179,15 +246,26 @@ Extracted to text via `pdftotext -layout` at
 Online-2/
 ├── agent.md                     <- this file
 ├── Slides/                      original lecture PDFs + extracted .txt
+├── study-guide.md               how to drill this material before the exam
 ├── code/                        <- USE THIS ON EXAM DAY (tested templates)
-│   ├── algorithms/               canonical library functions, one per topic
+│   ├── algorithms/               canonical library functions, one per topic,
+│   │                              each with its own verify_<topic>(); plus
+│   │                              manual_ops.py (hand-written norms/products)
+│   │                              and verification.py (generic verifiers)
 │   ├── docs/                     algorithm-level vs code-level .md per topic
 │   ├── templates/                full worked exam-answer scripts
+│   ├── practice/                 13 timed mock questions + full solutions
+│   │   ├── questions.md           statements only, for blind timed practice
+│   │   ├── a2prep/                P1a-P5, the questions from res/A2_Prep.md
+│   │   └── extra/                 E1-E7, written to fill the remaining gaps
 │   ├── complex_cases/            harder variants + symptom/fix notes
-│   ├── prev-solutions/           solutions mapped to the 4 real transcribed past questions (A1, B1, C2, Power Iteration)
+│   ├── prev-solutions/           solutions mapped to the 5 real transcribed past questions (A1, B1, C1, C2, B2)
 │   ├── README.md, cheatsheet.md
 └── res/
-    ├── Online Questions.txt     transcribed real online-exam questions (A1, B1, C2, Power Iteration)
+    ├── A2_Prep.md               single biggest source: rubric rules, 20-topic
+    │                             coverage table, and the four real questions
+    │                             (pre-B2) with their EXACT matrices and outputs
+    ├── Online Questions.txt     transcribed real online-exam questions (A1, B1, C1, C2, B2)
     ├── Src-2/                   friend's collected code + 2 question banks
     │   ├── coding_questions.md, eigen_coding_questions.md
     │   ├── q2_written_answer.md (zero-pivot theory answer, worked out)

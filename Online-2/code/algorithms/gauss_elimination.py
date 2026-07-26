@@ -272,6 +272,46 @@ def determinant(A, hand_written=True, verbose=False):
     return det
 
 
+def verify_gauss_elimination(A, b, x=None, kind=None, det_value=None, verbose=True):
+    A, b = np.asarray(A, float), np.asarray(b, float)
+    n = A.shape[0]
+    ok = True
+
+    if kind is not None:
+        r_A = int(np.linalg.matrix_rank(A))
+        r_aug = int(np.linalg.matrix_rank(np.hstack([A, b.reshape(-1, 1)])))
+        if r_A < r_aug:
+            expected = "no_solution"
+        elif r_A == n:
+            expected = "unique"
+        else:
+            expected = "infinite"
+        ok &= (kind == expected)
+
+    if x is not None:
+        x = np.asarray(x, float)
+        res = float(np.linalg.norm(A @ x - b))
+        ok &= (res < 1e-8)
+        if kind in (None, "unique") and abs(np.linalg.det(A)) > EPS:
+            gap = float(np.linalg.norm(x - np.linalg.solve(A, b)))
+            ok &= (gap < 1e-8)
+
+    if det_value is not None:
+        lib_det = float(np.linalg.det(A))
+        scale = max(1.0, abs(lib_det))
+        ok &= (abs(det_value - lib_det) / scale < 1e-8)
+
+    if verbose:
+        print("\n--- Verify: Gauss Elimination ---")
+        if x is not None:
+            print("Residual ||Ax - b||:", round(float(np.linalg.norm(A @ np.asarray(x, float) - b)), 8))
+        print("Status:             ", "PASS" if ok else "FAIL")
+
+    return bool(ok)
+
+    return bool(ok)
+
+
 def _self_test():
     """Numerical self-tests to verify implementation correctness."""
     # Test 1: System with a Unique Solution
@@ -295,6 +335,17 @@ def _self_test():
     # Test 4: Determinant Verification vs NumPy
     A4 = np.array([[0, 2, 1], [1, -2, -3], [-1, 1, 2]], dtype=float)
     assert abs(determinant(A4) - np.linalg.det(A4)) < 1e-8
+
+    # Test 5: the verify_* function accepts correct results...
+    kind, x, _ = classify_and_solve(A, b)
+    assert verify_gauss_elimination(A, b, x=x, kind=kind,
+                                    det_value=determinant(A), verbose=False)
+    assert verify_gauss_elimination(A2, b2, kind="no_solution", verbose=False)
+    assert verify_gauss_elimination(A3, b3, kind="infinite", verbose=False)
+    # ...and rejects wrong ones
+    assert not verify_gauss_elimination(A, b, x=x + 0.1, verbose=False)
+    assert not verify_gauss_elimination(A, b, kind="infinite", verbose=False)
+    assert not verify_gauss_elimination(A, b, det_value=999.0, verbose=False)
 
     print("gauss_elimination.py: all self-tests passed")
 

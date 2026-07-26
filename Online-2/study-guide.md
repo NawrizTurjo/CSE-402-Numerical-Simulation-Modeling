@@ -84,24 +84,30 @@ blank-page, which is exactly the exam's format.
 
 ## Priority order (study in this order, stop early if time runs out)
 
-Ranked by (a) syllabus weight, (b) how many of the 4 real transcribed
+Ranked by (a) syllabus weight, (b) how many of the 5 real transcribed
 questions touched it, (c) how much of every other topic it's built from.
 
 1. **Gauss elimination + partial pivoting** — `docs/gauss_elimination.md`.
    Foundation for everything else (LU literally reuses this loop). One of
-   the 4 real past questions was exactly this.
-2. **Power method** — `docs/power_method.md`. One of the 4 real past
+   the 5 real past questions was exactly this.
+2. **Power method** — `docs/power_method.md`. One of the 5 real past
    questions. Short, but the `argmax(abs(.))` trap is the single most
    common real bug — drill it until it's automatic.
 3. **LU decomposition** (naive + `PA=LU` + solve/det/inverse) —
    `docs/lu_decomposition.md`. Biggest syllabus surface area (4+ sub-skills
-   in one topic), explicitly named in the syllabus. One of the 4 real past
+   in one topic), explicitly named in the syllabus. One of the 5 real past
    questions (C2 — two RHS, reuse L/U) — high risk of appearing again.
-4. **Inverse power method** — `docs/inverse_power_method.md`. One of the 4
+4. **Inverse power method** — `docs/inverse_power_method.md`. One of the 5
    real past questions, and it's short once LU (#3) is solid — it's just
    "power method, but solve instead of multiply."
-5. **Gauss-Jordan** — `docs/gauss_jordan.md`. Small delta on top of #1
-   (normalize + eliminate both directions) — cheap to add once #1 is solid.
+5. **Gauss-Jordan, including the matrix inverse via `[A|I]`** —
+   `docs/gauss_jordan.md`. Small delta on top of #1 (normalize the pivot row +
+   eliminate in both directions), and the inverse is the *same loop* with the
+   right-hand block widened from 1 column to n. Cheap to add once #1 is solid,
+   and it's now confirmed real too (B2 — augmented `[A|b1|b2]`, then the same
+   sweep re-run on `[A|I]` for the inverse). Drill with
+   `prev-solutions/gauss_jordan/b2_two_rhs_and_inverse.py`,
+   `practice/extra/e2`, and `practice/a2prep/p1a`, `p1b`.
 6. **Deflation** — `docs/deflation.md`. Builds directly on #2. Watch the
    `x0` blind-spot trap (documented in the doc) — it's the kind of bug
    that looks like success (a number pops out) but is silently wrong.
@@ -125,9 +131,14 @@ short on time — it matters more than a 4th read-through of any single doc.
 **Procedure**, repeat with a different question each time:
 
 1. Pick a source, in this priority order for realism:
-   - `code/prev-solutions/` — closest to the real format (start here).
+   - `code/practice/questions.md` — **13 ready-made questions, statements
+     only, no solutions visible.** This is the intended source: each one is
+     exam-shaped, timed at 25–35 min, and has a full worked solution in
+     `code/practice/a2prep/` or `code/practice/extra/` to grade yourself
+     against afterwards.
+   - `code/prev-solutions/` — the five questions that were actually set. Read
+     the problem statement at the top of the file, then close it.
    - `code/complex_cases/` — harder variants; use once the basics feel solid.
-   - Make up your own matrix for any `algorithms/<topic>.py` function.
 2. **Set a 30-minute timer.** Close every file except a blank editor.
 3. Solve it cold: write the function(s), run against your own hand-picked
    matrix, print every intermediate step the past questions have asked for
@@ -141,10 +152,23 @@ short on time — it matters more than a 4th read-through of any single doc.
    get the right number")? Note the ONE thing that cost you the most time,
    and drill just that thing before your next mock.
 
-Suggested mock rotation if you do exactly 3:
-- Mock 1: `prev-solutions/gauss_elimination/b1_three_systems_classify_pivot.py` question, blind.
-- Mock 2: `prev-solutions/inverse_power_method/a1_smallest_eigenpair_explicit_inverse.py` question, blind.
-- Mock 3: pick one from `complex_cases/` at random (don't choose — randomness matches not knowing what's coming) — this is your stress test.
+Suggested mock rotation if you do exactly 3 (all from
+`code/practice/questions.md`):
+- Mock 1: **E7** — B1's real question shape, one difficulty step up
+  (4×4, two free variables). Classification under time pressure is where
+  careless marks go.
+- Mock 2: **E3** — C2's real question shape, but on a matrix where naive LU
+  actually fails. If the exam matrix needs pivoting and you have only drilled
+  the no-pivot version, this is the run that saves you.
+- Mock 3: **E4** — covers both eigenvalue questions that have really been set
+  (C1's power method and A1's inverse power method) in one sitting.
+
+If you get a fourth: **P5 or E5** (deflation — the highest-risk untested topic,
+and the last one taught), or pick one from `complex_cases/` at random as a
+stress test. Also worth a cold run once, since it's real: B2 itself
+(`prev-solutions/gauss_jordan/b2_two_rhs_and_inverse.py`) — augmented
+`[A|b1|b2]` solved by Gauss-Jordan, then the same sweep repurposed on `[A|I]`
+for `A⁻¹`.
 
 ---
 
@@ -174,6 +198,12 @@ oscillating power method).
 
 - [ ] Used hand-written pivot/swap loops, not `np.argmax`/fancy indexing,
       unless the question said that was fine.
+- [ ] **Every norm, residual and `A@x` that is part of the ANSWER is
+      hand-coded**, with the `np.linalg` value printed beside it as a check —
+      not instead of it. (`np.linalg.norm(x)` to normalize your own
+      eigenvector, `A @ x` inside a residual, and `np.linalg.norm(A - L@U)`
+      all count as computing your own answer with a library. See
+      `code/algorithms/manual_ops.py`.)
 - [ ] Eigenvalue estimates use `y[np.argmax(np.abs(y))]`, never `np.max(y)`.
 - [ ] Eigenvectors normalized before comparing to NumPy; sign-flip check
       (`if np.dot(v, v_np) < 0: v_np = -v_np`) present if comparing.
