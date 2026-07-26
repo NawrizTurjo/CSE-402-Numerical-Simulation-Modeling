@@ -38,6 +38,11 @@ def plu_decompose_trj(A,hand_written=True):
                 if k>0:
                     L[[k,pivot], :k] = L[[pivot,k],:k]
             
+        pivot_val = U[k,k]
+        if pivot_val < 1e-10:
+            print(f" Zero value pivot detected at row {k+1}, skipping")
+            continue
+            
         for i in range(k+1,n):
             m = U[i,k]/U[k,k]
             L[i,k] = m
