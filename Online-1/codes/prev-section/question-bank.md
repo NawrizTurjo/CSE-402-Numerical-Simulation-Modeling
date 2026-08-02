@@ -9,7 +9,7 @@ This document serves as a comprehensive Question Bank and study companion contai
 1. [Section-A1: Diode Equation (Newton-Raphson)](#1-section-a1-diode-equation-newton-raphson)
 2. [Section-C2 (Type 1): Log-Scale Convergence Comparison](#2-section-c2-type-1-log-scale-convergence-comparison)
 3. [Section-B1: Multi-Root Scanner (Bisection)](#3-section-b1-multi-root-scanner-bisection)
-4. [Section-C2 (Type 2): First-Match Multi-Root Scanner (False Position)](#4-section-c2-type-2-first-match-multi-root-scanner-false-position)
+4. [Section-C1: First-Match Multi-Root Scanner (False Position)](#4-section-c1-first-match-multi-root-scanner-false-position)
 5. [Section-B2: Pathological/Discontinuous Functions (Bisection)](#5-section-b2-pathologicaldiscontinuous-functions-bisection)
 
 ---
@@ -145,7 +145,7 @@ Executing a single Bisection run directly on $[0, 10]$ fails catastrophically be
 
 ---
 
-## 4. Section-C2 (Type 2): First-Match Multi-Root Scanner (False Position)
+## 4. Section-C1: First-Match Multi-Root Scanner (False Position)
 
 ### 📋 Problem Statement
 Given a general multi-root expression, scan the domain to locate all sign-change intervals. Automatically isolate the **first interval** that exhibits a valid sign change, run the False Position method on it targeting $\vert\varepsilon_a\vert \le 0.0001\%$, and print the iteration table.

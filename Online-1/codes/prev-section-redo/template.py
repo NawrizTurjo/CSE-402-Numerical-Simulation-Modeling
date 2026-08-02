@@ -121,7 +121,7 @@ def calc_sig_digit(err):
 # err = 0.05
 # print(calc_sig_digit(err))
 
-def find_all_roots(a, b, step=0.1, method='bisection', tol=0.0001, m=1, getInterval = False):
+def find_all_roots(a, b, step=0.1, method='bisection', tol=0.0001, m=1):
     """
     Scan [a,b] for ALL sign-change brackets, then SOLVE every one of them.
     method: 'bisection', 'false_position', or 'false_position_illinois'
@@ -174,8 +174,6 @@ def find_all_roots(a, b, step=0.1, method='bisection', tol=0.0001, m=1, getInter
     
     print(f"\nALL ROOTS FOUND ({method}): {[round(r, 6) for r in roots]}")
 
-    if getInterval:
-        return roots, intervals
     return roots
 
     

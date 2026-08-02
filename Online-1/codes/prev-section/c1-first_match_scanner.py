@@ -1,5 +1,5 @@
 """
-Section-C2 (Type 2): First-Match Multi-Root Scanner (False Position)
+Section-C1: First-Match Multi-Root Scanner (False Position)
 Objective:
   Scan the domain of a multi-root function to identify all sign-change intervals.
   Automatically isolate the FIRST interval with a sign change and solve it
@@ -113,7 +113,7 @@ def run_false_position(xl, xu):
 # -----------------------------------------------------------------------------
 def main():
     print("=" * 80)
-    print("   SECTION-C2 (TYPE 2): FIRST-MATCH MULTI-ROOT SCANNER (FALSE POSITION)")
+    print("   SECTION-C1: FIRST-MATCH MULTI-ROOT SCANNER (FALSE POSITION)")
     print("=" * 80)
     
     # Task 2: Scan for all intervals
@@ -148,14 +148,14 @@ def main():
     if root is not None:
         plt.plot(root, f(root), "ro", markersize=8, label=f"Solved Root (x ≈ {root:.5f})")
         
-    plt.title("Section-C2 (Type 2): First-Match Multi-Root Scanner", fontsize=13, fontweight="bold", pad=15)
+    plt.title("Section-C1: First-Match Multi-Root Scanner", fontsize=13, fontweight="bold", pad=15)
     plt.xlabel("x", fontsize=11)
     plt.ylabel("f(x)", fontsize=11)
     plt.grid(True, linestyle=":", alpha=0.6)
     plt.legend(fontsize=10)
     plt.tight_layout()
     
-    plot_path = "c2_first_match_plot.png"
+    plot_path = "c1_first_match_plot.png"
     plt.savefig(plot_path, dpi=150)
     plt.close()
     print(f"\nSaved visualization graph to '{plot_path}'")

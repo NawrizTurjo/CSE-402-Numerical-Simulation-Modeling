@@ -1,5 +1,5 @@
 """
-Section-C2 (Type 1): Log-Scale Convergence Comparison
+Section-C2: Log-Scale Convergence Comparison
 Objective:
   Solve f(x) = ln(x) = 0 over the bracket [10^-4, 10^4] using both Bisection
   and False Position methods simultaneously.
@@ -196,7 +196,7 @@ def main():
     plt.legend(fontsize=10)
     plt.tight_layout()
     
-    plot_path = "c1_log_scale_plot.png"
+    plot_path = "c2_log_scale_plot.png"
     plt.savefig(plot_path, dpi=150)
     plt.close()
     print(f"Saved convergence comparison plot to '{plot_path}'")

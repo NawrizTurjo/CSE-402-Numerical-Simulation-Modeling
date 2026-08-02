@@ -37,7 +37,7 @@ Online-1/
     docs/NEWTON_RAPHSON_DEEP_DIVE.md          <- pre-existing, NOT modified
     docs/BAIRSTOW_DEEP_DIVE.md                <- pre-existing, NOT modified
     docs/SLIDE1_ERRORS_APPROX_STUDY_GUIDE.md  <- NEW this session (see below)
-    docs/SLIDE2_ROOTFINDING_STUDY_GUIDE.md    <- NEW this session (see below)
+    docs/SLIDE2_ROOTFINDING_STUDY_GUIDE.md    <- NEW tPhis session (see below)
 ```
 
 Note: file *names* in `prev-section/` don't line up 1:1 with exam labels — `c1-log_scale_convergence.py`'s content actually answers exam question **C2** (ln(x) log-scale bisection-vs-falseposition), and `c2-first_match_scanner.py`'s content answers exam question **C1** (scan + false position on first interval). Content is correct; only the filenames are swapped relative to `res/questions.md` labels. Don't rename, just be aware when picking a template in the exam.
@@ -184,4 +184,24 @@ User's ask: one dedicated study-guide markdown file per slide deck (the two `ref
 **`SLIDE2_ROOTFINDING_STUDY_GUIDE.md`** maps `references/numerical-methods-rootfinding-reference.md` §1–§13 to `codes/methods/03_bisection_and_false_position.py`, `codes/methods/04_newton_raphson.py`, and `codes/basic/scanner.py` (coarse_scan/safe_eval/classify_and_verify — cross-referenced against the near-identical copies duplicated in `methods/03` and `cheatsheets/00`, explained as a deliberate self-contained-per-file design choice, not accidental drift). Explicitly scopes out Bairstow — reiterates the reference doc's own §13 "out of scope, no slide deck yet" note and tells the user `methods/05_bairstow_method.py` is NOT covered by this guide even though it exists and works. Flags the Illinois false-position method (`false_position_illinois` in `methods/03`/`cheatsheets/00`) as a bonus beyond this slide's reference doc — the reference only describes FP stagnation as a drawback to explain, it never mentions "Illinois" by name; that fix comes from the broader `docs/STUDY_GUIDE.md`, not this slide. Documents the `ea = 100.0` iteration-1 sentinel (and the `abs(xr) < 1e-12` epsilon guard, with the reference's literal `float('inf')` approach kept as a commented-out alternative line) as an intentional divergence from the reference's "print blank on iteration 1" convention, and tells the user which answer to give depending on whether a question is asking about the theory or about their own code's behavior.
 
 Both files end with a numbered "How to Study This Code Properly" section: derive the formula by hand from the reference before looking at code, run every file (don't just read), dry-run 2-3 iterations of a method by hand and diff against a `verbose=True` run, deliberately trigger every documented failure mode once under low stakes, and use `prev-section/*.py` as an answer key to check against *after* attempting a `res/questions.md` item cold — not as the first thing to read.
+
+---
+
+## 🎯 Canonical Reference & Future Handoff Directive: `codes/prac-me/prac-1.py`
+
+**CRITICAL DIRECTIVE FOR FUTURE AGENTS:**
+
+1. **Primary Master Codebase (`codes/prac-me/prac-1.py`)**:
+   - `codes/prac-me/prac-1.py` is the **canonical, master reference file** containing the unified implementations of all root-finding algorithms, scanners, error functions, and visualization utilities.
+   - **Key Functions in `prac-1.py`**:
+     - **Solvers**: `bisection`, `false_position`, `false_position_opt`, `false_position_illinois`, `newton_raphson`, `newton_raphson_numeric`, `_newton_raphson_core`.
+     - **Unified Return Format**: Algorithms return 6-element tuples `(root, i, ea, xl_updates, xu_updates, history)` (or `(root, history)` for NR) containing per-iteration metadata.
+     - **Domain Safety**: `safe_eval(x, func=f)` catches domain exceptions; `coarse_scan` & `classify_and_verify` handle grid candidates and residual verification.
+     - **Significance & Tolerances**: Inverted Scarborough (`calc_sig_digit`) & `calculate_m_sig_tol`.
+     - **Comparison**: `compare_methods(xl, xu, tol, m)` prints side-by-side tables for Bisection, False Position, and Newton-Raphson, returning `(bi, fp, nr)`.
+     - **Plotting & Figures**: `_save_figure` automatically creates and saves figures into `fig/` directory (`fig/*.png`). Includes `plot_standard`, `plot_logscale`, `plot_with_root`, `plot_with_brackets`, `plot_convergence` (supports `history` lists), `plot_newton_raphson` (tangent geometry lines), and `demo_error_tradeoff` (optimal step size $h$ V-curve).
+
+2. **Next Task Directive (Redoing `prev-section/`)**:
+   - When requested to solve or redo previous section questions in `prev-section/`, **FUTURE AGENTS MUST EXCLUSIVELY USE AND IMPORT/CALL THE FUNCTIONS FROM `codes/prac-me/prac-1.py`**.
+   - Do NOT rewrite custom solver functions or separate algorithm loops — treat `prac-1.py` as the standard library for all solution scripts.
 
