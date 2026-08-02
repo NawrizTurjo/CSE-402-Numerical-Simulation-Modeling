@@ -19,9 +19,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ① DEFINE YOUR FUNCTION HERE - change this for every question!
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (1) DEFINE YOUR FUNCTION HERE - change this for every question!
+# =============================================================================
 
 def f(x):
     # EXAMPLES - uncomment the one that matches your exam:
@@ -40,9 +40,9 @@ def df(x):
     # return 1e-12/(1.8*0.02585)*math.exp(x/(1.8*0.02585)) + 1/500
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ② QUICK SCAN - find sign-change intervals (always run this first!)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (2) QUICK SCAN - find sign-change intervals (always run this first!)
+# =============================================================================
 
 def scan_for_roots(a, b, step=0.1):
     """Scan [a,b] with step size. Print all brackets where f changes sign."""
@@ -56,100 +56,163 @@ def scan_for_roots(a, b, step=0.1):
     return intervals
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ③ BISECTION METHOD
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (2)b CANDIDATE SCANNING & ACCEPTANCE FILTERING
+#      (needed for pathological/discontinuous-function questions, e.g. B2)
+# =============================================================================
+
+def safe_eval(x):
+    """Evaluate global f(x), catching domain errors (div-by-zero, log of a
+    non-positive number, overflow) instead of crashing. Returns (value, None)
+    on success, (None, error_message) on failure."""
+    try:
+        return f(x), None
+    except (ZeroDivisionError, ValueError, OverflowError) as e:
+        return None, str(e)
+
+def coarse_scan(a, b, step=0.1, direct_tol=1e-8):
+    """
+    Scan [a,b] and classify grid points into direct root candidates
+    (|f(x)| already <= direct_tol) and sign-change interval candidates.
+    Never bisect once over a whole wide domain - scan first, refine each
+    candidate separately. Domain errors mid-scan are skipped, not fatal.
+    """
+    xs = list(np.arange(a, b + step, step))
+    vals = [safe_eval(x)[0] for x in xs]
+    direct = [xs[i] for i, v in enumerate(vals) if v is not None and abs(v) <= direct_tol]
+    intervals = []
+    for i in range(len(xs) - 1):
+        v0, v1 = vals[i], vals[i+1]
+        if v0 is None or v1 is None:
+            continue
+        if v0 * v1 < 0:
+            intervals.append((round(xs[i], 10), round(xs[i+1], 10)))
+    return direct, intervals
+
+def classify_and_verify(candidate, kind, extra_filter=None, residual_tol=1e-6):
+    """Verdict row for a candidate: type ('direct'/'interval'), residual
+    f(candidate), ACCEPT/REJECT. Convergence alone is never enough - the
+    residual must be near zero (guards against converging onto a
+    sign-flipping singularity), and any problem-specific extra filter
+    (e.g. |xr| <= 1e-6) must also pass."""
+    fx, err = safe_eval(candidate)
+    accepted = fx is not None and abs(fx) <= residual_tol
+    if accepted and extra_filter is not None:
+        accepted = extra_filter(candidate)
+    return {'type': kind, 'x': candidate, 'f_x': fx, 'error': err, 'accepted': accepted}
+
+
+# =============================================================================
+# (3) BISECTION METHOD
+# =============================================================================
 
 def bisection(xl, xu, tol=0.0001, max_iter=200):
     """
     FORMULA:  xr = (xl + xu) / 2
     STOP:     ea = |xr_new - xr_old| / |xr_new| x 100 <= tol
-    UPDATE:   f(xl)*f(xr) < 0 → xu=xr,  else → xl=xr
+    UPDATE:   f(xl)*f(xr) < 0 -> xu=xr,  else -> xl=xr
+    Terminates gracefully (returns None) if f is undefined mid-run.
     """
-    print(f"\n{'─'*68}")
+    print(f"\n{'-'*68}")
     print(f"{'BISECTION METHOD':^68}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"{'Iter':<5} {'xl':>12} {'xu':>12} {'xr':>12} {'ea(%)':>12} {'f(xr)':>12}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
 
     xr_old = None
     for i in range(1, max_iter+1):
-        xr  = (xl + xu) / 2.0          # ← BISECTION FORMULA
-        fxr = f(xr)
-        
+        xr  = (xl + xu) / 2.0          # <- BISECTION FORMULA
+        fxr, err = safe_eval(xr)
+        if fxr is None:
+            print(f"{i:<5} {xl:>12.6f} {xu:>12.6f} {xr:>12.6f} {'---':>12} {'undefined':>12}")
+            print(f"  [TERMINATED] f undefined at xr = {xr:.6f}: {err}")
+            return None
+
         # Safe error calculation near zero
         if xr_old is None:
             ea = 100.0
         elif abs(xr) < 1e-12:
-            ea = abs(xr - xr_old)*100.0
+            # ea = float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs(xr - xr_old) * 100.0
         else:
             ea = abs((xr - xr_old)/xr)*100.0
-            
+
         ea_str = f"{ea:.6f}" if xr_old else "---"
         print(f"{i:<5} {xl:>12.6f} {xu:>12.6f} {xr:>12.6f} {ea_str:>12} {fxr:>12.8f}")
         if xr_old and ea <= tol: break
-        xl, xu = (xl, xr) if f(xl)*fxr > 0 else (xr, xu)
+        if f(xl)*fxr < 0:
+            xu = xr
+        else:
+            xl = xr
         xr_old = xr
 
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"  ROOT approx. {xr:.8f}   ea = {ea:.6f}%   Iter = {i}")
     return xr
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ④ FALSE POSITION (REGULA FALSI) METHOD
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (4) FALSE POSITION (REGULA FALSI) METHOD
+# =============================================================================
 
 def false_position(xl, xu, tol=0.0001, max_iter=500):
     """
     FORMULA:  xr = xu - f(xu)*(xl - xu) / (f(xl) - f(xu))
     STOP:     ea <= tol  (same as bisection)
     """
-    print(f"\n{'─'*68}")
+    print(f"\n{'-'*68}")
     print(f"{'FALSE POSITION (REGULA FALSI)':^68}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"{'Iter':<5} {'xl':>12} {'xu':>12} {'xr':>12} {'ea(%)':>12} {'f(xr)':>12}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
 
     xr_old = None
     for i in range(1, max_iter+1):
         fl, fu = f(xl), f(xu)
-        xr  = xu - fu*(xl-xu)/(fl-fu)  # ← FALSE POSITION FORMULA
-        fxr = f(xr)
-        
+        xr  = xu - fu*(xl-xu)/(fl-fu)  # <- FALSE POSITION FORMULA
+        fxr, err = safe_eval(xr)
+        if fxr is None:
+            print(f"{i:<5} {xl:>12.6f} {xu:>12.6f} {xr:>12.6f} {'---':>12} {'undefined':>12}")
+            print(f"  [TERMINATED] f undefined at xr = {xr:.6f}: {err}")
+            return None
+
         # Safe error calculation near zero
         if xr_old is None:
             ea = 100.0
         elif abs(xr) < 1e-12:
-            ea = abs(xr - xr_old)*100.0
+            # ea = float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs(xr - xr_old) * 100.0
         else:
             ea = abs((xr - xr_old)/xr)*100.0
-            
+
         ea_str = f"{ea:.6f}" if xr_old else "---"
         print(f"{i:<5} {xl:>12.6f} {xu:>12.6f} {xr:>12.6f} {ea_str:>12} {fxr:>12.8f}")
         if xr_old and ea <= tol: break
-        xl, xu = (xl, xr) if f(xl)*fxr > 0 else (xr, xu)
+        if fl*fxr < 0:
+            xu = xr
+        else:
+            xl = xr
         xr_old = xr
 
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"  ROOT approx. {xr:.8f}   ea = {ea:.6f}%   Iter = {i}")
     return xr
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ④b FALSE POSITION WITH ILLINOIS MODIFICATION (BREAKS STAGNATION)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (4)b FALSE POSITION WITH ILLINOIS MODIFICATION (BREAKS STAGNATION)
+# =============================================================================
 
 def false_position_illinois(xl, xu, tol=0.0001, max_iter=500):
     """
     Illinois method to solve stagnation problem on concave/convex functions.
     If boundary stagnates, inactive bound function value is halved.
     """
-    print(f"\n{'─'*68}")
+    print(f"\n{'-'*68}")
     print(f"{'FALSE POSITION (ILLINOIS)':^68}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"{'Iter':<5} {'xl':>12} {'xu':>12} {'xr':>12} {'ea(%)':>12} {'f(xr)':>12}")
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
 
     fl = f(xl)
     fu = f(xu)
@@ -157,12 +220,17 @@ def false_position_illinois(xl, xu, tol=0.0001, max_iter=500):
     
     for i in range(1, max_iter+1):
         xr  = xu - fu*(xl-xu)/(fl-fu)
-        fxr = f(xr)
-        
+        fxr, err = safe_eval(xr)
+        if fxr is None:
+            print(f"{i:<5} {xl:>12.6f} {xu:>12.6f} {xr:>12.6f} {'---':>12} {'undefined':>12}")
+            print(f"  [TERMINATED] f undefined at xr = {xr:.6f}: {err}")
+            return None
+
         if xr_old is None:
             ea = 100.0
         elif abs(xr) < 1e-12:
-            ea = abs(xr - xr_old)*100.0
+            # ea = float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs(xr - xr_old) * 100.0
         else:
             ea = abs((xr - xr_old)/xr)*100.0
             
@@ -178,14 +246,14 @@ def false_position_illinois(xl, xu, tol=0.0001, max_iter=500):
             fu = fu / 2.0  # Halve the weight of stagnant bound xu
         xr_old = xr
 
-    print(f"{'─'*68}")
+    print(f"{'-'*68}")
     print(f"  ROOT approx. {xr:.8f}   ea = {ea:.6f}%   Iter = {i}")
     return xr
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ⑤ NEWTON-RAPHSON METHOD (WITH MULTIPLICITY m & LOOP DETECTION)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (5) NEWTON-RAPHSON METHOD (WITH MULTIPLICITY m & LOOP DETECTION)
+# =============================================================================
 
 def newton_raphson(x0, m=1, tol=0.0001, max_iter=100):
     """
@@ -193,11 +261,11 @@ def newton_raphson(x0, m=1, tol=0.0001, max_iter=100):
     STOP:     ea <= tol
     WARNING:  Includes cycle detection trap and safe denominator checks.
     """
-    print(f"\n{'─'*80}")
+    print(f"\n{'-'*80}")
     print(f"{'NEWTON-RAPHSON METHOD (m=' + str(m) + ')':^80}")
-    print(f"{'─'*80}")
+    print(f"{'-'*80}")
     print(f"{'Iter':<5} {'x_i':>12} {'f(x_i)':>14} {'f_prime(x_i)':>14} {'x_i+1':>14} {'ea(%)':>12}")
-    print(f"{'─'*80}")
+    print(f"{'-'*80}")
 
     xi = float(x0)
     history = [xi]
@@ -207,13 +275,14 @@ def newton_raphson(x0, m=1, tol=0.0001, max_iter=100):
         fxi  = f(xi)
         dfxi = df(xi)
         if abs(dfxi) < 1e-12:
-            print(f"  [CRITICAL] f'(x) \u2248 0 at x={xi:.6f}. Division by zero!"); break
+            print(f"  [CRITICAL] f'(x) ~ 0 at x={xi:.6f}. Division by zero!"); break
             
-        xi1 = xi - m * (fxi/dfxi)            # ← NEWTON-RAPHSON FORMULA
+        xi1 = xi - m * (fxi/dfxi)            # <- NEWTON-RAPHSON FORMULA
         
         # Safe approximate relative error
         if abs(xi1) < 1e-12:
-            ea = abs(xi1 - xi)*100.0
+            # ea = float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs(xi1 - xi) * 100.0
         else:
             ea = abs((xi1-xi)/xi1)*100.0
             
@@ -230,21 +299,21 @@ def newton_raphson(x0, m=1, tol=0.0001, max_iter=100):
         history.append(xi1)
         xi = xi1
 
-    print(f"{'─'*80}")
+    print(f"{'-'*80}")
     print(f"  ROOT approx. {xi:.8f}   ea = {ea:.6f}%   Iter = {i}")
     return xi
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ⑥ BAIRSTOW'S METHOD (Polynomial roots - all at once)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (6) BAIRSTOW'S METHOD (Polynomial roots - all at once)
+# =============================================================================
 
 def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100):
     """
     Finds ALL roots of a polynomial (coefficients highest power FIRST).
-    e.g. x^4 - 5x^3 + 7x^2 - 5x + 6  →  coeffs=[1,-5,7,-5,6]
+    e.g. x^4 - 5x^3 + 7x^2 - 5x + 6  ->  coeffs=[1,-5,7,-5,6]
 
-    TABLE FORMAT: iter  r  s  Δr  Δs  ea(r)%  ea(s)%
+    TABLE FORMAT: iter  r  s  dr  ds  ea(r)%  ea(s)%
     STOP: both ea(r) <= tol AND ea(s) <= tol
     """
     import cmath
@@ -265,8 +334,8 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100):
         n = len(a) - 1
         r, s = float(r0), float(s0)
         print(f"\n  Finding quadratic factor for degree-{n} polynomial:")
-        print(f"  {'iter':<5} {'r':>12} {'s':>12} {'Δr':>10} {'Δs':>10} {'ea_r%':>10} {'ea_s%':>10}")
-        print(f"  {'─'*65}")
+        print(f"  {'iter':<5} {'r':>12} {'s':>12} {'dr':>10} {'ds':>10} {'ea_r%':>10} {'ea_s%':>10}")
+        print(f"  {'-'*65}")
 
         for it in range(1, max_iter+1):
             b = synth_div(a, r, s)
@@ -287,7 +356,7 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100):
         disc = r*r + 4*s
         r1 = (r + cmath.sqrt(disc))/2;  r2 = (r - cmath.sqrt(disc))/2
         roots.extend([r1, r2])
-        print(f"\n  → Roots of x^2-({r:.5f})x-({s:.5f}): {r1},  {r2}")
+        print(f"\n  -> Roots of x^2-({r:.5f})x-({s:.5f}): {r1},  {r2}")
         b_final = synth_div(a, r, s)
         a = b_final[:n-1]
 
@@ -304,9 +373,9 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100):
     return cleaned
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ⑦ PLOTTING TEMPLATES - COPY AND ADAPT
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (7) PLOTTING TEMPLATES - COPY AND ADAPT
+# =============================================================================
 
 def plot_standard(f_np, a, b, title='f(x)', fname='graph.png'):
     """Standard plot: function + zero line + grid. Most common exam format."""
@@ -347,42 +416,42 @@ def plot_with_root(f_np, a, b, root, xl=None, xu=None, title='Root Found', fname
     plt.savefig(fname, dpi=150); plt.show()
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ⑧ QUICK REFERENCE - ERROR FORMULAS (print in exam if asked)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# (8) QUICK REFERENCE - ERROR FORMULAS (print in exam if asked)
+# =============================================================================
 
 def error_reference():
     print("""
-    ┌─────────────────────────────────────────────────────────────────┐
-    │               ERROR FORMULA REFERENCE CARD                      │
-    ├─────────────────────────────────────────────────────────────────┤
-    │  True Error:         E_t  = true - approx                       │
-    │  True Rel. Error:    epsilon_t% = |true-approx|/|true| x 100    │
-    │  Approx Rel. Error:  ea% = |x_new-x_old|/|x_new| x 100          │
-    │  Scarborough (n SF): es% = 0.5 x 10^(2-n) %                     │
-    │                                                                 │
-    │  Bisection formula:      xr = (xl + xu) / 2                     │
-    │  False Position formula: xr = xu - f(xu)*(xl-xu)/(f(xl)-f(xu))  │
-    │  Newton-Raphson formula: x_{i+1} = x_i - f(x_i)/f'(x_i)         │
-    └─────────────────────────────────────────────────────────────────┘
+    +-----------------------------------------------------------------+
+    |               ERROR FORMULA REFERENCE CARD                      |
+    +-----------------------------------------------------------------+
+    |  True Error:         E_t  = true - approx                       |
+    |  True Rel. Error:    epsilon_t% = |true-approx|/|true| x 100    |
+    |  Approx Rel. Error:  ea% = |x_new-x_old|/|x_new| x 100          |
+    |  Scarborough (n SF): es% = 0.5 x 10^(2-n) %                     |
+    |                                                                 |
+    |  Bisection formula:      xr = (xl + xu) / 2                     |
+    |  False Position formula: xr = xu - f(xu)*(xl-xu)/(f(xl)-f(xu))  |
+    |  Newton-Raphson formula: x_{i+1} = x_i - f(x_i)/f'(x_i)         |
+    +-----------------------------------------------------------------+
     """)
 
 
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # MAIN - uncomment the method you need in the exam
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 if __name__ == '__main__':
     error_reference()
 
-    # ── STEP 1: Always plot the function first ─────────────────────────────────
+    # -- STEP 1: Always plot the function first ---------------------------------
     f_np = lambda x: x**3 - x - 1   # numpy version (vectorized)
     plot_standard(f_np, a=0, b=3, title='f(x) = x^3 - x - 1', fname='exam_graph.png')
 
-    # ── STEP 2: Find intervals ─────────────────────────────────────────────────
+    # -- STEP 2: Find intervals -------------------------------------------------
     intervals = scan_for_roots(0, 3, step=0.1)
 
-    # ── STEP 3: Solve with the required method ─────────────────────────────────
+    # -- STEP 3: Solve with the required method ---------------------------------
     if intervals:
         xl, xu = intervals[0]
 

@@ -13,32 +13,32 @@ WHY BAIRSTOW'S METHOD:
 ALGORITHM:
   Given polynomial P(x) with coefficients a[0..n] (highest power first):
 
-  STEP 1: Initial guess r₀, s₀ for the quadratic factor x^2 - r*x - s
+  STEP 1: Initial guess r0, s0 for the quadratic factor x^2 - r*x - s
 
   STEP 2: Synthetic division TWICE
     First pass (b-array):
-      b₀ = a₀
-      b₁ = a₁ + r*b₀
-      bᵢ = aᵢ + r*bᵢ₋₁ + s*bᵢ₋₂   for i = 2..n
+      b0 = a0
+      b1 = a1 + r*b0
+      b_i = a_i + r*b_i-1 + s*b_i-2   for i = 2..n
 
     Second pass (c-array, divide b by same quadratic):
-      c₀ = b₀
-      c₁ = b₁ + r*c₀
-      cᵢ = bᵢ + r*cᵢ₋₁ + s*cᵢ₋₂   for i = 2..n-1   ← only up to n-1!
+      c0 = b0
+      c1 = b1 + r*c0
+      c_i = b_i + r*c_i-1 + s*c_i-2   for i = 2..n-1   <- only up to n-1!
 
-  STEP 3: Solve 2x2 system for corrections (Δr, Δs):
+  STEP 3: Solve 2x2 system for corrections (dr, ds):
     determinant D = c[n-2]^2 - c[n-3]*c[n-1]
-    Δr = (-b[n-1]*c[n-2] + b[n]*c[n-3]) / D
-    Δs = (-b[n]*c[n-2] + b[n-1]*c[n-1]) / D
+    dr = (-b[n-1]*c[n-2] + b[n]*c[n-3]) / D
+    ds = (-b[n]*c[n-2] + b[n-1]*c[n-1]) / D
 
-  STEP 4: Update  r ← r + Δr,  s ← s + Δs
-    ea(r) = |Δr/r| x 100%,   ea(s) = |Δs/s| x 100%
+  STEP 4: Update  r <- r + dr,  s <- s + ds
+    ea(r) = |dr/r| x 100%,   ea(s) = |ds/s| x 100%
     Stop when BOTH ea(r) <= tol AND ea(s) <= tol
 
   STEP 5: Extract roots of x^2 - r*x - s = 0:
     discriminant = r^2 + 4s
-    If disc >= 0: real roots (r ± √disc) / 2
-    If disc < 0: complex pair  r/2 ± i*√|disc|/2
+    If disc >= 0: real roots (r +/- sqrtdisc) / 2
+    If disc < 0: complex pair  r/2 +/- i*sqrt|disc|/2
 
   STEP 6: DEFLATION - divide the polynomial by x^2 - r*x - s
     The quotient coefficients are b[0..n-2] (drop last two residuals)
@@ -48,7 +48,7 @@ ALGORITHM:
 
 COEFFICIENT ORDER CONVENTION:
   Bairstow uses HIGHEST power first:
-  x⁴ - 5x^3 + 7x^2 - 5x + 6  →  [1, -5, 7, -5, 6]  (index 0 = leading term)
+  x^4 - 5x^3 + 7x^2 - 5x + 6  ->  [1, -5, 7, -5, 6]  (index 0 = leading term)
 =============================================================================
 """
 
@@ -58,9 +58,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # SYNTHETIC DIVISION (single pass)
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def synthetic_division(a, r, s):
     """
@@ -68,14 +68,14 @@ def synthetic_division(a, r, s):
 
     Parameters
     ----------
-    a : list of coefficients, highest power FIRST, e.g. x^3-6x^2+11x-6 → [1,-6,11,-6]
+    a : list of coefficients, highest power FIRST, e.g. x^3-6x^2+11x-6 -> [1,-6,11,-6]
     r, s : coefficients of trial quadratic factor x^2 - r*x - s
 
     Returns
     -------
     b : list, same length as a
         b[0..n-2] = quotient coefficients
-        b[n-1], b[n] = remainders (should → 0 at convergence)
+        b[n-1], b[n] = remainders (should -> 0 at convergence)
 
     RECURRENCE:
       b[0] = a[0]
@@ -91,9 +91,9 @@ def synthetic_division(a, r, s):
     return b
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # BAIRSTOW CORE - refine ONE quadratic factor
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True):
     """
@@ -111,14 +111,14 @@ def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True
 
     if verbose:
         print(f"\n  Degree {n} polynomial: refining x^2 - r*x - s")
-        print(f"  {'Iter':<5} {'r':>12} {'s':>12} {'Δr':>12} {'Δs':>12} {'ea(r)%':>10} {'ea(s)%':>10}")
-        print(f"  {'─'*75}")
+        print(f"  {'Iter':<5} {'r':>12} {'s':>12} {'dr':>12} {'ds':>12} {'ea(r)%':>10} {'ea(s)%':>10}")
+        print(f"  {'-'*75}")
 
     for i in range(1, max_iter + 1):
-        # ── First synthetic division: get b-array ─────────────────────────────
+        # -- First synthetic division: get b-array -----------------------------
         b = synthetic_division(a, r, s)
 
-        # ── Second synthetic division on b (up to n-1 only!) ─────────────────
+        # -- Second synthetic division on b (up to n-1 only!) -----------------
         # Create b' = b[0..n-1] (drop b[n]), then divide by same quadratic
         b_short = b[:n]                 # length n (indices 0..n-1)
         c = synthetic_division(b_short, r, s)
@@ -134,7 +134,7 @@ def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True
         bn1 = b[n - 1]
         bn  = b[n]
 
-        # ── Compute 2x2 system determinant ────────────────────────────────────
+        # -- Compute 2x2 system determinant ------------------------------------
         det = cn2 * cn2 - cn3 * cn1
 
         if abs(det) < 1e-14:
@@ -144,14 +144,14 @@ def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True
                 print(f"  {i:<5} Singular determinant - perturbing r, s")
             continue
 
-        # ── Corrections Δr, Δs ────────────────────────────────────────────────
+        # -- Corrections dr, ds ------------------------------------------------
         dr = (-bn1 * cn2 + bn  * cn3) / det
         ds = (-bn  * cn2 + bn1 * cn1) / det
 
         r += dr
         s += ds
 
-        # ── Approximate relative errors ───────────────────────────────────────
+        # -- Approximate relative errors ---------------------------------------
         ea_r = abs(dr / r) * 100.0 if r != 0 else abs(dr) * 1e10
         ea_s = abs(ds / s) * 100.0 if s != 0 else abs(ds) * 1e10
 
@@ -162,11 +162,11 @@ def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True
             print(f"  {i:<5} {r:>12.6f} {s:>12.6f} {dr:>12.6f} {ds:>12.6f} "
                   f"{ea_r:>10.4f} {ea_s:>10.4f}")
 
-        # ── Stopping check: both errors must be below tolerance ───────────────
+        # -- Stopping check: both errors must be below tolerance ---------------
         if ea_r <= tol and ea_s <= tol:
             break
 
-    # ── Deflation: quotient = b[0..n-2] (drop the two remainder entries) ─────
+    # -- Deflation: quotient = b[0..n-2] (drop the two remainder entries) -----
     b_final   = synthetic_division(a, r, s)
     quotient  = b_final[:n - 1]        # coefficients of the deflated polynomial
 
@@ -177,9 +177,9 @@ def bairstow_one_factor(a, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True
     return r, s, quotient, history
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # BAIRSTOW ALL ROOTS - full deflation loop
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=True):
     """
@@ -188,7 +188,7 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=
     Parameters
     ----------
     coeffs : list, highest power FIRST.
-             e.g. x⁴-5x^3+7x^2-5x+6 → [1, -5, 7, -5, 6]
+             e.g. x^4-5x^3+7x^2-5x+6 -> [1, -5, 7, -5, 6]
     r0, s0 : initial guess for quadratic factor coefficients
 
     Returns
@@ -199,17 +199,17 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=
     roots = []
 
     if verbose:
-        print(f"\n{'═'*70}")
+        print(f"\n{'='*70}")
         print(f"{'Bairstow\'s Method - Full Root Extraction':^70}")
         print(f"  Polynomial degree: {len(a)-1}")
-        print(f"  Initial guesses: r₀ = {r0},  s₀ = {s0},  tol = {tol}%")
-        print(f"{'═'*70}")
+        print(f"  Initial guesses: r0 = {r0},  s0 = {s0},  tol = {tol}%")
+        print(f"{'='*70}")
 
-    # ── Extraction loop: while degree >= 3, extract a quadratic factor ─────────
+    # -- Extraction loop: while degree >= 3, extract a quadratic factor ---------
     while len(a) - 1 >= 3:
         r, s, a, _ = bairstow_one_factor(a, r0, s0, tol, max_iter, verbose)
 
-        # ── Roots of x^2 - r*x - s = 0 ────────────────────────────────────────
+        # -- Roots of x^2 - r*x - s = 0 ----------------------------------------
         discriminant = r * r + 4 * s
         if discriminant >= 0:
             sq = math.sqrt(discriminant)
@@ -224,7 +224,7 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=
         if verbose:
             print(f"  Roots from this factor: {root1},  {root2}")
 
-    # ── Handle remaining polynomial (degree 2 or 1) ───────────────────────────
+    # -- Handle remaining polynomial (degree 2 or 1) ---------------------------
     if len(a) - 1 == 2:
         # quadratic: a[0]x^2 + a[1]x + a[2] = 0
         a0, a1, a2 = a
@@ -244,7 +244,7 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=
         if verbose:
             print(f"  Final linear solved directly.")
 
-    # ── Clean up: remove negligible imaginary parts from real roots ───────────
+    # -- Clean up: remove negligible imaginary parts from real roots -----------
     cleaned = []
     for rt in roots:
         if isinstance(rt, complex) and abs(rt.imag) < 1e-10:
@@ -253,19 +253,19 @@ def bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001, max_iter=100, verbose=
             cleaned.append(rt)
 
     if verbose:
-        print(f"\n{'═'*70}")
+        print(f"\n{'='*70}")
         print(f"{'ALL ROOTS':^70}")
-        print(f"{'─'*70}")
+        print(f"{'-'*70}")
         for k, rt in enumerate(cleaned):
             print(f"  Root {k+1}: {rt}")
-        print(f"{'═'*70}")
+        print(f"{'='*70}")
 
     return cleaned
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # POLYNOMIAL EVALUATOR - verify roots by plugging back in
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def poly_eval(coeffs, x):
     """Evaluate polynomial at x using Horner's method (coeffs highest first)."""
@@ -278,36 +278,36 @@ def poly_eval(coeffs, x):
 def verify_roots(coeffs, roots):
     """Print |f(root)| for each root - should be approx. 0."""
     print(f"\n  {'Root':>25}  {'|f(root)|':>14}")
-    print(f"  {'─'*42}")
+    print(f"  {'-'*42}")
     for rt in roots:
         fval = poly_eval(coeffs, rt)
         print(f"  {str(rt):>25}  {abs(fval):>14.2e}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ══ EXAMPLES ══
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# == EXAMPLES ==
+# -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
-    # ── EXAMPLE 1: Standard textbook polynomial ────────────────────────────────
-    # f(x) = x⁴ - 5x^3 + 7x^2 - 5x + 6
-    # True roots: 2, 3, and complex conjugate pair (1±i)
-    print("\n" + "═"*70)
-    print("EXAMPLE 1: x⁴ - 5x^3 + 7x^2 - 5x + 6")
+    # -- EXAMPLE 1: Standard textbook polynomial --------------------------------
+    # f(x) = x^4 - 5x^3 + 7x^2 - 5x + 6
+    # True roots: 2, 3, and complex conjugate pair (1+/-i)
+    print("\n" + "="*70)
+    print("EXAMPLE 1: x^4 - 5x^3 + 7x^2 - 5x + 6")
     print("  True roots: 2, 3, 1+i, 1-i")
-    print("═"*70)
+    print("="*70)
 
     coeffs1 = [1, -5, 7, -5, 6]
     roots1  = bairstow_all_roots(coeffs1, r0=1.0, s0=1.0, tol=0.001)
     verify_roots(coeffs1, roots1)
 
-    # ── EXAMPLE 2: Chapra 5th edition x⁴ - 10x^3 + 35x^2 - 50x + 24 ──────────
+    # -- EXAMPLE 2: Chapra 5th edition x^4 - 10x^3 + 35x^2 - 50x + 24 ----------
     # True roots: 1, 2, 3, 4
-    print("\n" + "═"*70)
-    print("EXAMPLE 2: x⁴ - 10x^3 + 35x^2 - 50x + 24")
+    print("\n" + "="*70)
+    print("EXAMPLE 2: x^4 - 10x^3 + 35x^2 - 50x + 24")
     print("  True roots: 1, 2, 3, 4")
-    print("═"*70)
+    print("="*70)
 
     coeffs2 = [1, -10, 35, -50, 24]
     roots2  = bairstow_all_roots(coeffs2, r0=0.0, s0=1.0, tol=0.001)
@@ -337,22 +337,22 @@ if __name__ == '__main__':
         plt.savefig('bairstow_convergence.png', dpi=150)
         plt.show()
 
-    # ── EXAMPLE 3: Cubic with one real + one complex pair ────────────────────
-    # f(x) = x^3 - 6x^2 + 11x - 6  → roots: 1, 2, 3
-    print("\n" + "═"*70)
+    # -- EXAMPLE 3: Cubic with one real + one complex pair --------------------
+    # f(x) = x^3 - 6x^2 + 11x - 6  -> roots: 1, 2, 3
+    print("\n" + "="*70)
     print("EXAMPLE 3: x^3 - 6x^2 + 11x - 6")
     print("  True roots: 1, 2, 3")
-    print("═"*70)
+    print("="*70)
 
     coeffs3 = [1, -6, 11, -6]
     roots3  = bairstow_all_roots(coeffs3, r0=1.0, s0=-1.0, tol=0.001)
     verify_roots(coeffs3, roots3)
 
-    # ── EXAMPLE 4: Degree-5 with mixed roots ──────────────────────────────────
-    # f(x) = x⁵ - 3.5x⁴ + 2.75x^3 + 2.125x^2 - 3.875x + 1.25
-    print("\n" + "═"*70)
-    print("EXAMPLE 4: x⁵ - 3.5x⁴ + 2.75x^3 + 2.125x^2 - 3.875x + 1.25")
-    print("═"*70)
+    # -- EXAMPLE 4: Degree-5 with mixed roots ----------------------------------
+    # f(x) = x^5 - 3.5x^4 + 2.75x^3 + 2.125x^2 - 3.875x + 1.25
+    print("\n" + "="*70)
+    print("EXAMPLE 4: x^5 - 3.5x^4 + 2.75x^3 + 2.125x^2 - 3.875x + 1.25")
+    print("="*70)
 
     coeffs4 = [1, -3.5, 2.75, 2.125, -3.875, 1.25]
     roots4  = bairstow_all_roots(coeffs4, r0=1.0, s0=0.5, tol=0.001, verbose=False)

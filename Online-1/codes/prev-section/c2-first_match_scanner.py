@@ -75,12 +75,13 @@ def run_false_position(xl, xu):
         
         # Approximate relative error
         if xr_old is not None:
-            if abs(xr) > 1e-15:
+            if abs(xr) >= 1e-15:
                 ea = abs((xr - xr_old) / xr) * 100.0
                 ea_str = f"{ea:.6f}"
             else:
-                ea = float('inf')
-                ea_str = "---"
+                # ea = float('inf'); ea_str = "---"  # Alternative exact-zero infinity sentinel
+                ea = abs(xr - xr_old) * 100.0
+                ea_str = f"{ea:.6f}"
         else:
             ea = 100.0
             ea_str = "---"

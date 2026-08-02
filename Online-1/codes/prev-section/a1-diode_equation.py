@@ -67,12 +67,13 @@ def solve_diode():
         V_next = V_i - fval / dfval
         
         # Approximate relative error calculation
-        if abs(V_next) > 1e-15:
+        if abs(V_next) >= 1e-15:
             ea = abs((V_next - V_i) / V_next) * 100.0
             ea_str = f"{ea:.6f}"
         else:
-            ea = float('inf')
-            ea_str = "---"
+            # ea = float('inf'); ea_str = "---"  # Alternative exact-zero infinity sentinel
+            ea = abs(V_next - V_i) * 100.0
+            ea_str = f"{ea:.6f}"
             
         # Print tabular output line
         print(f"{i:<6} {V_i:>12.6f} {fval:>14.6e} {dfval:>14.6e} {V_next:>12.6f} {ea_str:>12}")

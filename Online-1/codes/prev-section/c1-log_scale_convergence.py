@@ -53,17 +53,18 @@ def solve_bisection(xl, xu):
         
         # Approximate relative error
         if xr_old is not None:
-            ea = abs((xr - xr_old) / xr) * 100.0
+            # ea = abs((xr - xr_old) / xr) * 100.0 if xr != 0 else float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs((xr - xr_old) / xr) * 100.0 if abs(xr) >= 1e-15 else abs(xr - xr_old) * 100.0
             ea_str = f"{ea:.6f}"
         else:
             ea = 100.0
             ea_str = "---"
-            
+
         history.append([i, xl, xu, xr, ea, fxr])
-        
+
         if xr_old is not None and ea <= TOL:
             break
-            
+
         # Update bounds and counters
         if f(xl) * fxr < 0:
             xu = xr
@@ -97,17 +98,18 @@ def solve_false_position(xl, xu):
         
         # Approximate relative error
         if xr_old is not None:
-            ea = abs((xr - xr_old) / xr) * 100.0
+            # ea = abs((xr - xr_old) / xr) * 100.0 if xr != 0 else float('inf')  # Alternative exact-zero infinity sentinel
+            ea = abs((xr - xr_old) / xr) * 100.0 if abs(xr) >= 1e-15 else abs(xr - xr_old) * 100.0
             ea_str = f"{ea:.6f}"
         else:
             ea = 100.0
             ea_str = "---"
-            
+
         history.append([i, xl, xu, xr, ea, fxr])
-        
+
         if xr_old is not None and ea <= TOL:
             break
-            
+
         # Update bounds and counters
         if fl * fxr < 0:
             xu = xr
