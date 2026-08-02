@@ -1042,6 +1042,75 @@ def demo_error_tradeoff(x_target=1.0, fname='fig/error_tradeoff.png'):
     _save_figure(fname, dpi=150); plt.show()
     return optimal_h, optimal_error
 
+
+def riemann_sum(f_func, a, b, n):
+    """
+    Left-endpoint Riemann sum approximation for integral of f(x) over [a, b].
+    Demonstrates truncation error shrinking as N (number of rectangles) increases.
+    """
+    x_pts = np.linspace(a, b, n, endpoint=False)
+    width = (b - a) / n
+    f_np = np.vectorize(f_func)
+    return np.sum(f_np(x_pts) * width)
+
+
+def forward_diff(f_func, x, h):
+    """Forward difference: f'(x) ~= (f(x+h) - f(x)) / h. Order O(h)."""
+    return (f_func(x + h) - f_func(x)) / h
+
+
+def backward_diff(f_func, x, h):
+    """Backward difference: f'(x) ~= (f(x) - f(x-h)) / h. Order O(h)."""
+    return (f_func(x) - f_func(x - h)) / h
+
+
+def central_diff(f_func, x, h):
+    """Central difference: f'(x) ~= (f(x+h) - f(x-h)) / (2h). Order O(h^2)."""
+    return (f_func(x + h) - f_func(x - h)) / (2.0 * h)
+
+
+def diff_truncation_table(f_func, fprime_exact, x0, h_list=[1.0, 0.1, 0.01, 0.001, 0.0001]):
+    """
+    Prints a comparison table of Forward, Backward, and Central differences
+    against the true derivative f'(x0) across a list of step sizes h.
+    """
+    exact = fprime_exact(x0)
+    print(f"\n{'='*75}")
+    print(f"NUMERICAL DIFFERENTIATION TRUNCATION ERROR (x = {x0}, exact f'(x) = {exact:.10f})")
+    print(f"{'='*75}")
+    print(f"{'h':<10}{'Forward':>15}{'Backward':>15}{'Central':>15}{'Forward Err':>15}")
+    print("-" * 75)
+    for h in h_list:
+        fwd = forward_diff(f_func, x0, h)
+        bwd = backward_diff(f_func, x0, h)
+        cnt = central_diff(f_func, x0, h)
+        err = abs(exact - fwd)
+        print(f"{h:<10.5f}{fwd:>15.8f}{bwd:>15.8f}{cnt:>15.8f}{err:>15.8e}")
+    print("=" * 75)
+
+
+def maclaurin_series(term_recurrence, x, first_term=1.0, sig_digits=3, max_terms=100):
+    """
+    Generalized Maclaurin / Taylor series solver with Scarborough stopping.
+    term_recurrence(prev_term, n, x) -> returns the n-th term from the (n-1)-th.
+    Example for e^x: maclaurin_series(lambda prev, n, x: prev * x / n, x=1.2, sig_digits=3)
+    """
+    term = first_term
+    S = term
+    es = scarborough_tolerance(sig_digits)
+    history = [{'term': 0, 'S': S, 'ea': 100.0, 'sig': 0}]
+
+    for n in range(1, max_terms + 1):
+        term = term_recurrence(term, n, x)
+        S_new = S + term
+        ea = abs((S_new - S) / S_new) * 100.0 if S_new != 0 else 0.0
+        sig = calc_sig_digit(ea)
+        history.append({'term': n, 'S': S_new, 'ea': ea, 'sig': sig})
+        S = S_new
+        if ea <= es:
+            break
+    return S, history
+
 # demo_error_tradeoff()
 
 
