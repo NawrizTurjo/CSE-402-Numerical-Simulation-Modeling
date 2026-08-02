@@ -101,6 +101,13 @@ def classify_and_verify(candidate, kind, extra_filter=None, residual_tol=1e-6):
         accepted = extra_filter(candidate)
     return {'type': kind, 'x': candidate, 'f_x': fx, 'error': err, 'accepted': accepted}
 
+def calc_sig_digit(err): 
+    # Step 1: Handle zero error edge-case
+    if err == 0:
+        return 9999
+    
+    # Step 2: Apply Scarborough's inverted formula
+    return math.floor(2 - math.log10(2 * err))
 
 # =============================================================================
 # (3) BISECTION METHOD
@@ -467,5 +474,5 @@ if __name__ == '__main__':
         root_nr = newton_raphson(x0=1.5, tol=0.0001)
 
     # Bairstow (polynomial only):
-    # coeffs = [1, -6, 11, -6]   # x^3 - 6x^2 + 11x - 6
-    # bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001)
+    coeffs = [1, -6, 11, -6]   # x^3 - 6x^2 + 11x - 6
+    bairstow_all_roots(coeffs, r0=1.0, s0=1.0, tol=0.001)

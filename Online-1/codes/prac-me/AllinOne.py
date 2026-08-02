@@ -28,7 +28,7 @@ def bisection(x_l,x_u,thres):
         iter=iter+1
         x_m=(x_l+x_u)/2
         f_x_l=func(x_l)
-        f_x_m=func(x_m)
+        f_x_m=func(x_m) 
         if(iter!=1):
             error=calc_error(x_m,prev_x_m)
             sig_digit=calc_sig_digit(error)
