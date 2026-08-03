@@ -751,8 +751,8 @@ def plot_with_root(f_np, a, b, root, xl=None, xu=None, title='Root Found', fname
 def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root Finding', fname='fig/graph_multi.png'):
     """
     MULTI-root / MULTI-bracket plot - for "find ALL roots in [a,b]"
-    questions (B1-style). Shades every candidate interval in a different
-    color, scatters every bracket endpoint, and marks every converged root.
+    questions (B1-style). Shades every candidate interval using a continuous
+    matplotlib colormap (same style as plot_newton_raphson).
     """
     x = np.linspace(a, b, 1000)
     y = f_np(x)
@@ -761,11 +761,11 @@ def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root
     plt.axhline(0, color='black', linewidth=1)
 
     if intervals:
-        colors = ['orange', 'lightgreen', 'violet', 'gold', 'cyan', 'salmon']
+        colors_b = plt.cm.Oranges(np.linspace(0.3, 0.8, max(len(intervals), 1)))
         for k, (xl, xu) in enumerate(intervals):
-            plt.axvspan(xl, xu, color=colors[k % len(colors)], alpha=0.3,
-                        label=f'Bracket [{round(xl,2)}, {round(xu,2)}]')
-            plt.scatter([xl, xu], [f_np(np.array([xl, xu]))], color='red', s=40, zorder=5)
+            plt.axvspan(xl, xu, color=colors_b[k], alpha=0.35,
+                        label=f'Bracket [{round(xl, 2)}, {round(xu, 2)}]')
+            plt.scatter([xl, xu], [f_np(xl), f_np(xu)], color=colors_b[k], s=40, zorder=5)
 
     if roots:
         plt.scatter(roots, [0]*len(roots), color='red', marker='x',
@@ -939,11 +939,15 @@ def true_error(true_val, approx_val):
     """E_t = true - approx. Sign matters (positive = over-estimated)."""
     return true_val - approx_val
 
+# Et = true_error(3.14159, 3.14)
+
 
 def true_relative_error_pct(true_val, approx_val):
     """epsilon_t% = |true-approx|/|true| x 100. Needs the real answer
     (not available in practice, but used to grade a demo/example)."""
     return abs(true_val - approx_val) / abs(true_val) * 100.0
+
+# eps_t = true_relative_error_pct(3.14159, 3.14)
 
 
 def approx_relative_error_pct(x_new, x_old):
@@ -955,6 +959,8 @@ def approx_relative_error_pct(x_new, x_old):
         return float('inf')
     return abs((x_new - x_old) / x_new) * 100.0
 
+# ea = approx_relative_error_pct(1.324, 1.318)
+
 
 def scarborough_tolerance(n_sig_figs):
     """
@@ -964,6 +970,8 @@ def scarborough_tolerance(n_sig_figs):
     """
     return 0.5 * 10 ** (2 - n_sig_figs)
 
+# es = scarborough_tolerance(n_sig_figs=4)
+
 
 def compute_machine_epsilon():
     """Keep halving until (1 + eps/2) == 1 in floating-point. The
@@ -972,6 +980,8 @@ def compute_machine_epsilon():
     while (1.0 + eps / 2.0) != 1.0:
         eps /= 2.0
     return eps
+
+# eps_mach = compute_machine_epsilon()
 
 
 def taylor_exp(x, n_terms):
@@ -984,6 +994,8 @@ def taylor_exp(x, n_terms):
         total += term
         term *= x / (k + 1)
     return total
+
+# approx = taylor_exp(x=1.0, n_terms=5)
 
 
 def demo_taylor_truncation(x=1.0, max_terms=10):
@@ -1042,6 +1054,8 @@ def demo_error_tradeoff(x_target=1.0, fname='fig/error_tradeoff.png'):
     _save_figure(fname, dpi=150); plt.show()
     return optimal_h, optimal_error
 
+# opt_h, opt_err = demo_error_tradeoff()
+
 
 def riemann_sum(f_func, a, b, n):
     """
@@ -1053,20 +1067,28 @@ def riemann_sum(f_func, a, b, n):
     f_np = np.vectorize(f_func)
     return np.sum(f_np(x_pts) * width)
 
+# area = riemann_sum(math.sin, a=0, b=math.pi, n=50)
+
 
 def forward_diff(f_func, x, h):
     """Forward difference: f'(x) ~= (f(x+h) - f(x)) / h. Order O(h)."""
     return (f_func(x + h) - f_func(x)) / h
+
+# df_fwd = forward_diff(math.sin, x=1.0, h=0.01)
 
 
 def backward_diff(f_func, x, h):
     """Backward difference: f'(x) ~= (f(x) - f(x-h)) / h. Order O(h)."""
     return (f_func(x) - f_func(x - h)) / h
 
+# df_bwd = backward_diff(math.sin, x=1.0, h=0.01)
+
 
 def central_diff(f_func, x, h):
     """Central difference: f'(x) ~= (f(x+h) - f(x-h)) / (2h). Order O(h^2)."""
     return (f_func(x + h) - f_func(x - h)) / (2.0 * h)
+
+# df_cnt = central_diff(math.sin, x=1.0, h=0.01)
 
 
 def diff_truncation_table(f_func, fprime_exact, x0, h_list=[1.0, 0.1, 0.01, 0.001, 0.0001]):
@@ -1087,6 +1109,8 @@ def diff_truncation_table(f_func, fprime_exact, x0, h_list=[1.0, 0.1, 0.01, 0.00
         err = abs(exact - fwd)
         print(f"{h:<10.5f}{fwd:>15.8f}{bwd:>15.8f}{cnt:>15.8f}{err:>15.8e}")
     print("=" * 75)
+
+# diff_truncation_table(math.sin, math.cos, x0=1.0)
 
 
 def maclaurin_series(term_recurrence, x, first_term=1.0, sig_digits=3, max_terms=100):
@@ -1110,6 +1134,139 @@ def maclaurin_series(term_recurrence, x, first_term=1.0, sig_digits=3, max_terms
         if ea <= es:
             break
     return S, history
+
+# S, history = maclaurin_series(lambda prev, n, x: prev * x / n, x=1.2, sig_digits=3)
+
+
+def print_history_table(history, title=None):
+    """
+    Prints a formatted iteration table from solver history dict list.
+    Auto-detects solver type: Bisection/False Position, Newton-Raphson, or Maclaurin.
+    """
+    if not history:
+        print("No history data to display.")
+        return
+
+    sample = history[0]
+
+    # Case 1: Newton-Raphson history
+    if 'xi' in sample or 'xi1' in sample:
+        t_name = title if title else "NEWTON-RAPHSON ITERATION TABLE"
+        print(f"\n{'-'*84}")
+        print(f"{t_name:^84}")
+        print(f"{'-'*84}")
+        print(f"{'Iter':<6}{'x_i':>14}{'f(x_i)':>18}{'f_prime(x_i)':>18}{'x_i+1':>16}{'ea (%)':>12}")
+        print(f"{'-'*84}")
+        for h in history:
+            ea_str = "---" if h['iter'] == 1 else f"{h['ea']:.6f}"
+            print(f"{h['iter']:<6}{h['xi']:>14.6f}{h['fxi']:>18.6e}{h['dfxi']:>18.6e}{h['xi1']:>16.6f}{ea_str:>12}")
+        print(f"{'-'*84}")
+
+    # Case 2: Bisection / False Position history
+    elif 'xl' in sample and 'xr' in sample:
+        t_name = title if title else "BRACKETING METHOD ITERATION TABLE"
+        print(f"\n{'-'*76}")
+        print(f"{t_name:^76}")
+        print(f"{'-'*76}")
+        print(f"{'Iter':<6}{'xl':>14}{'xu':>14}{'xr':>14}{'ea (%)':>14}{'f(xr)':>14}")
+        print(f"{'-'*76}")
+        for h in history:
+            ea_str = "---" if h['iter'] == 1 else f"{h['ea']:.6f}"
+            print(f"{h['iter']:<6}{h['xl']:>14.6f}{h['xu']:>14.6f}{h['xr']:>14.6f}{ea_str:>14}{h['fxr']:>14.4e}")
+        print(f"{'-'*76}")
+
+    # Case 3: Maclaurin / Series history
+    elif 'term' in sample or 'S' in sample:
+        t_name = title if title else "SERIES EXPANSION TABLE"
+        print(f"\n{'-'*70}")
+        print(f"{t_name:^70}")
+        print(f"{'-'*70}")
+        print(f"{'Term (k)':<10}{'Partial Sum S_k':>22}{'ea (%)':>18}{'Sig Digits':>20}")
+        print(f"{'-'*70}")
+        for h in history:
+            ea_str = "---" if h['term'] == 0 else f"{h['ea']:.6f}"
+            sig_str = "---" if h['term'] == 0 else f"{h['sig']} digits"
+            print(f"{h['term']:<10}{h['S']:>22.10f}{ea_str:>18}{sig_str:>20}")
+        print(f"{'-'*70}")
+
+# print_history_table(history, title="Iteration Table")
+
+
+def quadratic_roots(r, s):
+    """Roots of x^2 - r*x - s = 0 (may be complex)."""
+    disc = r ** 2 + 4.0 * s
+    sq = cmath.sqrt(disc)
+    return (r + sq) / 2.0, (r - sq) / 2.0
+
+
+def bairstow_quadratic_factor(a_coeffs, r0=-1.0, s0=-1.0, tol=1e-8, max_iter=200):
+    """
+    Find one quadratic factor x^2 - r*x - s of polynomial with coeffs `a_coeffs`
+    (highest degree first). Returns (r, s, deflated_coeffs).
+    """
+    n = len(a_coeffs) - 1
+    r, s = r0, s0
+    a = list(a_coeffs)
+
+    for _ in range(max_iter):
+        b = [0.0] * (n + 1)
+        b[0] = a[0]
+        b[1] = a[1] + r * b[0]
+        for i in range(2, n + 1):
+            b[i] = a[i] + r * b[i - 1] + s * b[i - 2]
+
+        c = [0.0] * (n + 1)
+        c[0] = b[0]
+        c[1] = b[1] + r * c[0]
+        for i in range(2, n):
+            c[i] = b[i] + r * c[i - 1] + s * c[i - 2]
+
+        A = np.array([[c[n - 2], c[n - 3]],
+                      [c[n - 1], c[n - 2]]])
+        rhs = np.array([-b[n - 1], -b[n]])
+        try:
+            dr, ds = np.linalg.solve(A, rhs)
+        except np.linalg.LinAlgError:
+            break
+
+        r += dr
+        s += ds
+
+        if abs(dr) < tol and abs(ds) < tol:
+            break
+
+    b = [0.0] * (n + 1)
+    b[0] = a[0]
+    b[1] = a[1] + r * b[0]
+    for i in range(2, n + 1):
+        b[i] = a[i] + r * b[i - 1] + s * b[i - 2]
+
+    deflated = b[0:n - 1]
+    return r, s, deflated
+
+
+def bairstow_all_roots(coeffs, tol=1e-8):
+    """
+    Find ALL roots (real and complex) of a polynomial with coefficients `coeffs`
+    (highest degree first, e.g. [a0, a1, ..., an]) using repeated Bairstow deflation.
+    """
+    a = [float(c) for c in coeffs]
+    roots = []
+
+    while len(a) - 1 > 2:
+        r, s, a = bairstow_quadratic_factor(a, tol=tol)
+        x1, x2 = quadratic_roots(r, s)
+        roots.extend([x1, x2])
+
+    if len(a) - 1 == 2:
+        r = -a[1] / a[0]
+        s = -a[2] / a[0]
+        x1, x2 = quadratic_roots(r, s)
+        roots.extend([x1, x2])
+    elif len(a) - 1 == 1:
+        roots.append(-a[1] / a[0])
+
+    return roots
 
 # demo_error_tradeoff()
 

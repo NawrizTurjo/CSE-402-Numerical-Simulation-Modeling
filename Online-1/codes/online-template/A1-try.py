@@ -88,14 +88,16 @@ if __name__ == '__main__':
 
     # print(history)
 
-    print('-' * 86)
-    print(f"{'Iter':<6}{'V_i':>14}{'f(V_i)':>18}{'f\'(V_i)':>18}{'V_{i+1}':>16}{'e_a':>14}")
-    for h in history:
-        iter, xi, fxi, dfxi, xi1, ea = h['iter'],h['xi'], h['fxi'], h['dfxi'], h['xi1'], h['ea']
-        # print(f'{xi}')
-        ea_str = "---" if iter == 1 else f"{ea:0.6f}"
-        print(f"{iter:<6}{xi:>14.6f}{fxi:>18.6e}{dfxi:>18.6e}{xi1:>16.6f}{ea_str:>14}")
-    print('-' * 86)
+    # print('-' * 86)
+    # print(f"{'Iter':<6}{'V_i':>14}{'f(V_i)':>18}{'f\'(V_i)':>18}{'V_{i+1}':>16}{'e_a':>14}")
+    # for h in history:
+    #     iter, xi, fxi, dfxi, xi1, ea = h['iter'],h['xi'], h['fxi'], h['dfxi'], h['xi1'], h['ea']
+    #     # print(f'{xi}')
+    #     ea_str = "---" if iter == 1 else f"{ea:0.6f}"
+    #     print(f"{iter:<6}{xi:>14.6f}{fxi:>18.6e}{dfxi:>18.6e}{xi1:>16.6f}{ea_str:>14}")
+    # print('-' * 86)
+
+    P.print_history_table(history, title="A1 DIODE EQUATION (NEWTON-RAPHSON)")
 
     print(f"Operating Voltage of Diode ~ {root:.6f} V after {len(history)} iterations")
     print(f"Residual f(V) = {f(root):.4e}")
@@ -103,8 +105,8 @@ if __name__ == '__main__':
 
     P.plot_with_root(
         f_np=np.vectorize(f),
-        a = -.2,
-        b = .2,
+        a = -0.1,
+        b = 1,
         root=root
     )
     

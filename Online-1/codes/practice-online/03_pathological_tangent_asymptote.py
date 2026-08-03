@@ -24,7 +24,7 @@ def f(x):
     # Avoid exact division by zero at x = pi/2
     denom = x - POLE
     if abs(denom) < 1e-12:
-        return 1e12
+        return np.nan
     return (math.tan(x) - x) / denom
 
 
@@ -32,8 +32,8 @@ use(f)
 
 banner("PROBLEM 3: CHEMICAL REACTOR SINGULARITY TRAP (ASYMPTOTE FILTERING)")
 
-# Scan domain [0, 3.0]
-direct, intervals = P.coarse_scan(0.0, 3.0, step=0.1)
+# Scan domain [0, 5.0]
+direct, intervals = P.coarse_scan(0.0, 5.0, step=0.1)
 
 print(f"Direct root candidates: {direct}")
 print(f"Sign-change intervals found: {intervals}")
@@ -44,6 +44,8 @@ for xl, xu in intervals:
     res = P.bisection(xl, xu, tol=0.0001, verbose=False)
     if res is not None:
         raw_roots.append(res[0])
+for r in direct:
+    raw_roots.append(r)
 
 print(f"Raw bisection output roots: {[round(r, 6) for r in raw_roots]}")
 
@@ -58,7 +60,7 @@ for r in raw_roots:
 print(f"\nFinal Validated Physical Roots: {verified_roots}")
 
 # Plot function with asymptote and valid roots
-xs = np.linspace(0, 3.0, 1000)
+xs = np.linspace(0, 5.0, 1000)
 ys = []
 for x in xs:
     if abs(x - POLE) < 0.05:

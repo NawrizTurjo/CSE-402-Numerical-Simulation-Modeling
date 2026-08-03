@@ -75,6 +75,11 @@ if __name__ == '__main__':
         getInterval=True
     )
 
+    if intervals:
+        res = P.bisection(intervals[0][0], intervals[0][1], verbose=False)
+        if res is not None:
+            P.print_history_table(res[-1], title="B1 FIRST BRACKET BISECTION TABLE")
+
     # _, intervals = P.coarse_scan()
 
     # print(roots)

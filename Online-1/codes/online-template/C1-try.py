@@ -77,7 +77,9 @@ if __name__ == '__main__':
     first_int = intervals[0]
     xl, xu = first_int
     # print(xl,xu)
-    fp = P.false_position_opt(xl,xu, tol=0.0001)
+    fp = P.false_position_opt(xl,xu, tol=0.0001, verbose=False)
+
+    P.print_history_table(fp[-1], title="C1 FALSE POSITION ITERATION TABLE")
 
     print(P.classify_and_verify(fp[0],'interval',residual_tol=tol))
 

@@ -71,15 +71,24 @@ if __name__ == '__main__':
     banner("EXAM EXECUTION STARTER")
 
     roots,intervals = P.find_all_roots(a=a,b=b,method='bisection',getInterval=True)
+    direct, intervals = P.coarse_scan(a=a,b=b)
+
+    if intervals:
+        res = P.bisection(intervals[0][0], intervals[0][1], verbose=False)
+        if res is not None:
+            P.print_history_table(res[-1], title="B2 FIRST BRACKET BISECTION TABLE")
+    print(direct)
+    print(intervals)
     print(roots)
     actual_roots = []
 
     for r in roots:
-        verdict = P.classify_and_verify(r,'interval',residual_tol=1e-6)
+        root_type = 'interval' if r not in direct else 'direct'
+        verdict = P.classify_and_verify(r,root_type,residual_tol=1e-6)
         tag = 'accepted' if verdict['accepted'] else 'rejected'
         print(f" Root: {r:.6f} => verdict: {tag}")
         if verdict['accepted']:
-            actual_roots.append(r)
+            actual_roots.append({'root':f'{r:.6f}', 'type':root_type})
     print(f" Actual Roots are: {actual_roots}")
     
     def f_masked(x):
@@ -89,12 +98,14 @@ if __name__ == '__main__':
             y[np.abs(y)>30] = np.nan
         return y
 
+    plot_roots = [float(r['root']) for r in actual_roots]
+
     P.plot_with_brackets(
         f_np=f_masked,
         a=a,
         b=b,
         intervals=intervals,
-        roots=actual_roots,
+        roots=plot_roots,
         title='B2 asymptote plot',
         fname='fig/B2-asymptote'
     )

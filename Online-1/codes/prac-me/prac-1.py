@@ -5,14 +5,20 @@ import matplotlib.pyplot as plt
 
 
 
+# def f(x):
+#     # x^3 - 6x^2 + 11x - 6.2
+#     return np.power(x, 3) - 6 * np.power(x, 2) + 11 * x - 6.2
+#     # return x-3
+
+# def df(x):
+#     # 3x^2 - 12x + 11
+#     return 3 * np.power(x, 2) - 12 * x + 11
+
 def f(x):
-    # x^3 - 6x^2 + 11x - 6.2
-    return np.power(x, 3) - 6 * np.power(x, 2) + 11 * x - 6.2
-    # return x-3
+    return x**3 - 2*x - 5
 
 def df(x):
-    # 3x^2 - 12x + 11
-    return 3 * np.power(x, 2) - 12 * x + 11
+    return 3*x**2 - 2
 
 # def df(x,h=0.0001):
 #     return (f(x+h)-f(x))/h
@@ -697,10 +703,12 @@ def plot_standard(f_np, a, b, title='f(x)', fname='fig/graph.png'):
 
 def plot_logscale(f_np, a, b, title='f(x) log scale', fname='fig/graph_log.png'):
     """Log-scale plot: use when x spans many orders of magnitude (e.g. 1e-4 to 1e4)."""
-    x = np.logspace(np.log10(a), np.log10(b), 1000)
+    # x = np.logspace(np.log10(a), np.log10(b), 1000)
+    x = np.linspace(a,b,1000)
     y = f_np(x)
     plt.figure(figsize=(8, 5))
-    plt.plot(x, y, color='royalblue', linewidth=2, label='f(x)')
+    # plt.plot(x, y, color='royalblue', linewidth=2, label='f(x)')
+    plt.semilogx(x, y, color='royalblue', linewidth=2, label='f(x)')
     plt.axhline(0, color='red', linewidth=1, linestyle='--')
     plt.xscale('log')
     plt.xlabel('x (log scale)'); plt.ylabel('f(x)'); plt.title(title)
@@ -751,8 +759,8 @@ def plot_with_root(f_np, a, b, root, xl=None, xu=None, title='Root Found', fname
 def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root Finding', fname='fig/graph_multi.png'):
     """
     MULTI-root / MULTI-bracket plot - for "find ALL roots in [a,b]"
-    questions (B1-style). Shades every candidate interval in a different
-    color, scatters every bracket endpoint, and marks every converged root.
+    questions (B1-style). Shades every candidate interval using a continuous
+    matplotlib colormap (same style as plot_newton_raphson).
     """
     x = np.linspace(a, b, 1000)
     y = f_np(x)
@@ -761,11 +769,11 @@ def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root
     plt.axhline(0, color='black', linewidth=1)
 
     if intervals:
-        colors = ['orange', 'lightgreen', 'violet', 'gold', 'cyan', 'salmon']
+        colors_b = plt.cm.Oranges(np.linspace(0.3, 0.8, max(len(intervals), 1)))
         for k, (xl, xu) in enumerate(intervals):
-            plt.axvspan(xl, xu, color=colors[k % len(colors)], alpha=0.3,
-                        label=f'Bracket [{round(xl,2)}, {round(xu,2)}]')
-            plt.scatter([xl, xu], [f_np(np.array([xl, xu]))], color='red', s=40, zorder=5)
+            plt.axvspan(xl, xu, color=colors_b[k], alpha=0.35,
+                        label=f'Bracket [{round(xl, 2)}, {round(xu, 2)}]')
+            plt.scatter([xl, xu], [f_np(xl), f_np(xu)], color=colors_b[k], s=40, zorder=5)
 
     if roots:
         plt.scatter(roots, [0]*len(roots), color='red', marker='x',
@@ -774,6 +782,27 @@ def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root
     plt.xlabel('x'); plt.ylabel('f(x)'); plt.title(title)
     plt.legend(fontsize=8); plt.grid(alpha=0.4); plt.tight_layout()
     _save_figure(fname, dpi=150); plt.show()
+
+# def plot_with_brackets(f_np, a, b, intervals=None, roots=None, title='Multi-Root Finding', fname='fig/graph_multi.png'):
+#     x = np.linspace(a, b, 1000)
+#     plt.figure(figsize=(9, 5.5))
+#     plt.plot(x, f_np(x), color='steelblue', linewidth=2, label='f(x)')
+#     plt.axhline(0, color='black', linewidth=1)
+
+#     # Simple 2-line bracket shading (no enumerate / no % colors)
+#     if intervals:
+#         for xl, xu in intervals:
+#             plt.axvspan(xl, xu, color='orange', alpha=0.3, label=f'Bracket [{xl:.1f},{xu:.1f}]')
+#             plt.scatter([xl, xu], [f_np(xl), f_np(xu)], color='red', s=40)
+
+#     # Mark converged roots
+#     if roots:
+#         plt.scatter(roots, [0]*len(roots), color='red', marker='x', s=150, linewidths=2.5, label='Root(s)')
+
+#     plt.xlabel('x'); plt.ylabel('f(x)'); plt.title(title)
+#     plt.grid(alpha=0.4); plt.legend(fontsize=8); plt.tight_layout()
+#     _save_figure(fname, dpi=150); plt.show()
+
 
 # direct, intervals = coarse_scan(0,5,0.1)
 
@@ -805,6 +834,11 @@ def plot_convergence(errors, title='Convergence of ea', fname='fig/convergence.p
     """
     if errors and isinstance(errors[0], dict):
         errors = [h['ea'] for h in errors if 'ea' in h]
+        # new_errors = []
+        # for h in errors:
+        #     if 'ea' in h:
+        #         new_errors.append(h['ea'])
+        # errors=new_errors
 
     iters = list(range(1, len(errors) + 1))
     plt.figure(figsize=(7, 4))
@@ -857,7 +891,7 @@ def plot_newton_raphson(x0, a, b, m=1, tol=0.0001, title='Newton-Raphson Tangent
     Visualizes NR's tangent-line geometry: draws the tangent at each x_i,
     showing where it crosses the x-axis to land on x_{i+1}.
     """
-    root, history = _newton_raphson_core(x0, m, tol, max_iter=100, verbose=False)
+    root, history = _newton_raphson_core(x0, m, tol, max_iter=100, verbose=True)
 
     x_range = np.linspace(a, b, 600)
     f_np = np.vectorize(f)
@@ -868,12 +902,12 @@ def plot_newton_raphson(x0, a, b, m=1, tol=0.0001, title='Newton-Raphson Tangent
     plt.axhline(0, color='black', linewidth=1)
 
     colors_t = plt.cm.Reds(np.linspace(0.4, 0.9, max(len(history), 1)))
-    for k, h in enumerate(history[:6]):     # only show first 6 tangents
+    for k, h in enumerate(history[:]):     # only show first 6 tangents
         xi, fxi, dfxi = h['xi'], h['fxi'], h['dfxi']
         x_tan = np.array([min(a, xi - 0.5), max(b, xi + 0.5)])
         y_tan = dfxi * (x_tan - xi) + fxi
         plt.plot(x_tan, y_tan, '--', color=colors_t[k], alpha=0.7, linewidth=1.2)
-        plt.scatter([xi], [fxi], color=colors_t[k], s=50, zorder=5)
+        plt.scatter([xi], [fxi], color=colors_t[k], s=50, zorder=5, label=f'$x_{k}$={xi:.4f}')
 
     plt.scatter([root], [0], color='red', marker='x', s=150, linewidths=2.5,
                 zorder=6, label=f'Root approx. {root:.6f}')
@@ -881,7 +915,7 @@ def plot_newton_raphson(x0, a, b, m=1, tol=0.0001, title='Newton-Raphson Tangent
 
     plt.xlim(a, b)
     plt.xlabel('x'); plt.ylabel('f(x)'); plt.title(title)
-    plt.legend(); plt.grid(alpha=0.4); plt.tight_layout()
+    plt.legend(framealpha=0.4); plt.grid(alpha=0.4); plt.tight_layout()
     _save_figure(fname, dpi=150); plt.show()
 
 # plot_newton_raphson(
@@ -1041,6 +1075,75 @@ def demo_error_tradeoff(x_target=1.0, fname='fig/error_tradeoff.png'):
     plt.legend(loc='lower left'); plt.tight_layout()
     _save_figure(fname, dpi=150); plt.show()
     return optimal_h, optimal_error
+
+
+def riemann_sum(f_func, a, b, n):
+    """
+    Left-endpoint Riemann sum approximation for integral of f(x) over [a, b].
+    Demonstrates truncation error shrinking as N (number of rectangles) increases.
+    """
+    x_pts = np.linspace(a, b, n, endpoint=False)
+    width = (b - a) / n
+    f_np = np.vectorize(f_func)
+    return np.sum(f_np(x_pts) * width)
+
+
+def forward_diff(f_func, x, h):
+    """Forward difference: f'(x) ~= (f(x+h) - f(x)) / h. Order O(h)."""
+    return (f_func(x + h) - f_func(x)) / h
+
+
+def backward_diff(f_func, x, h):
+    """Backward difference: f'(x) ~= (f(x) - f(x-h)) / h. Order O(h)."""
+    return (f_func(x) - f_func(x - h)) / h
+
+
+def central_diff(f_func, x, h):
+    """Central difference: f'(x) ~= (f(x+h) - f(x-h)) / (2h). Order O(h^2)."""
+    return (f_func(x + h) - f_func(x - h)) / (2.0 * h)
+
+
+def diff_truncation_table(f_func, fprime_exact, x0, h_list=[1.0, 0.1, 0.01, 0.001, 0.0001]):
+    """
+    Prints a comparison table of Forward, Backward, and Central differences
+    against the true derivative f'(x0) across a list of step sizes h.
+    """
+    exact = fprime_exact(x0)
+    print(f"\n{'='*75}")
+    print(f"NUMERICAL DIFFERENTIATION TRUNCATION ERROR (x = {x0}, exact f'(x) = {exact:.10f})")
+    print(f"{'='*75}")
+    print(f"{'h':<10}{'Forward':>15}{'Backward':>15}{'Central':>15}{'Forward Err':>15}")
+    print("-" * 75)
+    for h in h_list:
+        fwd = forward_diff(f_func, x0, h)
+        bwd = backward_diff(f_func, x0, h)
+        cnt = central_diff(f_func, x0, h)
+        err = abs(exact - fwd)
+        print(f"{h:<10.5f}{fwd:>15.8f}{bwd:>15.8f}{cnt:>15.8f}{err:>15.8e}")
+    print("=" * 75)
+
+
+def maclaurin_series(term_recurrence, x, first_term=1.0, sig_digits=3, max_terms=100):
+    """
+    Generalized Maclaurin / Taylor series solver with Scarborough stopping.
+    term_recurrence(prev_term, n, x) -> returns the n-th term from the (n-1)-th.
+    Example for e^x: maclaurin_series(lambda prev, n, x: prev * x / n, x=1.2, sig_digits=3)
+    """
+    term = first_term
+    S = term
+    es = scarborough_tolerance(sig_digits)
+    history = [{'term': 0, 'S': S, 'ea': 100.0, 'sig': 0}]
+
+    for n in range(1, max_terms + 1):
+        term = term_recurrence(term, n, x)
+        S_new = S + term
+        ea = abs((S_new - S) / S_new) * 100.0 if S_new != 0 else 0.0
+        sig = calc_sig_digit(ea)
+        history.append({'term': n, 'S': S_new, 'ea': ea, 'sig': sig})
+        S = S_new
+        if ea <= es:
+            break
+    return S, history
 
 # demo_error_tradeoff()
 

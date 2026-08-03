@@ -81,8 +81,13 @@ if __name__ == '__main__':
 
     print(f"fxl = {fxl:.6f} and fxu = {fxu:.6f} \nfxl * fxu = {mult_val:.6f}\nso, the sign changes as mult_val < 0 is {mult_val < 0}")
 
-    bi = P.bisection(a,b)
-    fp = P.false_position_opt(a,b)
+    bi = P.bisection(a, b, verbose=False)
+    fp = P.false_position_opt(a, b, verbose=False)
+
+    if bi is not None:
+        P.print_history_table(bi[-1], title="C2 BISECTION ITERATION TABLE")
+    if fp is not None:
+        P.print_history_table(fp[-1], title="C2 FALSE POSITION ITERATION TABLE")
 
     a = 20+10+16+18+10+10
     print('='*a)
