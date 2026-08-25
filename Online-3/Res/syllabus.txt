@@ -1,0 +1,7 @@
+Topic: 
+
+1. Discrete event simulation models;
+2. Steps in a simulation study;
+3. Model validation and verification;
+4. Random number generation;
+5. Monte Carlo methods: Metropolis-Hastings algorithm including all relevant topics covered in theory class.

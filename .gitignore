@@ -26,3 +26,5 @@ Thumbs.db
 # Plot outputs / scratch outputs
 *.png
 *.log
+# folder names start with dot (.)
+.*/

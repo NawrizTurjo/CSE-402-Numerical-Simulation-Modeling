@@ -1,0 +1,108 @@
+A1:
+
+[couldnt get exact question, rather fetched similar one from friend]
+### 6. Buffon's Needle Problem (Moderate - Classic Probability)
+**Concept:** A famous historical Monte Carlo problem to estimate $\pi$ without using circles!
+**Problem:** Imagine a floor made of parallel wooden planks, each 1 unit wide. You drop a needle of length $L$ (let's use $L = 0.5$) onto the floor. 
+**Task:** Simulate dropping the needle 100,000 times and estimate the probability that the needle crosses a line between two planks. Then, use this probability to estimate the value of $\pi$.
+**Hint:**
+* To simulate a drop, you need two random numbers:
+  1. The distance from the center of the needle to the nearest line (this is uniformly distributed between $0$ and $0.5$).
+  2. The angle the needle makes with the horizontal lines (uniformly distributed between $0$ and $\pi/2$).
+* The needle crosses a line if: `distance <= (L/2) * sin(angle)`.
+* The theoretical probability of crossing is $\frac{2L}{\pi \times \text{width}}$. Therefore, $\pi \approx \frac{2L}{P \times \text{width}}$.
+
+C1:
+
+Investigating the Middle-Square Random Number Generator
+
+In this assignment, you will implement a pseudo-random number generator using
+the Middle-Square Method, investigate its weaknesses, and statistically evaluate
+the generated numbers using a Chi-Square goodness-of-fit test. Do not use
+Python's random module.
+
+
+Task 1: Implement the Middle-Square Generator
+
+Start with a 4-digit integer seed X0.
+For every iteration:
+
+  1. Square the current value.
+  2. Represent the result as an 8-digit number, adding leading zeros if necessary.
+  3. Extract the middle four digits.
+  4. Use these four digits as the next value.
+
+For example:
+
+  Seed = 5731
+
+  5731^2 = 32844361
+  Middle four digits = 8443
+
+  8443^2 = 71284249
+  Middle four digits = 2842
+
+Implement the following function:
+
+  def middle_square(seed, n):
+      # your implementation
+
+Generate at least 100 values.
+
+
+Task 2: Investigate Edge Cases
+
+The Middle-Square method has an important weakness. Find at least one seed that
+causes the generator to repeatedly generate the same value.
+For the problematic seed, write:
+
+  Seed:
+  First repeated value:
+  Iteration at which it repeats:
+  Cycle length:
+
+
+Task 3: Test Whether the Numbers Are Uniform
+
+Generating numbers that appear random is not sufficient. Use a Chi-Square
+goodness-of-fit test to investigate whether your generated numbers are
+approximately uniformly distributed between 0 and 1.
+Divide the interval [0, 1) into 10 equal-sized bins:
+
+  Bin 1:   [0.0, 0.1)
+  Bin 2:   [0.1, 0.2)
+  ...
+  Bin 10:  [0.9, 1.0)
+
+Generate 1,000 random numbers and count how many values fall into each bin.
+Under the assumption of a uniform distribution, each bin is expected to contain
+
+  E = 1000 / 10 = 100
+
+values.
+You may use Python's statistical libraries, such as SciPy, to perform the test.
+Use a significance level of alpha = 0.05. Therefore, your decision rule is:
+If p < 0.05, reject H0; otherwise, don't.
+The null hypothesis is:
+
+  H0: The generated numbers are uniformly distributed over [0, 1).
+
+Perform the Chi-Square test for the following three different seeds. For each
+seed, generate 1,000 values and perform the Chi-Square test and report your
+results as shown below:
+
+  
+  | Seed             | Chi^2    | p-value   | Decision   |
+  
+  | 5731             |          |           |            |
+
+  | 6239             |          |           |            |
+
+  | Problematic Seed |          |           |            |
+
+
+
+Task 4: Reflect
+
+Does passing the Chi-Square test necessarily mean that the generator is a good
+random-number generator? Explain briefly. 

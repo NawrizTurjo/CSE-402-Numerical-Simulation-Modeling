@@ -1,0 +1,26 @@
+"""
+Practice 4 (Res/Src-26/practice-problems.md): 1D random walk.
+
+100 steps, each +1 or -1 with equal probability. Estimate
+P(|final position| > 15) over 50,000 walks. trial_fn simulates ONE
+walk and returns the 0/1 indicator -- same probability-estimation
+pattern as the Buffon's needle / project-completion problems.
+
+Run standalone:
+    python -m solutions.practice_src26.p4_random_walk
+"""
+
+import random
+
+from monte_carlo.core import monte_carlo_estimate
+
+
+def random_walk_indicator(num_steps=100, threshold=15):
+    position = sum(random.choice((-1, 1)) for _ in range(num_steps))
+    return 1.0 if abs(position) > threshold else 0.0
+
+
+if __name__ == "__main__":
+    result = monte_carlo_estimate(random_walk_indicator, n=50000, seed=1)
+    print(f"P(|final position| > 15) = {result['estimate']:.4f}  "
+          f"CI95={tuple(round(v, 4) for v in result['ci95'])}")
