@@ -48,6 +48,12 @@ python -m solutions.a1_buffons_needle
 python -m solutions.c1_middle_square_investigation
 python -m solutions.practice_src26.p1_sphere_volume
 # ...and so on for p2-p6
+python -m viz.rng_plots
+python -m viz.des_plots
+python -m cheatsheets.python_syntax
+python -m cheatsheets.numpy_syntax
+python -m cheatsheets.random_module_syntax
+python -m cheatsheets.scipy_syntax
 ```
 
 If the exam only lets you submit a single file, copy the specific
@@ -93,6 +99,25 @@ solutions/                Worked answers, built on the modules above
   c1_middle_square_investigation.py   C1 (online exam), all 4 tasks
   practice_src26/            practice-problems.md #1-#6
   practice_generated/        ../../Practice/PRACTICE_QUESTIONS.md #R1,R2,S1,V1,M1,M2,MH1
+
+viz/                     Optional matplotlib visualizations (only used if
+                          a question explicitly asks for a plot -- nothing
+                          else in Code/ depends on this folder)
+  rng_plots.py              sequence / histogram / R_i-vs-R_(i+1) scatter
+                            for any RNG output -- the 2-D version of the
+                            RANDU lattice check in rng/lcg.py
+  des_plots.py               Q(t) / B(t) step plots straight from
+                            simulate_ssq(..., trace=True)'s trace
+
+cheatsheets/             Pure syntax reference, no simulation logic --
+                          only used if you blank on a language/library
+                          detail mid-exam, never imported by anything else
+  python_syntax.py           core language + heapq (the DES event list)
+  numpy_syntax.py             numpy basics, only needed for quick
+                            exploratory work -- Code/ itself needs no numpy
+  random_module_syntax.py     random module (NOT used inside rng/, which
+                            must roll its own generators)
+  scipy_syntax.py             the exact scipy.stats calls testing/ relies on
 ```
 
 ## Design principle (read this before the exam)

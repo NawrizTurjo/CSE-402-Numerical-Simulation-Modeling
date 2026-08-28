@@ -90,7 +90,10 @@ utilization  u(n) = area_B / T          (T = total simulated time)
 
 Verify against the slide's numbers: `python -m simulation.single_server_queue`
 reproduces `avg_delay=0.9500, avg_queue=1.1512, utilization=0.8953, T=8.6`
-exactly, matching the slide's hand-trace.
+exactly, matching the slide's hand-trace. To *see* it instead of just
+reading numbers, `python -m viz.des_plots` draws the Q(t)/B(t) step plot
+straight from a `simulate_ssq(..., trace=True)` trace — worth running
+once so the area-under-the-curve idea clicks visually.
 
 **Practice:** trace through the printed table by hand once with pen and
 paper against the slide's 13-event trace, so you can produce/verify a
@@ -207,6 +210,12 @@ difference, it's a common "reflect" question):
 [Code/solutions/c1_middle_square_investigation.py](Code/solutions/c1_middle_square_investigation.py)
 (all 4 tasks). Run it: `python -m solutions.c1_middle_square_investigation`.
 
+**Seeing a generator's flaws instead of just reading test statistics:**
+`python -m viz.rng_plots` plots the sequence, histogram, and R_i-vs-R_(i+1)
+scatter for both an LCG and Middle-Square — the Middle-Square plot makes
+the short-cycle collapse from Task 4 immediately visible (the sequence
+panel goes from noisy to a tight repeating band partway through).
+
 ---
 
 ## 6. Monte Carlo Methods
@@ -321,3 +330,8 @@ review below if you want more reps before the exam.
 5. `Code/monte_carlo/metropolis_hastings.py` (5 min)
 6. Skim `Code/solutions/` so you've seen the exact A1/C1 answers once
 7. If time remains: work through `Code/solutions/practice_src26/` from memory, then check
+
+`Code/cheatsheets/` (Python/numpy/random/scipy syntax) and `Code/viz/`
+(plots) are reference-only — don't schedule study time for them, just
+know they exist for the moment you blank on a syntax detail or want to
+see rather than read a result.

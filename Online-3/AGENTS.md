@@ -65,6 +65,10 @@ across all four sources).
    single/multi-server queue DES engine
    (`Code/simulation/single_server_queue.py`) that covers stop-by-N-delays,
    stop-by-T-max, run-to-completion, and balking as keyword arguments.
+   Two support-only packages are also available but never required:
+   `Code/viz/` (matplotlib plots for RNG diagnostics and Q(t)/B(t) — use
+   only if a question explicitly asks for a plot) and `Code/cheatsheets/`
+   (pure Python/numpy/random/scipy syntax reference, no simulation logic).
 3. If the exam's actual question doesn't match any existing shape,
    adapt the closest module rather than starting over — see
    `Code/README.md`'s "Design principle" section for how the modules are
