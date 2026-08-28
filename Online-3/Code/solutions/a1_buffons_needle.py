@@ -1,24 +1,26 @@
 """
-A1 (online exam, section A1 -- reconstructed from a friend's memory, see
-Res/questions.txt): Buffon's Needle.
+A1 (CSE 402 Online-3 Official Exam Question): Buffon's Needle Simulation.
 
-Drop a needle of length L=0.5 onto a floor of parallel planks, each of
-width 1. Estimate P(needle crosses a line) over 100,000 drops, then use
-that probability to estimate pi.
+Problem:
+Estimate the mathematical constant pi using Monte Carlo simulation of
+the classical Buffon's Needle Experiment.
+A needle of length L = 1.0 is dropped onto a surface with parallel lines
+spaced D = 2.0 apart (L <= D).
 
-Setup per drop:
-    distance = distance from needle's CENTER to the nearest line,
-               uniformly distributed in [0, width/2].
-    angle    = angle the needle makes with the lines,
-               uniformly distributed in [0, pi/2].
-    crosses  = distance <= (L/2) * sin(angle)
+Mathematical Modeling:
+1. Needle Center Position: X ~ U(0, D/2) -> x = (D / 2.0) * random.random()
+2. Needle Orientation Angle: theta ~ U(0, pi/2) -> theta = (math.pi / 2.0) * random.random()
+3. Hit Condition: x <= (L / 2.0) * math.sin(theta)
+4. Theoretical Crossing Probability: P = 2L / (pi * D)
+   For L=1.0, D=2.0 -> P = 1 / pi approx 0.31831
+5. Estimator:
+   p_hat = H / N
+   pi_estimate = (2 * L) / (D * p_hat) = (2 * L * N) / (D * H)
+   For L=1.0, D=2.0 -> pi_estimate = N / H = 1 / p_hat
 
-Theory: P(cross) = 2L / (pi * width)   =>   pi = 2L / (P(cross) * width)
-
-This is a plain probability estimate, so it's just one call into the
-shared monte_carlo.core.monte_carlo_estimate (trial_fn returns the 0/1
-crossing indicator) -- see that module's docstring for why every Monte
-Carlo problem in this course reduces to the same estimator.
+Design:
+Reuses `monte_carlo.core.monte_carlo_estimate` by providing a single-drop
+`trial_fn` that returns the 0/1 hit indicator.
 
 Run standalone:
     python -m solutions.a1_buffons_needle
@@ -30,24 +32,86 @@ import random
 from monte_carlo.core import monte_carlo_estimate
 
 
-def buffons_needle_pi(n, needle_length=0.5, plank_width=1.0, seed=None):
-    half_width = plank_width / 2
+def buffon_needle_pi(n_drops=None, L=1.0, D=2.0, seed=None, **kwargs):
+    """
+    Simulate Buffon's Needle Experiment to estimate pi.
+    Reuses monte_carlo_estimate from monte_carlo.core.
 
-    def trial():
-        distance = random.uniform(0, half_width)
-        angle = random.uniform(0, math.pi / 2)
-        crosses = distance <= (needle_length / 2) * math.sin(angle)
-        return 1.0 if crosses else 0.0
+    Parameters
+    ----------
+    n_drops : int
+        Total number of drops (N).
+    L : float, default=1.0
+        Length of the needle (L <= D).
+    D : float, default=2.0
+        Distance between parallel lines.
+    seed : int, optional
+        Random seed for reproducibility.
 
-    result = monte_carlo_estimate(trial, n, seed=seed)
-    p_cross = result["estimate"]
-    result["p_cross"] = p_cross
-    result["pi_estimate"] = (2 * needle_length) / (p_cross * plank_width) if p_cross > 0 else math.inf
-    return result
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - 'n_drops': Total drops N
+        - 'hits': Total crossings H
+        - 'p_hat': Empirical crossing probability (H / N)
+        - 'pi_estimate': Estimated value of pi
+        - 'abs_error': |pi_estimate - pi|
+        - 'ci95': 95% confidence interval on crossing probability
+        - 'p_cross': Alias for p_hat (backwards compatibility)
+    """
+    if n_drops is None:
+        n_drops = kwargs.get("n", 100000)
+
+    half_D = D / 2.0
+    half_L = L / 2.0
+    half_pi = math.pi / 2.0
+
+    def drop_trial():
+        # 1. Midpoint distance to nearest line: X ~ U(0, D/2)
+        x = half_D * random.random()
+        # 2. Angle with lines: theta ~ U(0, pi/2)
+        theta = half_pi * random.random()
+        # 3. Hit condition
+        return 1.0 if x <= half_L * math.sin(theta) else 0.0
+
+    # Re-use the shared Monte Carlo engine
+    mc_result = monte_carlo_estimate(drop_trial, n_drops, seed=seed)
+    p_hat = mc_result["estimate"]
+    hits = int(round(p_hat * n_drops))
+    pi_est = (2.0 * L) / (D * p_hat) if p_hat > 0 else float("inf")
+    abs_err = abs(pi_est - math.pi)
+
+    return {
+        "n_drops": n_drops,
+        "hits": hits,
+        "p_hat": p_hat,
+        "pi_estimate": pi_est,
+        "abs_error": abs_err,
+        "ci95": mc_result["ci95"],
+        "p_cross": p_hat,
+    }
+
+
+# Alias matching previous helper naming
+buffons_needle_pi = buffon_needle_pi
 
 
 if __name__ == "__main__":
-    result = buffons_needle_pi(n=100000, seed=1)
-    print(f"P(needle crosses a line) = {result['p_cross']:.4f}")
-    print(f"pi estimate              = {result['pi_estimate']:.4f}  (true = {math.pi:.4f})")
-    print(f"95% CI on P(cross)       = {tuple(round(v, 4) for v in result['ci95'])}")
+    n_values = [100, 1000, 10000, 100000, 1000000]
+
+    print("Buffon's Needle Simulation (L=1.0, D=2.0) [reusing monte_carlo.core]")
+    print("-" * 75)
+    print(f"| {'N (Drops)':<11} | {'Hits (H)':<10} | {'p_hat (H/N)':<11} | {'Pi Estimate':<11} | {'Absolute Error':<14} |")
+    print(f"|{'-'*13}|{'-'*12}|{'-'*13}|{'-'*13}|{'-'*16}|")
+
+    # Fixed seed sequence for reproducible sample output
+    for i, N in enumerate(n_values):
+        res = buffon_needle_pi(N, L=1.0, D=2.0, seed=42 + i)
+        n_str = f"{res['n_drops']:,}"
+        h_str = f"{res['hits']:,}"
+        print(
+            f"| {n_str:<11} | {h_str:<10} | {res['p_hat']:<11.5f} | "
+            f"{res['pi_estimate']:<11.6f} | {res['abs_error']:<14.6f} |"
+        )
+    print("-" * 75)
