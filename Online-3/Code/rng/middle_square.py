@@ -39,6 +39,17 @@ Run standalone:
     python -m rng.middle_square
 """
 
+
+import sys
+from pathlib import Path
+
+# Allow direct script execution from any directory
+_CODE_DIR = Path(__file__).resolve().parent
+while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
+    _CODE_DIR = _CODE_DIR.parent
+if str(_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(_CODE_DIR))
+
 from rng.common import find_cycle, bin_counts
 
 
@@ -136,5 +147,11 @@ if __name__ == "__main__":
 
     print("\nWeyl-repaired seed 2500 (degenerates immediately in plain middle-square):")
     weyl_values = middle_square_weyl(problem_seed, 10)
+    middle_square_values = middle_square(problem_seed,10)
+    print(f"========== Middle Square ==========")
+    print(f"  first 10 values: {middle_square_values}")
+    print(f"  no longer stuck: {len(set(middle_square_values)) > 1}")
+
+    print(f"========== Weyl Repaired ==========")
     print(f"  first 10 values: {weyl_values}")
     print(f"  no longer stuck: {len(set(weyl_values)) > 1}")

@@ -6,6 +6,17 @@ Run standalone:
     python -m solutions.practice_generated.r1_lcg_investigation
 """
 
+
+import sys
+from pathlib import Path
+
+# Allow direct script execution from any directory
+_CODE_DIR = Path(__file__).resolve().parent
+while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
+    _CODE_DIR = _CODE_DIR.parent
+if str(_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(_CODE_DIR))
+
 from rng.lcg import lcg, lcg_uniforms, find_lcg_cycle, check_max_period_conditions
 from testing.chi_square_test import chi_square_uniform_test
 

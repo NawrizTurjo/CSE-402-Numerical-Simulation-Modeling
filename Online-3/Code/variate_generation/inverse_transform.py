@@ -17,6 +17,15 @@ Run standalone:
 """
 
 import math
+import sys
+from pathlib import Path
+
+# Allow direct script execution from any directory
+_CODE_DIR = Path(__file__).resolve().parent
+while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
+    _CODE_DIR = _CODE_DIR.parent
+if str(_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(_CODE_DIR))
 
 
 def uniform(r, a, b):
@@ -50,8 +59,9 @@ def triangular(r, low, high, mode):
     so solve F(x)=r separately on each side.
     """
     split = (mode - low) / (high - low)
-    if r <= split:
+    if r <= split: ## Left Side
         return low + math.sqrt(r * (high - low) * (mode - low))
+    # else Right Side
     return high - math.sqrt((1 - r) * (high - low) * (high - mode))
 
 

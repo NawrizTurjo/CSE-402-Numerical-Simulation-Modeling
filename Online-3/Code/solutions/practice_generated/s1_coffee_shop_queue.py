@@ -7,6 +7,17 @@ Run standalone:
     python -m solutions.practice_generated.s1_coffee_shop_queue
 """
 
+
+import sys
+from pathlib import Path
+
+# Allow direct script execution from any directory
+_CODE_DIR = Path(__file__).resolve().parent
+while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
+    _CODE_DIR = _CODE_DIR.parent
+if str(_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(_CODE_DIR))
+
 from simulation.single_server_queue import simulate_ssq
 
 INTERARRIVAL = [1.5, 0.8, 2.1, 0.3, 1.2, 0.9, 1.7, 0.4, 2.3, 0.6]

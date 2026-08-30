@@ -210,6 +210,10 @@ difference, it's a common "reflect" question):
 [Code/solutions/c1_middle_square_investigation.py](Code/solutions/c1_middle_square_investigation.py)
 (all 4 tasks). Run it: `python -m solutions.c1_middle_square_investigation`.
 
+**C2's exact question (Hidden Period Collapse & K-S Test):** already fully answered in
+[Code/solutions/c2_hidden_period_collapse.py](Code/solutions/c2_hidden_period_collapse.py)
+(all 3 tasks). Run it: `python -m solutions.c2_hidden_period_collapse`.
+
 **Seeing a generator's flaws instead of just reading test statistics:**
 `python -m viz.rng_plots` plots the sequence, histogram, and R_i-vs-R_(i+1)
 scatter for both an LCG and Middle-Square — the Middle-Square plot makes
@@ -328,7 +332,7 @@ review below if you want more reps before the exam.
 3. `Code/rng/lcg.py` + `Code/rng/middle_square.py` (10 min)
 4. `Code/testing/*.py` (10 min — know which test answers which question: uniformity vs independence)
 5. `Code/monte_carlo/metropolis_hastings.py` (5 min)
-6. Skim `Code/solutions/` so you've seen the exact A1/C1 answers once
+6. Skim `Code/solutions/` so you've seen the exact A1/C1/C2 answers once
 7. If time remains: work through `Code/solutions/practice_src26/` from memory, then check
 
 `Code/cheatsheets/` (Python/numpy/random/scipy syntax) and `Code/viz/`

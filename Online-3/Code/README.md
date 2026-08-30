@@ -29,11 +29,16 @@ modules — everything else is pure Python standard library: `math`,
 
 ## Running things
 
-Every module is both importable AND directly runnable. Run as a module
-from inside `Code/` so the package-relative imports (`from rng.lcg import
-...`) resolve:
+Every file is directly runnable on its own from ANY directory (e.g. `python .\inverse_transform.py` from inside `variate_generation/` or `python solutions\c2_hidden_period_collapse.py`), or as a module from inside `Code/`:
 
 ```bash
+# Direct file runs (from anywhere):
+python rng/lcg.py
+python variate_generation/inverse_transform.py
+python solutions/c1_middle_square_investigation.py
+python solutions/c2_hidden_period_collapse.py
+
+# Or as module runs (from inside Code/):
 python -m rng.lcg
 python -m rng.middle_square
 python -m testing.chi_square_test
@@ -46,6 +51,7 @@ python -m variate_generation.inverse_transform
 python -m simulation.single_server_queue
 python -m solutions.a1_buffons_needle
 python -m solutions.c1_middle_square_investigation
+python -m solutions.c2_hidden_period_collapse
 python -m solutions.practice_src26.p1_sphere_volume
 # ...and so on for p2-p6
 python -m viz.rng_plots
@@ -97,6 +103,7 @@ simulation/
 solutions/                Worked answers, built on the modules above
   a1_buffons_needle.py       A1 (online exam)
   c1_middle_square_investigation.py   C1 (online exam), all 4 tasks
+  c2_hidden_period_collapse.py        C2 (online exam), all 3 tasks
   practice_src26/            practice-problems.md #1-#6
   practice_generated/        ../../Practice/PRACTICE_QUESTIONS.md #R1,R2,S1,V1,M1,M2,MH1
 
