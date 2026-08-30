@@ -123,6 +123,61 @@ def check_max_period_conditions(a, c, m, seed):
             "use find_lcg_cycle(seed, a, c, m) to measure the period directly")
 
 
+def plot_lcg(uniforms, title="LCG Output Diagnostics", show=True, save_path=None):
+    """
+    Plot LCG output diagnostics: sequence trajectory, 1-D histogram, and 2-D lag-1 scatter plot.
+
+    Parameters
+    ----------
+    uniforms : list of float
+        Output variates in [0, 1).
+    title : str, default='LCG Output Diagnostics'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+
+    # 1. Sequence trace
+    axes[0].plot(uniforms[:200], marker="o", markersize=3, linewidth=1, color="royalblue")
+    axes[0].set_title("Sequence (First 200 values)")
+    axes[0].set_xlabel("Iteration (i)")
+    axes[0].set_ylabel("R_i")
+    axes[0].set_ylim(-0.05, 1.05)
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+
+    # 2. Histogram
+    axes[1].hist(uniforms, bins=10, range=(0, 1), density=True, color="mediumpurple", edgecolor="black", alpha=0.7)
+    axes[1].axhline(1.0, color="red", linestyle="--", label="Ideal Uniform(0,1)")
+    axes[1].set_title(f"Histogram (N={len(uniforms)})")
+    axes[1].set_xlabel("R_i")
+    axes[1].set_ylabel("Density")
+    axes[1].legend()
+    axes[1].grid(True, linestyle="--", alpha=0.6)
+
+    # 3. Lag-1 Scatter Plot (R_i vs R_{i+1})
+    if len(uniforms) > 1:
+        axes[2].scatter(uniforms[:-1], uniforms[1:], s=10, color="forestgreen", alpha=0.5)
+    axes[2].set_title("Lag-1 Scatter: $R_i$ vs $R_{i+1}$")
+    axes[2].set_xlabel("$R_i$")
+    axes[2].set_ylabel("$R_{i+1}$")
+    axes[2].set_xlim(-0.05, 1.05)
+    axes[2].set_ylim(-0.05, 1.05)
+    axes[2].grid(True, linestyle="--", alpha=0.6)
+
+    fig.suptitle(title, fontsize=13, fontweight="bold")
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     print("Mixed LCG example: seed=27, a=17, c=43, m=100")
     values = lcg(27, 17, 43, 100, n=4)

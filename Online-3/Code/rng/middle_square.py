@@ -125,6 +125,48 @@ def middle_square_weyl_uniforms(seed, n, digits=4, weyl_increment=3571):
     return [value / scale for value in middle_square_weyl(seed, n, digits, weyl_increment)]
 
 
+def plot_middle_square(values, title="Middle-Square Generator Diagnostics", show=True, save_path=None):
+    """
+    Plot Middle-Square sequence trajectory and distribution.
+
+    Parameters
+    ----------
+    values : list of int or float
+        Generated sequence.
+    title : str, default='Middle-Square Generator Diagnostics'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+    # 1. Sequence trace
+    axes[0].plot(values[:200], marker="o", markersize=3, linewidth=1, color="darkorange")
+    axes[0].set_title(f"Sequence Trajectory (First {min(len(values), 200)} values)")
+    axes[0].set_xlabel("Iteration (i)")
+    axes[0].set_ylabel("Value")
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+
+    # 2. Histogram
+    axes[1].hist(values, bins=10, color="teal", edgecolor="black", alpha=0.7)
+    axes[1].set_title(f"Frequency Distribution (N={len(values)})")
+    axes[1].set_xlabel("Value")
+    axes[1].set_ylabel("Count")
+    axes[1].grid(True, linestyle="--", alpha=0.6)
+
+    fig.suptitle(title, fontsize=13, fontweight="bold")
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     seed = 5731
     first_values = middle_square(seed, 10)

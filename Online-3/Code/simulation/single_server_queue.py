@@ -55,7 +55,7 @@ import math
 
 
 def simulate_ssq(interarrival_times, service_times, *, num_delays=None, t_max=None,
-                  num_servers=1, capacity=None, trace=False):
+                  num_servers=1, capacity=None, trace=False, plot=False):
     """
     Parameters
     ----------
@@ -176,9 +176,62 @@ def simulate_ssq(interarrival_times, service_times, *, num_delays=None, t_max=No
         "num_customers_delayed": len(delays),
         "stop_reason": stop_reason,
     }
-    if trace:
+    if trace or plot:
         result["trace"] = trace_rows
+    if plot and trace_rows:
+        plot_ssq_trace(trace_rows)
     return result
+
+
+def plot_ssq_trace(trace_rows, title="Queue Simulation: Q(t) and B(t) vs Time", show=True, save_path=None):
+    """
+    Plot step curves of Q(t) and B(t) over simulation time (Law & Kelton style).
+
+    Parameters
+    ----------
+    trace_rows : list of dict
+        Trace rows from simulate_ssq(..., trace=True)['trace'].
+    title : str, default='Queue Simulation: Q(t) and B(t) vs Time'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    times = [0.0] + [r["clock"] for r in trace_rows]
+    q_vals = [0] + [r["queue_len"] for r in trace_rows]
+    b_vals = [0] + [r["busy_servers"] for r in trace_rows]
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+
+    # Q(t) vs Time
+    ax1.step(times, q_vals, where="post", color="royalblue", linewidth=2, label="Q(t)")
+    ax1.fill_between(times, q_vals, step="post", alpha=0.2, color="royalblue")
+    ax1.set_ylabel("Number in Queue Q(t)", fontsize=11)
+    ax1.set_title(title, fontsize=13, fontweight="bold")
+    ax1.set_yticks(range(max(q_vals) + 2))
+    ax1.grid(True, linestyle="--", alpha=0.7)
+    ax1.legend(loc="upper right")
+
+    # B(t) vs Time
+    ax2.step(times, b_vals, where="post", color="darkorange", linewidth=2, label="B(t)")
+    ax2.fill_between(times, b_vals, step="post", alpha=0.2, color="darkorange")
+    ax2.set_xlabel("Simulation Time (t)", fontsize=11)
+    ax2.set_ylabel("Server Status B(t)", fontsize=11)
+    max_b = max(b_vals) if b_vals else 1
+    ax2.set_yticks(range(max_b + 2))
+    ax2.set_ylim(-0.1, max_b + 0.3)
+    ax2.grid(True, linestyle="--", alpha=0.7)
+    ax2.legend(loc="upper right")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
 
 
 def compute_performance_from_trace(delays, event_times, queue_len_after, busy_after, num_servers=1):

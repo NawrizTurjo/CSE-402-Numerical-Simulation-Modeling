@@ -81,6 +81,53 @@ def task4_reflect():
     )
 
 
+def plot_c1_investigation(show=True, save_path=None):
+    """
+    Plot sequence trajectories and bin frequency comparisons for seeds 5731, 6239, and 2500.
+
+    Parameters
+    ----------
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # 1. Trajectories showing cycle collapse
+    seeds = [(5731, "Seed 5731", "royalblue"), (6239, "Seed 6239", "forestgreen"), (2500, "Seed 2500 (Degenerate)", "crimson")]
+    for s, label, col in seeds:
+        vals = middle_square_uniforms(s, 150)
+        axes[0].plot(vals, label=label, color=col, alpha=0.8, linewidth=1.5)
+
+    axes[0].set_title("Sequence Trajectories (First 150 Iterations)\nShows Rapid Cycle Collapse", fontsize=11, fontweight="bold")
+    axes[0].set_xlabel("Iteration")
+    axes[0].set_ylabel("$U_n$")
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+    axes[0].legend()
+
+    # 2. Chi-Square Bin Frequencies for Seed 5731 (N=1000)
+    u_5731 = middle_square_uniforms(5731, 1000)
+    res = chi_square_uniform_test(u_5731, bins=10)
+    bin_labels = [f"B{i+1}" for i in range(10)]
+    axes[1].bar(bin_labels, res["counts"], color="coral", edgecolor="black", alpha=0.8, label="Observed $O_i$")
+    axes[1].axhline(100.0, color="black", linestyle="--", linewidth=2, label="Expected $E_i = 100$")
+    axes[1].set_title(f"Seed 5731 Bin Frequencies (N=1000)\n$\\chi^2 = {res['chi2']:.1f}$ (Explodes due to 4-value cycle)", fontsize=11, fontweight="bold")
+    axes[1].set_xlabel("Interval Bins")
+    axes[1].set_ylabel("Count")
+    axes[1].grid(True, axis="y", linestyle="--", alpha=0.6)
+    axes[1].legend()
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     task1_generate()
     task2_edge_case()

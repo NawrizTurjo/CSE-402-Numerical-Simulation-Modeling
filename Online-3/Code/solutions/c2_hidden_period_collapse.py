@@ -187,6 +187,53 @@ def task3_period_and_reflection():
     print("=" * 70)
 
 
+def plot_c2_investigation(show=True, save_path=None):
+    """
+    Plot C2 investigation diagnostics: ECDF vs Theoretical Uniform (showing why K-S passes)
+    and Recurrence Scatter (showing the hidden period collapse p=16384).
+
+    Parameters
+    ----------
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    sample = lcg_generator(100000)
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # 1. ECDF vs Uniform Diagonal
+    sub = sorted(sample[::100])
+    m_sub = len(sub)
+    axes[0].plot([0, 1], [0, 1], "r--", linewidth=2, label="Theoretical Uniform CDF $F(x)=x$")
+    axes[0].plot(sub, [(i + 1) / m_sub for i in range(m_sub)], "b-", linewidth=1.5, label="Empirical CDF $S_N(x)$ (N=100,000)")
+    axes[0].set_title("K-S Test: Empirical CDF vs Theoretical\nPasses Uniformity ($D_N = 0.00046 < D_{crit} = 0.00430$)", fontsize=11, fontweight="bold")
+    axes[0].set_xlabel("x")
+    axes[0].set_ylabel("Cumulative Probability")
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+    axes[0].legend(loc="upper left")
+
+    # 2. Recurrence Scatter Plot U_n vs U_{n + 16384}
+    p = 16384
+    axes[1].scatter(sample[:5000], sample[p:p + 5000], color="purple", s=6, alpha=0.6)
+    axes[1].plot([0, 1], [0, 1], "r--", linewidth=1.5, label="Exact Match Line $U_{n+p} = U_n$")
+    axes[1].set_title("Hidden Period Collapse Check ($U_n$ vs $U_{n+16384}$)\nPerfect Diagonal Confirms $p = 16,384$", fontsize=11, fontweight="bold")
+    axes[1].set_xlabel("$U_n$")
+    axes[1].set_ylabel("$U_{n + 16384}$")
+    axes[1].grid(True, linestyle="--", alpha=0.6)
+    axes[1].legend(loc="upper left")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     task1_generate()
     task2_ks_test()

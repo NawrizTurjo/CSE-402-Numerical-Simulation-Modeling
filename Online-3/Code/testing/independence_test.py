@@ -141,6 +141,64 @@ def runs_up_down_test(R, alpha=0.05):
             "critical_value": z_critical, "p_value": p_value, "decision": decision}
 
 
+def plot_autocorrelation(R, max_lag=10, alpha=0.05, title="Autocorrelation vs Lag", show=True, save_path=None):
+    """
+    Plot autocorrelation statistic rho_hat across lags with critical z-score confidence limits.
+
+    Parameters
+    ----------
+    R : list of float
+        Variates to test.
+    max_lag : int, default=10
+        Maximum lag to test.
+    alpha : float, default=0.05
+        Significance level.
+    title : str, default='Autocorrelation vs Lag'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    lags = list(range(1, max_lag + 1))
+    rhos = []
+    z_bounds = []
+
+    z_crit = stats.norm.ppf(1 - alpha / 2)
+    n = len(R)
+
+    for lag in lags:
+        try:
+            res = autocorrelation_test(R, i=1, lag=lag, N=n, alpha=alpha)
+            rhos.append(res["rho_hat"])
+            z_bounds.append(z_crit * res["sigma_rho"])
+        except ValueError:
+            rhos.append(0.0)
+            z_bounds.append(0.0)
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.bar(lags, rhos, color="steelblue", edgecolor="black", alpha=0.8, label="Estimated $\hat{\\rho}_l$")
+    ax.plot(lags, z_bounds, "r--", linewidth=1.5, label=f"Upper 95% Bound (+{z_crit:.2f}$\sigma$)")
+    ax.plot(lags, [-b for b in z_bounds], "r--", linewidth=1.5, label=f"Lower 95% Bound (-{z_crit:.2f}$\sigma$)")
+    ax.axhline(0, color="black", linewidth=1)
+
+    ax.set_title(f"{title} (N={n}, $\\alpha={alpha}$)", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Lag (l)", fontsize=11)
+    ax.set_ylabel("Autocorrelation $\hat{\\rho}_l$", fontsize=11)
+    ax.set_xticks(lags)
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.legend(loc="upper right")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     sample = [0.23, 0.28, 0.33, 0.27, 0.05, 0.36, 0.72, 0.81, 0.44, 0.91,
               0.12, 0.67, 0.53, 0.39, 0.88]

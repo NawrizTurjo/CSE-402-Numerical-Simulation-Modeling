@@ -275,6 +275,68 @@ def task3_redundancy_optimization():
     print("=" * 75)
 
 
+def plot_network_reliability_results(n_replications=10000, theta=7.0, show=True, save_path=None):
+    """
+    Plot network lifetime distribution and redundancy sensitivity comparison.
+
+    Parameters
+    ----------
+    n_replications : int, default=10000
+        Number of simulation replications.
+    theta : float, default=7.0
+        Target threshold in days.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    base_res = simulate_network_reliability(n_replications=n_replications, theta=theta, topology="parallel_series")
+    y_samples = base_res["y_samples"]
+    p_base = base_res["p_hat"]
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # 1. System Lifetime Histogram
+    axes[0].hist(y_samples, bins=50, density=True, color="royalblue", edgecolor="black", alpha=0.7, label="System Lifetimes $Y$")
+    axes[0].axvline(theta, color="crimson", linestyle="--", linewidth=2, label=f"Threshold $\\theta = {theta}$ days")
+    axes[0].axvline(base_res["y_mean"], color="goldenrod", linestyle="-", linewidth=2, label=f"Mean Life = {base_res['y_mean']:.2f} d")
+    axes[0].set_title(f"Network Lifetime Distribution (N={n_replications:,})\n$\\hat{{p}}(Y \\ge {theta}) = {p_base:.4f}$", fontsize=11, fontweight="bold")
+    axes[0].set_xlabel("System Lifetime $Y$ (days)")
+    axes[0].set_ylabel("Density")
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+    axes[0].legend()
+
+    # 2. Sensitivity Bar Chart
+    labels = ["Baseline (No Spare)", "Spare on Comp 1", "Spare on Comp 2", "Spare on Comp 3", "Spare on Comp 4"]
+    probs = [p_base]
+    colors = ["gray", "lightskyblue", "forestgreen", "coral", "plum"]
+
+    for comp in (1, 2, 3, 4):
+        r = simulate_network_reliability(n_replications=n_replications, theta=theta, topology="parallel_series", spare_on=comp)
+        probs.append(r["p_hat"])
+
+    bars = axes[1].bar(labels, probs, color=colors, edgecolor="black", alpha=0.85)
+    axes[1].axhline(p_base, color="gray", linestyle="--", alpha=0.7)
+    axes[1].set_title("Spare Component Redundancy Comparison", fontsize=11, fontweight="bold")
+    axes[1].set_ylabel("7-Day Survival Probability $\hat{p}$")
+    axes[1].set_xticks(range(len(labels)))
+    axes[1].set_xticklabels(labels, rotation=25, ha="right")
+    axes[1].grid(True, axis="y", linestyle="--", alpha=0.6)
+
+    for bar in bars:
+        h = bar.get_height()
+        axes[1].text(bar.get_x() + bar.get_width() / 2.0, h + 0.005, f"{h:.4f}", ha="center", va="bottom", fontsize=9, fontweight="bold")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     task1_generate()
     task2_network_simulation()

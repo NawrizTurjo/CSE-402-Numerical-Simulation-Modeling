@@ -59,11 +59,7 @@ def chi_square_uniform_test(uniforms, bins=10, alpha=0.05):
     df = bins - 1
     critical_value = stats.chi2.ppf(1 - alpha, df=df)
     p_value = stats.chi2.sf(chi2, df=df)
-    # print(f"Chi Square Value: {chi2}")
-    # print(f"Critical Value: {critical_value}")
-    # print(f"p value: {p_value}")
     decision = "Reject H0" if p_value < alpha else "Do not reject H0"
-    # decision2 = "Reject H0" if critical_value < chi2 else "Do not reject H0"
     return {
         "counts": counts,
         "chi2": chi2,
@@ -71,8 +67,58 @@ def chi_square_uniform_test(uniforms, bins=10, alpha=0.05):
         "critical_value": critical_value,
         "p_value": p_value,
         "decision": decision,
-        # "decision2": decision2,
     }
+
+
+def plot_chi_square(uniforms, bins=10, alpha=0.05, title="Chi-Square Uniformity Test (Bin Frequencies)", show=True, save_path=None):
+    """
+    Plot observed bin counts against expected uniform count with Chi-Square test statistics.
+
+    Parameters
+    ----------
+    uniforms : list of float
+        Variates in [0, 1).
+    bins : int, default=10
+        Number of intervals.
+    alpha : float, default=0.05
+        Significance level.
+    title : str, default='Chi-Square Uniformity Test (Bin Frequencies)'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    result = chi_square_uniform_test(uniforms, bins=bins, alpha=alpha)
+    counts = result["counts"]
+    n = len(uniforms)
+    expected = n / bins
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    bin_labels = [f"[{i/bins:.1f}, {(i+1)/bins:.1f})" for i in range(bins)]
+    bars = ax.bar(bin_labels, counts, color="cornflowerblue", edgecolor="black", alpha=0.8, label="Observed $O_i$")
+    ax.axhline(expected, color="crimson", linestyle="--", linewidth=2, label=f"Expected $E_i = {expected:.1f}$")
+
+    # Add count labels on bars
+    for bar in bars:
+        h = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2.0, h + max(counts) * 0.01, f"{int(h)}", ha="center", va="bottom", fontsize=9)
+
+    ax.set_title(f"{title}\n$\\chi^2 = {result['chi2']:.4f}$ (Critical = {result['critical_value']:.4f}, p = {result['p_value']:.4g}) -> {result['decision']}",
+                 fontsize=12, fontweight="bold")
+    ax.set_xlabel("Interval Bins", fontsize=11)
+    ax.set_ylabel("Observed Count", fontsize=11)
+    ax.grid(True, axis="y", linestyle="--", alpha=0.7)
+    ax.legend(loc="upper right")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
 
 
 if __name__ == "__main__":

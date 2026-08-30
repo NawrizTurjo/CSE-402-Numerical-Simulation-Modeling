@@ -60,7 +60,6 @@ def ks_uniform_test(sample, alpha=0.05):
     # print(f"d_critical: {d_critical}")
     # print(f"p_value: {p_value}")
     # print(f"D value: {d}")
-    # p<alpha hoile reject h0
     decision = "Reject H0" if d > d_critical else "Do not reject H0"
     return {
         "D+": d_plus,
@@ -70,6 +69,62 @@ def ks_uniform_test(sample, alpha=0.05):
         "p_value": p_value,
         "decision": decision,
     }
+
+
+def plot_ks_test(sample, alpha=0.05, title="Kolmogorov-Smirnov Test (ECDF vs Theoretical)", show=True, save_path=None):
+    """
+    Plot Empirical CDF vs Theoretical Uniform(0,1) CDF with maximum gap D highlighted.
+
+    Parameters
+    ----------
+    sample : list of float
+        Sample variates.
+    alpha : float, default=0.05
+        Significance level.
+    title : str, default='Kolmogorov-Smirnov Test (ECDF vs Theoretical)'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    n = len(sample)
+    s = sorted(sample)
+    d_plus, d_minus, d = ks_statistic(sample)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Theoretical CDF y = x
+    ax.plot([0, 1], [0, 1], "r--", linewidth=2, label="Theoretical CDF $F(x) = x$")
+
+    # Empirical CDF step function
+    x_steps = [0.0]
+    y_steps = [0.0]
+    for i, val in enumerate(s):
+        x_steps.extend([val, val])
+        y_steps.extend([i / n, (i + 1) / n])
+    x_steps.append(1.0)
+    y_steps.append(1.0)
+
+    ax.plot(x_steps, y_steps, "b-", linewidth=2, label=f"Empirical CDF $S_n(x)$ (N={n})")
+    ax.scatter(s, [(i + 1) / n for i in range(n)], color="blue", s=25, zorder=5)
+
+    ax.set_title(f"{title}\n$D = {d:.4f}$ ($D^+={d_plus:.4f}, D^-={d_minus:.4f}$)", fontsize=12, fontweight="bold")
+    ax.set_xlabel("x", fontsize=11)
+    ax.set_ylabel("Cumulative Probability $F(x)$", fontsize=11)
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(-0.02, 1.02)
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.legend(loc="upper left")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
 
 
 if __name__ == "__main__":

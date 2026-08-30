@@ -104,6 +104,76 @@ def monte_carlo_estimate(trial_fn, n, seed=None):
     }
 
 
+def plot_monte_carlo_convergence(trial_fn, n=10000, true_value=None, seed=None,
+                                 title="Monte Carlo Estimate Convergence vs N", show=True, save_path=None):
+    """
+    Plot running Monte Carlo estimate and 95% confidence interval band as sample size N grows.
+
+    Parameters
+    ----------
+    trial_fn : callable
+        Function returning one random sample y.
+    n : int, default=10000
+        Total sample count.
+    true_value : float, optional
+        Exact theoretical value for reference line.
+    seed : int, optional
+        Random seed.
+    title : str, default='Monte Carlo Estimate Convergence vs N'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    if seed is not None:
+        random.seed(seed)
+
+    running_estimates = []
+    ci_lowers = []
+    ci_uppers = []
+    n_points = []
+
+    total = 0.0
+    total_sq = 0.0
+
+    step = max(1, n // 200)
+    for i in range(1, n + 1):
+        y = trial_fn()
+        total += y
+        total_sq += y * y
+
+        if i % step == 0 or i == n:
+            mean = total / i
+            var = max(0.0, (total_sq - i * mean * mean) / (i - 1)) if i > 1 else 0.0
+            se = math.sqrt(var / i)
+            n_points.append(i)
+            running_estimates.append(mean)
+            ci_lowers.append(mean - 1.96 * se)
+            ci_uppers.append(mean + 1.96 * se)
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.plot(n_points, running_estimates, color="royalblue", linewidth=2, label="MC Estimate $\hat{\mu}_N$")
+    ax.fill_between(n_points, ci_lowers, ci_uppers, color="royalblue", alpha=0.2, label="95% Confidence Band")
+    if true_value is not None:
+        ax.axhline(true_value, color="crimson", linestyle="--", linewidth=2, label=f"True Value ({true_value:.4f})")
+
+    ax.set_title(title, fontsize=12, fontweight="bold")
+    ax.set_xlabel("Sample Size (N)", fontsize=11)
+    ax.set_ylabel("Estimate", fontsize=11)
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.legend(loc="upper right")
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     # Sanity check: probability that two dice sum to 7 (true answer = 1/6).
     def trial():

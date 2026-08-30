@@ -79,8 +79,64 @@ def metropolis_hastings(log_target, x0, n_samples, proposal_std=1.0, seed=None):
 def mean_and_variance(values):
     n = len(values)
     mean = sum(values) / n
-    variance = sum((v - mean) ** 2 for v in values) / n
-    return mean, variance
+    var = sum((x - mean) ** 2 for x in values) / (n - 1)
+    return mean, var
+
+
+def plot_metropolis_hastings(samples, target_pdf=None, burn_in=500, title="Metropolis-Hastings Diagnostics", show=True, save_path=None):
+    """
+    Plot Markov Chain trace and histogram of retained samples against true target density.
+
+    Parameters
+    ----------
+    samples : list of float
+        All generated samples.
+    target_pdf : callable, optional
+        Target probability density function.
+    burn_in : int, default=500
+        Number of initial samples discarded.
+    title : str, default='Metropolis-Hastings Diagnostics'
+        Figure title.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    kept = samples[burn_in:]
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+    # Left panel: trace plot
+    axes[0].plot(samples, linewidth=0.6, color="royalblue")
+    axes[0].axvline(burn_in, color="crimson", linestyle="--", linewidth=1.5, label=f"End of Burn-in ({burn_in})")
+    axes[0].set_title("MCMC Chain Trace")
+    axes[0].set_xlabel("Iteration")
+    axes[0].set_ylabel("x")
+    axes[0].grid(True, linestyle="--", alpha=0.6)
+    axes[0].legend()
+
+    # Right panel: histogram vs target density
+    axes[1].hist(kept, bins=50, density=True, color="mediumpurple", edgecolor="black", alpha=0.7, label="Retained Samples")
+    if target_pdf is not None:
+        min_x, max_x = min(kept), max(kept)
+        grid = [min_x + (max_x - min_x) * i / 300.0 for i in range(301)]
+        pdf_vals = [target_pdf(x) for x in grid]
+        axes[1].plot(grid, pdf_vals, "k-", linewidth=2, label="Target PDF $p(x)$")
+    axes[1].set_title("Sampled Density vs Target")
+    axes[1].set_xlabel("x")
+    axes[1].set_ylabel("Density")
+    axes[1].grid(True, linestyle="--", alpha=0.6)
+    axes[1].legend()
+
+    fig.suptitle(title, fontsize=13, fontweight="bold")
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
 
 
 if __name__ == "__main__":

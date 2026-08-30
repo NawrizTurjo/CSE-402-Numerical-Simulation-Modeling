@@ -108,6 +108,90 @@ def buffon_needle_pi(n_drops=None, L=1.0, D=2.0, seed=None, **kwargs):
 buffons_needle_pi = buffon_needle_pi
 
 
+def plot_buffons_needle(n_drops=300, L=1.0, D=2.0, seed=42, show=True, save_path=None):
+    """
+    Plot Buffon's needle experiment: parallel lines and needle drops with crossings highlighted.
+
+    Parameters
+    ----------
+    n_drops : int, default=300
+        Number of needles to visualize.
+    L : float, default=1.0
+        Needle length.
+    D : float, default=2.0
+        Line spacing.
+    seed : int, optional
+        Random seed.
+    show : bool, default=True
+        Whether to call plt.show().
+    save_path : str, optional
+        If provided, save the figure to this file path.
+    """
+    import matplotlib.pyplot as plt
+
+    if seed is not None:
+        random.seed(seed)
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # Left: Needle drops visualization
+    num_lines = 4
+    for i in range(num_lines + 1):
+        axes[0].axhline(i * D, color="gray", linestyle="-", linewidth=1.5)
+
+    hits = 0
+    for _ in range(n_drops):
+        # Pick center point
+        y_center = random.uniform(0.5 * D, (num_lines - 0.5) * D)
+        x_center = random.uniform(0, num_lines * D)
+        theta = random.uniform(0, math.pi)
+
+        dx = 0.5 * L * math.cos(theta)
+        dy = 0.5 * L * math.sin(theta)
+
+        y1, y2 = y_center - dy, y_center + dy
+        x1, x2 = x_center - dx, x_center + dx
+
+        # Check if needle crosses any line (floor(y1/D) != floor(y2/D))
+        crosses = math.floor(y1 / D) != math.floor(y2 / D)
+        if crosses:
+            hits += 1
+            axes[0].plot([x1, x2], [y1, y2], color="forestgreen", linewidth=1.2, alpha=0.8)
+        else:
+            axes[0].plot([x1, x2], [y1, y2], color="crimson", linewidth=1.0, alpha=0.5)
+
+    p_hat = hits / n_drops
+    pi_est = (2.0 * L) / (D * p_hat) if p_hat > 0 else 0.0
+
+    axes[0].set_title(f"Buffon's Needle Drops (N={n_drops})\nHits={hits} (Green), Misses={n_drops-hits} (Red)", fontsize=11, fontweight="bold")
+    axes[0].set_xlim(-0.5, num_lines * D + 0.5)
+    axes[0].set_ylim(0, num_lines * D)
+    axes[0].set_aspect("equal")
+
+    # Right: Convergence curve
+    n_seq = [100, 500, 1000, 2500, 5000, 10000, 25000, 50000]
+    pi_estimates = []
+    for n in n_seq:
+        r = buffon_needle_pi(n, L=L, D=D, seed=seed)
+        pi_estimates.append(r["pi_estimate"])
+
+    axes[1].plot(n_seq, pi_estimates, "o-", color="royalblue", linewidth=2, label="Estimated $\hat{\pi}$")
+    axes[1].axhline(math.pi, color="red", linestyle="--", linewidth=2, label="True $\pi = 3.14159$")
+    axes[1].set_title("$\pi$ Estimate Convergence vs Drops $N$", fontsize=11, fontweight="bold")
+    axes[1].set_xlabel("Number of Drops (N)")
+    axes[1].set_ylabel("Estimated $\pi$")
+    axes[1].set_xscale("log")
+    axes[1].grid(True, linestyle="--", alpha=0.6)
+    axes[1].legend()
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    return fig
+
+
 if __name__ == "__main__":
     n_values = [100, 1000, 10000, 100000, 1000000]
 
