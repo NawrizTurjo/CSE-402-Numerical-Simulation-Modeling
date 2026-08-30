@@ -57,6 +57,10 @@ def ks_uniform_test(sample, alpha=0.05):
     n = len(sample)
     d_critical = stats.ksone.ppf(1 - alpha, n)
     p_value = 1 - stats.ksone.cdf(d, n)
+    # print(f"d_critical: {d_critical}")
+    # print(f"p_value: {p_value}")
+    # print(f"D value: {d}")
+    # p<alpha hoile reject h0
     decision = "Reject H0" if d > d_critical else "Do not reject H0"
     return {
         "D+": d_plus,

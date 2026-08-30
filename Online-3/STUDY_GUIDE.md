@@ -250,7 +250,11 @@ problems is only what `Y` (the `trial_fn`) computes:
 
 **A1's exact question (Buffon's Needle):** already fully answered in
 [Code/solutions/a1_buffons_needle.py](Code/solutions/a1_buffons_needle.py).
-Run it: `python -m solutions.a1_buffons_needle`.
+Run it: `python solutions/a1_buffons_needle.py`.
+
+**B2's exact question (MSWS & Stochastic Network Reliability):** already fully answered in
+[Code/solutions/b2_msws_network_reliability.py](Code/solutions/b2_msws_network_reliability.py)
+(all 3 tasks). Run it: `python solutions/b2_msws_network_reliability.py`.
 
 ---
 
@@ -332,7 +336,7 @@ review below if you want more reps before the exam.
 3. `Code/rng/lcg.py` + `Code/rng/middle_square.py` (10 min)
 4. `Code/testing/*.py` (10 min — know which test answers which question: uniformity vs independence)
 5. `Code/monte_carlo/metropolis_hastings.py` (5 min)
-6. Skim `Code/solutions/` so you've seen the exact A1/C1/C2 answers once
+6. Skim `Code/solutions/` so you've seen the exact A1/B2/C1/C2 answers once
 7. If time remains: work through `Code/solutions/practice_src26/` from memory, then check
 
 `Code/cheatsheets/` (Python/numpy/random/scipy syntax) and `Code/viz/`

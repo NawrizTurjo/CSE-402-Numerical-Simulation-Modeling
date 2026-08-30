@@ -94,10 +94,14 @@ Review how real questions are answered:
 
 1. **[`Code/solutions/a1_buffons_needle.py`](Code/solutions/a1_buffons_needle.py)** (Exam A1)
    - Estimating $\pi$ with Buffon's Needle ($L=1, D=2 \implies P = \frac{1}{\pi}$).
-   - Just wraps `monte_carlo_estimate` with a drop condition: $x \le \frac{L}{2} \sin(\theta)$.
-2. **[`Code/solutions/c1_middle_square_investigation.py`](Code/solutions/c1_middle_square_investigation.py)** (Exam C1)
+   - Wraps `monte_carlo_estimate` with a drop condition: $x \le \frac{L}{2} \sin(\theta)$.
+2. **[`Code/solutions/b2_msws_network_reliability.py`](Code/solutions/b2_msws_network_reliability.py)** (Exam B2)
+   - Middle-Square Weyl Sequence (MSWS) 32-bit generator.
+   - 4-component stochastic network reliability ($X_i = -\beta_i \ln(1 - U_i)$) with series/parallel lifetime rules.
+   - Redundancy optimization (Component 2 is the best candidate for parallel spare).
+3. **[`Code/solutions/c1_middle_square_investigation.py`](Code/solutions/c1_middle_square_investigation.py)** (Exam C1)
    - Middle-square generation, cycle detection on seed 2500, Chi-Square table, and reflection.
-3. **[`Code/solutions/c2_hidden_period_collapse.py`](Code/solutions/c2_hidden_period_collapse.py)** (Exam C2)
+4. **[`Code/solutions/c2_hidden_period_collapse.py`](Code/solutions/c2_hidden_period_collapse.py)** (Exam C2)
    - Multiplicative LCG ($m=65536, a=5, X_0=1$).
    - Period is $p=16384 \ll N=100000$.
    - Why K-S fails to reject $H_0$: K-S sorts the data (order-invariant) and only measures 1-D uniformity, so cycle repeats do not shift the empirical CDF.
@@ -120,5 +124,5 @@ Review how real questions are answered:
 [ ] 2. simulation/single_server_queue.py (Understand update ordering)
 [ ] 3. rng/lcg.py & rng/middle_square.py (RNG equations + cycle detection)
 [ ] 4. testing/ (Chi-Square, K-S, and Independence differences)
-[ ] 5. solutions/a1, c1, c2         (Skim worked answers)
+[ ] 5. solutions/a1, b2, c1, c2     (Skim worked answers)
 ```

@@ -35,6 +35,8 @@ Every file is directly runnable on its own from ANY directory (e.g. `python .\in
 # Direct file runs (from anywhere):
 python rng/lcg.py
 python variate_generation/inverse_transform.py
+python solutions/a1_buffons_needle.py
+python solutions/b2_msws_network_reliability.py
 python solutions/c1_middle_square_investigation.py
 python solutions/c2_hidden_period_collapse.py
 
@@ -50,6 +52,7 @@ python -m monte_carlo.metropolis_hastings
 python -m variate_generation.inverse_transform
 python -m simulation.single_server_queue
 python -m solutions.a1_buffons_needle
+python -m solutions.b2_msws_network_reliability
 python -m solutions.c1_middle_square_investigation
 python -m solutions.c2_hidden_period_collapse
 python -m solutions.practice_src26.p1_sphere_volume
@@ -101,11 +104,16 @@ simulation/
                             1 or c servers, optional balking, optional trace)
 
 solutions/                Worked answers, built on the modules above
-  a1_buffons_needle.py       A1 (online exam)
+  a1_buffons_needle.py       A1 (online exam), Buffon's Needle pi simulation
+  b2_msws_network_reliability.py   B2 (online exam), MSWS + network reliability
   c1_middle_square_investigation.py   C1 (online exam), all 4 tasks
   c2_hidden_period_collapse.py        C2 (online exam), all 3 tasks
   practice_src26/            practice-problems.md #1-#6
   practice_generated/        ../../Practice/PRACTICE_QUESTIONS.md #R1,R2,S1,V1,M1,M2,MH1
+
+res/                      Official exam materials & syllabus
+  questions.md               All online exam questions (A1, B2, C1, C2)
+  syllabus.txt               Course exam syllabus
 
 viz/                     Optional matplotlib visualizations (only used if
                           a question explicitly asks for a plot -- nothing
