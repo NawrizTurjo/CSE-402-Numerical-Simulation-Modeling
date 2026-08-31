@@ -1,6 +1,6 @@
 import random
 import math
-
+seed = 2500
 def find_cycle(step, seed=2500):
     
     # step is a function
@@ -49,6 +49,18 @@ def find_lcg_cycle(seed=2500, a=21, c=1, m=10000):
         seed=seed
     )
 
+def lcg_next(a=21, c=1, m=10000):
+    """
+    Generate the next LCG value using the global seed,
+    then update the global seed.
+    """
+    global seed
+
+    seed = lcg_step(seed, a, c, m)
+    val = seed / m
+
+    return val
+
 # ==========================================================
 
 def buffon_pi(n, L=1.0,D=2.0):
@@ -56,15 +68,18 @@ def buffon_pi(n, L=1.0,D=2.0):
 
     samples = lcg_uniforms(n=2*n)
 
-    x_samples = samples[:n]
-    theta_samples = samples[n:]
+    # x_samples = samples[:n]
+    # theta_samples = samples[n:]
 
     for i in range(n):
         # x = (D/2.0) * random.random()
         # theta = (math.pi/2.0) * random.random()
         
-        x = (D/2.0) * x_samples[i]
-        theta = (math.pi/2.0) * theta_samples[i]
+        # x = (D/2.0) * x_samples[i]
+        # theta = (math.pi/2.0) * theta_samples[i]
+
+        x = (D/2.0) * lcg_next()
+        theta = (math.pi/2.0) * lcg_next()
         
 
         condition = (L/2.0) * math.sin(theta)
