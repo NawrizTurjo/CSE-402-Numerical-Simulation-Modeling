@@ -1,54 +1,41 @@
 """
-Practice M1: Estimating integral_0^1 e^(-x^2) dx (see ../../../Practice/PRACTICE_QUESTIONS.md).
-Same shape as monte_carlo/integration.py's own sin(x) example -- a
-function with no elementary closed-form antiderivative, which is
-precisely when Monte Carlo integration earns its keep.
-
-Run standalone:
-    python -m solutions.practice_generated.m1_gaussian_integral
+Practice M1: Estimating integral_0^1 e^(-x^2) dx.
+Simple, self-contained Monte Carlo integration.
 """
 
-
-import sys
-from pathlib import Path
-
-# Allow direct script execution from any directory
-_CODE_DIR = Path(__file__).resolve().parent
-while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
-    _CODE_DIR = _CODE_DIR.parent
-if str(_CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(_CODE_DIR))
-
 import math
-
-from monte_carlo.integration import integrate_1d
-
-EXACT = math.sqrt(math.pi) / 2 * math.erf(1)  # closed form via the error function, for checking only
+import random
 
 
-def f(x):
-    return math.exp(-x * x)
+def estimate_gaussian_integral(n=100000, seed=1):
+    random.seed(seed)
+
+    total = 0.0
+    total_sq = 0.0
+
+    for _ in range(n):
+        x = random.random()  # draw X ~ Uniform(0, 1)
+        y = math.exp(-x * x)  # evaluate f(X) = e^(-X^2)
+        total += y
+        total_sq += y * y
+
+    estimate = total / n
+    variance = (total_sq - n * estimate**2) / (n - 1)
+    std_error = math.sqrt(variance / n)
+
+    # 95% confidence interval
+    ci_low = estimate - 1.96 * std_error
+    ci_high = estimate + 1.96 * std_error
+
+    # Exact value via error function: (sqrt(pi)/2) * erf(1)
+    exact = math.sqrt(math.pi) / 2 * math.erf(1)
+
+    print("--- Monte Carlo Integration of e^(-x^2) over [0, 1] ---")
+    print(f"Estimate (N={n:,}) = {estimate:.5f}")
+    print(f"Exact Value        = {exact:.5f}")
+    print(f"Absolute Error     = {abs(estimate - exact):.5f}")
+    print(f"Standard Error     = {std_error:.5f}")
+    print(f"95% CI             = ({ci_low:.5f}, {ci_high:.5f})")
 
 
-def task1_estimate():
-    result = integrate_1d(f, 0, 1, n=100000, seed=1)
-    print("TASK 1: sample-mean Monte Carlo estimate")
-    print(f"  estimate={result['estimate']:.5f}  std_error={result['std_error']:.5f}  "
-          f"exact={EXACT:.5f}")
-    print()
-
-
-def task2_convergence():
-    print("TASK 2: convergence as n grows")
-    for n in (100, 1000, 10000, 100000):
-        result = integrate_1d(f, 0, 1, n=n, seed=1)
-        error = abs(result["estimate"] - EXACT)
-        print(f"  n={n:>7,}  estimate={result['estimate']:.5f}  "
-              f"error={error:.5f}  std_error={result['std_error']:.5f}")
-    print("  std_error shrinks by ~1/sqrt(10) each time n grows 10x, matching")
-    print("  the theoretical 1/sqrt(n) Monte Carlo convergence rate.")
-
-
-if __name__ == "__main__":
-    task1_estimate()
-    task2_convergence()
+estimate_gaussian_integral()

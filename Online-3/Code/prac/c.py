@@ -193,3 +193,43 @@ print("Sample variance :", variance)
 
 print("True mean       :", 3.0)
 print("True variance   :", 0.25)
+
+# ====================Inverse Transform====================
+
+def uniform(r, a, b):
+    """F(x) = (x-a)/(b-a)  =>  x = a + (b-a)*r"""
+    return a + (b - a) * r
+
+
+def exponential(r, mean):
+    """F(x) = 1 - e^(-x/mean)  =>  x = -mean * ln(1 - r)"""
+    return -mean * math.log(1 - r)
+
+
+def weibull(r, shape_k, scale_c):
+    """F(x) = 1 - e^(-(x/c)^k)  =>  x = c * (-ln(1 - r))^(1/k)"""
+    return scale_c * (-math.log(1 - r)) ** (1 / shape_k)
+
+
+def discrete(r, values, probs):
+    """Staircase CDF: walk the cumulative probability until r fits under it."""
+    cumulative = 0.0
+    for v, p in zip(values, probs):
+        cumulative += p
+        if r <= cumulative:
+            return v
+    return values[-1]  # floating-point safety net
+
+
+def triangular(r, low, high, mode):
+    """
+    Triangular(low, high, mode). CDF has two pieces (split at the mode),
+    so solve F(x)=r separately on each side.
+    """
+    split = (mode - low) / (high - low)
+    if r <= split: ## Left Side
+        return low + math.sqrt(r * (high - low) * (mode - low))
+    # else Right Side
+    return high - math.sqrt((1 - r) * (high - low) * (high - mode))
+
+

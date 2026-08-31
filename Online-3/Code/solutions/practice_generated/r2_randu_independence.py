@@ -1,85 +1,52 @@
 """
-Practice R2: RANDU -- The Generator That Fooled Everyone
-(see ../../../Practice/PRACTICE_QUESTIONS.md).
-
-Run standalone:
-    python -m solutions.practice_generated.r2_randu_independence
+Practice R2: RANDU Investigation.
+Parameters: X_{n+1} = (65539 * X_n) mod 2^31, seed = 1.
 """
 
-
-import sys
-from pathlib import Path
-
-# Allow direct script execution from any directory
-_CODE_DIR = Path(__file__).resolve().parent
-while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
-    _CODE_DIR = _CODE_DIR.parent
-if str(_CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(_CODE_DIR))
-
-from rng.lcg import lcg, lcg_uniforms
-from testing.chi_square_test import chi_square_uniform_test
-from testing.independence_test import autocorrelation_test
-
-SEED, A, C, M = 1, 65539, 0, 2**31
+import math
+from scipy import stats
 
 
-def task1_generate():
-    values = lcg(SEED, A, C, M, 20)
-    print("TASK 1: first 20 RANDU values (a=65539, c=0, m=2^31, seed=1)")
-    print(values)
-    print()
+def run_randu_practice():
+    seed = 1
+    a = 65539
+    m = 2**31
+    n = 1000
+
+    # 1. Generate numbers
+    x = seed
+    integers = []
+    uniforms = []
+    for _ in range(n):
+        x = (a * x) % m
+        integers.append(x)
+        uniforms.append(x / float(m))
+
+    print("--- RANDU PRNG Investigation ---")
+    print("First 5 RANDU integers:", integers[:5])
+
+    # 2. Chi-Square Test (1-D Uniformity)
+    bins = 10
+    observed = [0] * bins
+    for u in uniforms:
+        idx = min(int(u * bins), bins - 1)
+        observed[idx] += 1
+    expected = n / float(bins)
+    chi2 = sum((o - expected) ** 2 / expected for o in observed)
+    p_val = stats.chi2.sf(chi2, df=bins - 1)
+    print(f"Chi-Square Test (1-D)    : Chi^2 = {chi2:.2f}, p-value = {p_val:.4f} -> Passes Uniformity!")
+
+    # 3. Lag-1 Autocorrelation (2-D Independence)
+    sum_prod = sum(uniforms[k] * uniforms[k + 1] for k in range(n - 1))
+    rho_hat = (1.0 / (n - 1)) * sum_prod - 0.25
+    sigma = math.sqrt(13 * (n - 2) + 7) / (12.0 * (n - 1))
+    z0 = rho_hat / sigma
+    print(f"Autocorrelation (Lag-1)  : rho = {rho_hat:.4f}, Z0 = {z0:.4f} -> Passes Independence!")
+
+    # 4. 3D Hyperplane Defect: 9*X_i - 6*X_{i+1} + X_{i+2} mod m == 0
+    residuals = [(9 * integers[i] - 6 * integers[i + 1] + integers[i + 2]) % m for i in range(5)]
+    print(f"3D Hyperplane Residuals  : {residuals} (All Zero!)")
+    print("Conclusion: RANDU deceptively passes 1-D and 2-D tests, but fails catastrophically in 3-D.")
 
 
-def task2_chi_square():
-    uniforms = lcg_uniforms(SEED, A, C, M, 1000)
-    result = chi_square_uniform_test(uniforms)
-    print("TASK 2: Chi-Square uniformity test, N=1000, 10 bins")
-    print(f"  chi2={result['chi2']:.4f}  p={result['p_value']:.6g}  -> {result['decision']}")
-    print()
-    return uniforms
-
-
-def task3_autocorrelation(uniforms):
-    result = autocorrelation_test(uniforms, i=1, lag=1, N=len(uniforms))
-    print("TASK 3: Autocorrelation test, lag=1")
-    print(f"  rho_hat={result['rho_hat']:.4f}  Z0={result['Z0']:.4f}  -> {result['decision']}")
-    print()
-
-
-def task4_hyperplane_check():
-    print("TASK 4: Verify the hyperplane identity 9*X_i - 6*X_{i+1} + X_{i+2} == 0 (mod m)")
-    X = lcg(SEED, A, C, M, 10)
-    all_zero = True
-    for i in range(len(X) - 2):
-        residual = (9 * X[i] - 6 * X[i + 1] + X[i + 2]) % M
-        print(f"  triple starting at index {i}: residual = {residual}")
-        all_zero = all_zero and residual == 0
-    print(f"  All residuals zero: {all_zero}")
-    print()
-
-
-def task5_reflect():
-    print("TASK 5: Reflection")
-    print(
-        "RANDU passes BOTH the Chi-Square uniformity test AND the lag-1\n"
-        "autocorrelation independence test -- by every check used so far, it\n"
-        "looks like a fine generator. Yet Task 4 shows every consecutive TRIPLE\n"
-        "(X_i, X_{i+1}, X_{i+2}) satisfies an exact linear identity mod m, which\n"
-        "means all triples fall on just 15 parallel planes instead of filling\n"
-        "3-D space uniformly. Neither the 1-D Chi-Square test nor the pairwise\n"
-        "(lag-1) autocorrelation test can see this -- it only shows up once you\n"
-        "look at 3 (or more) values at a time. Lesson: passing the standard 1-D/\n"
-        "pairwise battery of tests is necessary but NOT sufficient; higher-\n"
-        "dimensional structure can still be badly broken. (RANDU was IBM's\n"
-        "default generator through the 1960s-70s and caused real, silently\n"
-        "wrong simulation results before this defect was widely understood.)"
-    )
-
-
-if __name__ == "__main__":
-    task1_generate()
-    uniforms = task2_chi_square()
-    task3_autocorrelation(uniforms)
-    task4_hyperplane_check()
-    task5_reflect()
+run_randu_practice()

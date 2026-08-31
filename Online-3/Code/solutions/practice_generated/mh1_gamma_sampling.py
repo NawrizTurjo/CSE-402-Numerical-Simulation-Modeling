@@ -1,77 +1,48 @@
 """
-Practice MH1: Sampling a Gamma(3,1)-shaped density with Metropolis-Hastings
-(see ../../../Practice/PRACTICE_QUESTIONS.md).
-
-Target (unnormalized): p(x) proportional to x^2 * e^(-x) for x > 0, and
-0 for x <= 0. This is the shape of a Gamma(shape=3, rate=1) distribution
-(true mean = shape/rate = 3, true variance = shape/rate^2 = 3), which is
-easy to check your sampler against without needing scipy.
-
-Handling the x <= 0 boundary: log_target returns -inf there, so
-log_alpha = log_target(x') - log_target(x) is -inf whenever a proposal
-lands at or below 0 -- meaning math.log(random.random()) < log_alpha is
-never true, so the chain naturally never accepts a move into the
-disallowed region. No special-case branch needed in the MH loop itself.
-
-Run standalone:
-    python -m solutions.practice_generated.mh1_gamma_sampling
+Practice MH1: Metropolis-Hastings Sampling for Gamma(3, 1).
+Target density: p(x) proportional to x^2 * e^(-x) for x > 0.
 """
 
-
-import sys
-from pathlib import Path
-
-# Allow direct script execution from any directory
-_CODE_DIR = Path(__file__).resolve().parent
-while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
-    _CODE_DIR = _CODE_DIR.parent
-if str(_CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(_CODE_DIR))
-
 import math
-
-from monte_carlo.metropolis_hastings import metropolis_hastings, mean_and_variance
+import random
 
 
 def log_target(x):
+    """Log of unnormalized target density p(x) = x^2 * e^(-x)."""
     if x <= 0:
         return float("-inf")
-    return 2 * math.log(x) - x  # log(x^2 * e^-x), constant normalizer dropped
+    return 2.0 * math.log(x) - x
 
 
-def task1_log_target():
-    print("TASK 1: log_target(x) = 2*log(x) - x for x>0, else -inf")
-    for x in (0.5, 1.0, 3.0, -1.0):
-        print(f"  log_target({x}) = {log_target(x)}")
-    print()
+def sample_gamma_mh(n=5000, step_size=1.5, x0=1.0, seed=42):
+    random.seed(seed)
+
+    samples = []
+    x = x0
+    accepted = 0
+
+    for _ in range(n):
+        # 1. Propose candidate using symmetric Normal random walk
+        x_prop = x + random.gauss(0, step_size)
+        log_alpha = log_target(x_prop) - log_target(x)
+
+        # 2. Accept / Reject
+        if log_alpha >= 0 or math.log(random.random()) < log_alpha:
+            x = x_prop
+            accepted += 1
+
+        samples.append(x)
+
+    # Discard burn-in (first 500 samples)
+    kept = samples[500:]
+    mean = sum(kept) / len(kept)
+    variance = sum((s - mean) ** 2 for s in kept) / (len(kept) - 1)
+
+    print("--- Metropolis-Hastings Sampling for Gamma(3, 1) ---")
+    print(f"Total Samples   = {n:,} (Burn-in discarded = 500)")
+    print(f"Acceptance Rate = {accepted / float(n):.4f}")
+    print(f"Sample Mean     = {mean:.4f}  (True Mean = 3.0000)")
+    print(f"Sample Variance = {variance:.4f}  (True Variance = 3.0000)")
 
 
-def task2_sample_and_check():
-    print("TASK 2: sample and check against the known Gamma(3,1) mean/variance")
-    samples, acceptance_rate = metropolis_hastings(
-        log_target, x0=1.0, n_samples=5000, proposal_std=1.5, seed=42
-    )
-    kept = samples[500:]  # discard burn-in
-    mean, variance = mean_and_variance(kept)
-    print(f"  proposal_std=1.5  acceptance_rate={acceptance_rate:.4f}")
-    print(f"  sample mean     = {mean:.4f}  (true = 3.0)")
-    print(f"  sample variance = {variance:.4f}  (true = 3.0)")
-    print()
-
-
-def task3_step_size_effect():
-    print("TASK 3: effect of the proposal step size on acceptance rate")
-    for step in (0.5, 1.5, 5.0):
-        samples, rate = metropolis_hastings(log_target, x0=1.0, n_samples=5000, proposal_std=step, seed=42)
-        mean, variance = mean_and_variance(samples[500:])
-        print(f"  proposal_std={step:4.1f}  acceptance={rate:.4f}  mean={mean:.4f}  variance={variance:.4f}")
-    print("  Small steps -> most proposals accepted but the chain explores slowly.")
-    print("  Large steps -> big jumps proposed but most land in low-density area")
-    print("  and get rejected, so acceptance rate drops. A moderate step size")
-    print("  (here ~1.5) balances exploration against acceptance rate.")
-
-
-if __name__ == "__main__":
-    task1_log_target()
-    task2_sample_and_check()
-    task3_step_size_effect()
+sample_gamma_mh()

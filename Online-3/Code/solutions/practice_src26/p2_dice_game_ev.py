@@ -26,11 +26,19 @@ from monte_carlo.core import monte_carlo_estimate
 
 
 def dice_game_payoff():
-    dice = [random.randint(1, 6) for _ in range(3)]
-    distinct = len(set(dice))
-    if distinct == 1:
+    # dice = [random.randint(1, 6) for _ in range(3)]
+    # distinct = len(set(dice))
+    # if distinct == 1:
+    #     return 20.0
+    # if distinct == 2:
+    #     return 5.0
+    # return -2.0
+    d1 = random.randint(1,6)
+    d2 = random.randint(1,6)
+    d3 = random.randint(1,6)
+    if d1==d2==d3:
         return 20.0
-    if distinct == 2:
+    if d1==d2 or d2==d3 or d3==d1:
         return 5.0
     return -2.0
 

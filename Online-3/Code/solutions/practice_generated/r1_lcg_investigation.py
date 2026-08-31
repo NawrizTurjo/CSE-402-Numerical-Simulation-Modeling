@@ -1,87 +1,56 @@
 """
-Practice R1: LCG Investigation (see ../../../Practice/PRACTICE_QUESTIONS.md).
-Same shape as the C1 exam question, but for the LCG instead of Middle-Square.
-
-Run standalone:
-    python -m solutions.practice_generated.r1_lcg_investigation
+Practice R1: LCG Investigation & Chi-Square Uniformity Test.
+Recurrence: X_{n+1} = (a * X_n + c) mod m,  U_n = X_n / m.
 """
 
-
-import sys
-from pathlib import Path
-
-# Allow direct script execution from any directory
-_CODE_DIR = Path(__file__).resolve().parent
-while _CODE_DIR.name != "Code" and _CODE_DIR.parent != _CODE_DIR:
-    _CODE_DIR = _CODE_DIR.parent
-if str(_CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(_CODE_DIR))
-
-from rng.lcg import lcg, lcg_uniforms, find_lcg_cycle, check_max_period_conditions
-from testing.chi_square_test import chi_square_uniform_test
+from scipy import stats
 
 
-def task1_generate():
-    seed, a, c, m = 7, 5, 3, 16
-    values = lcg(seed, a, c, m, 20)
-    print(f"TASK 1: seed={seed}, a={a}, c={c}, m={m} -> first 20 values")
-    print(values)
-    print()
+def lcg_stream(seed, a, c, m, n):
+    x = seed
+    out = []
+    for _ in range(n):
+        x = (a * x + c) % m
+        out.append(x)
+    return out
 
 
-def task2_investigate():
-    print("TASK 2: Parameter investigation")
+def chi_square_test(uniforms, bins=10, alpha=0.05):
+    n = len(uniforms)
+    observed = [0] * bins
+    for u in uniforms:
+        idx = min(int(u * bins), bins - 1)
+        observed[idx] += 1
 
-    case, max_p, ok, details = check_max_period_conditions(a=5, c=3, m=16, seed=7)
-    _, _, measured_period = find_lcg_cycle(7, 5, 3, 16)
-    print(f"  (a) Full-period config a=5,c=3,m=16,seed=7: {case} -> theoretical max={max_p}")
-    print(f"      Conditions satisfied: {ok} ({details})")
-    print(f"      Measured period: {measured_period}  (matches theory)")
-
-    repeated, iteration, cycle_length = find_lcg_cycle(7, 1, 0, 16)
-    print(f"  (b) Degenerate config a=1,c=0,m=16,seed=7:")
-    print(f"      First repeated value: {repeated}")
-    print(f"      Iteration it repeats: {iteration}")
-    print(f"      Cycle length: {cycle_length}")
-    print(f"      Why: X_next = (1*X + 0) mod 16 = X, always -- the recurrence is the identity function.")
-    print()
+    expected = n / float(bins)
+    chi2 = sum((o - expected) ** 2 / expected for o in observed)
+    df = bins - 1
+    p_val = stats.chi2.sf(chi2, df)
+    decision = "Reject H0" if p_val < alpha else "Do not reject H0"
+    return chi2, p_val, decision
 
 
-def task3_chi_square():
-    print("TASK 3: Chi-Square test, N=1000, 10 bins, alpha=0.05")
-    print("| Generator                             | Chi^2      | p-value    | Decision          |")
-    print("|----------------------------------------|-----------|------------|-------------------|")
-    configs = [
-        ("Full-period (a=5,c=3,m=16)", 7, 5, 3, 16),
-        ("Degenerate (a=1,c=0,m=16)", 7, 1, 0, 16),
-        ("ANSI-C rand (a=1103515245,c=12345,m=2^31)", 1, 1103515245, 12345, 2**31),
-    ]
-    for label, seed, a, c, m in configs:
-        uniforms = lcg_uniforms(seed, a, c, m, 1000)
-        result = chi_square_uniform_test(uniforms)
-        print(f"| {label:<40} | {result['chi2']:9.4f} | {result['p_value']:.6g} | {result['decision']:<17} |")
-    print()
+def run_lcg_practice():
+    print("--- LCG Investigation & Chi-Square Test ---")
+
+    # 1. Generate first 20 values
+    vals = lcg_stream(seed=7, a=5, c=3, m=16, n=20)
+    print("First 20 values (seed=7, a=5, c=3, m=16):", vals)
+
+    # 2. Chi-Square uniformity tests (N = 1000)
+    # Small full-period LCG (m = 16)
+    u_small = [x / 16.0 for x in lcg_stream(seed=7, a=5, c=3, m=16, n=1000)]
+    chi2_s, p_s, dec_s = chi_square_test(u_small)
+    print(f"Small LCG (m=16)   -> Chi^2 = {chi2_s:.2f}, p-value = {p_s:.4e} -> {dec_s}")
+
+    # ANSI-C LCG (m = 2^31)
+    m_large = 2**31
+    u_ansic = [x / float(m_large) for x in lcg_stream(seed=1, a=1103515245, c=12345, m=m_large, n=1000)]
+    chi2_a, p_a, dec_a = chi_square_test(u_ansic)
+    print(f"ANSI-C (m=2^31)    -> Chi^2 = {chi2_a:.2f}, p-value = {p_a:.4f} -> {dec_a}")
+
+    print("\nNote: Full-period on a small m (e.g. m=16) repeats too fast and fails uniformity.")
+    print("A large modulus m (like 2^31) is required for quality simulations.")
 
 
-def task4_reflect():
-    print("TASK 4: Reflection")
-    print(
-        "No -- reaching the THEORETICAL maximum period for a given m does not\n"
-        "make a generator statistically good, because the max period is capped\n"
-        "by m itself. a=5,c=3,m=16 genuinely achieves its theoretical max period\n"
-        "of 16 (verified in Task 2) -- but 16 distinct values repeated ~63 times\n"
-        "each to fill 1000 draws is nowhere close to i.i.d. Uniform(0,1), so it\n"
-        "fails Chi-Square badly (Task 3). Contrast with the ANSI-C generator:\n"
-        "its m=2^31 is astronomically larger, so even without checking whether\n"
-        "it hits ITS theoretical max period, 1000 draws barely sample its state\n"
-        "space and it passes easily. Lesson: period THEORY tells you the best\n"
-        "case for a given m; you separately need m itself to be large enough for\n"
-        "how many values you plan to draw."
-    )
-
-
-if __name__ == "__main__":
-    task1_generate()
-    task2_investigate()
-    task3_chi_square()
-    task4_reflect()
+run_lcg_practice()
