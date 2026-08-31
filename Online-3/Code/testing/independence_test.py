@@ -75,6 +75,8 @@ def autocorrelation_test(R, i, lag, N, alpha=0.05):
     N    : total sample size (usually len(R)).
     """
     M = (N - i) // lag - 1
+    if M < 0:
+        raise ValueError(f"Not enough data for i={i}, lag={lag}, N={N} (M={M} < 0)")
     indices = [i - 1 + k * lag for k in range(M + 2)]  # convert to 0-based
     pair_sum = sum(R[indices[k]] * R[indices[k + 1]] for k in range(len(indices) - 1))
 
@@ -86,7 +88,7 @@ def autocorrelation_test(R, i, lag, N, alpha=0.05):
     p_value = 2 * (1 - stats.norm.cdf(abs(z0)))
     decision = "Reject H0 (dependent)" if abs(z0) > z_critical else "Do not reject H0"
 
-    return {"M": M, "rho_hat": rho_hat, "sigma": sigma, "Z0": z0,
+    return {"M": M, "rho_hat": rho_hat, "sigma": sigma, "sigma_rho": sigma, "Z0": z0,
             "critical_value": z_critical, "p_value": p_value, "decision": decision}
 
 
@@ -162,32 +164,36 @@ def plot_autocorrelation(R, max_lag=10, alpha=0.05, title="Autocorrelation vs La
     """
     import matplotlib.pyplot as plt
 
-    lags = list(range(1, max_lag + 1))
-    rhos = []
-    z_bounds = []
-
     z_crit = stats.norm.ppf(1 - alpha / 2)
     n = len(R)
 
-    for lag in lags:
+    valid_lags = []
+    rhos = []
+    z_bounds = []
+
+    for lag in range(1, max_lag + 1):
         try:
             res = autocorrelation_test(R, i=1, lag=lag, N=n, alpha=alpha)
+            valid_lags.append(lag)
             rhos.append(res["rho_hat"])
-            z_bounds.append(z_crit * res["sigma_rho"])
-        except ValueError:
-            rhos.append(0.0)
-            z_bounds.append(0.0)
+            z_bounds.append(z_crit * res["sigma"])
+        except (ValueError, ZeroDivisionError):
+            continue
+
+    if not valid_lags:
+        print("Not enough sample points to plot autocorrelation.")
+        return None
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    ax.bar(lags, rhos, color="steelblue", edgecolor="black", alpha=0.8, label="Estimated $\hat{\\rho}_l$")
-    ax.plot(lags, z_bounds, "r--", linewidth=1.5, label=f"Upper 95% Bound (+{z_crit:.2f}$\sigma$)")
-    ax.plot(lags, [-b for b in z_bounds], "r--", linewidth=1.5, label=f"Lower 95% Bound (-{z_crit:.2f}$\sigma$)")
+    ax.bar(valid_lags, rhos, color="steelblue", edgecolor="black", alpha=0.8, label=r"Estimated $\hat{\rho}_l$")
+    ax.plot(valid_lags, z_bounds, "r--", linewidth=1.5, label=rf"Upper 95% Bound (+{z_crit:.2f}$\sigma$)")
+    ax.plot(valid_lags, [-b for b in z_bounds], "r--", linewidth=1.5, label=rf"Lower 95% Bound (-{z_crit:.2f}$\sigma$)")
     ax.axhline(0, color="black", linewidth=1)
 
-    ax.set_title(f"{title} (N={n}, $\\alpha={alpha}$)", fontsize=12, fontweight="bold")
+    ax.set_title(rf"{title} (N={n}, $\alpha={alpha}$)", fontsize=12, fontweight="bold")
     ax.set_xlabel("Lag (l)", fontsize=11)
-    ax.set_ylabel("Autocorrelation $\hat{\\rho}_l$", fontsize=11)
-    ax.set_xticks(lags)
+    ax.set_ylabel(r"Autocorrelation $\hat{\rho}_l$", fontsize=11)
+    ax.set_xticks(valid_lags)
     ax.grid(True, linestyle="--", alpha=0.6)
     ax.legend(loc="upper right")
 
@@ -235,3 +241,4 @@ if __name__ == "__main__":
     print("  block the direction changes look statistically normal, so the up/down")
     print("  test sees nothing wrong. Same data, genuinely different verdicts --")
     print("  the two tests are sensitive to different kinds of dependence.")
+    plot_autocorrelation(sample)

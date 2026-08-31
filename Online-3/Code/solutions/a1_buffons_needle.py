@@ -203,6 +203,7 @@ if __name__ == "__main__":
     # Fixed seed sequence for reproducible sample output
     for i, N in enumerate(n_values):
         res = buffon_needle_pi(N, L=1.0, D=2.0, seed=42 + i)
+        # plot_buffons_needle(n_drops=N,L=1.0,D=2.0,seed=42 + i,show=True)
         n_str = f"{res['n_drops']:,}"
         h_str = f"{res['hits']:,}"
         print(

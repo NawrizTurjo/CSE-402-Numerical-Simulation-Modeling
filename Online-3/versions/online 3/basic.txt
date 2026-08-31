@@ -1,0 +1,19 @@
+seed
+a, c, m
+number_of_values
+target_density
+integration_function
+integration_limits
+alpha
+interarrival_times
+service_times
+
+- “middle digits” → Middle-Square
+- `X(i+1) = (aXi + c) mod m` → LCG
+- “uniform across intervals” → Chi-Square
+- “accept with probability” → Metropolis–Hastings
+- “points inside a circle” → Monte Carlo π
+- “estimate an integral” → Monte Carlo integration
+- “transform uniform values” → Inverse Transform
+- “sample under a density curve” → Acceptance–Rejection
+- “arrival, service, waiting” → Queue simulation

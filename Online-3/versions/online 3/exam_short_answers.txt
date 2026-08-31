@@ -1,0 +1,328 @@
+SHORT QUESTIONS AND ANSWERS: RNG AND MONTE CARLO SIMULATION
+
+1. Does passing the Chi-Square test necessarily mean that a generator is good?
+
+No. Passing the test only means that the frequencies in the selected bins are
+close to a uniform distribution. The numbers may still be predictable, have a
+short period, or be correlated. Other statistical tests are also necessary.
+
+
+2. What is a pseudo-random number generator (PRNG)?
+
+A PRNG is a deterministic algorithm that uses a starting seed to produce a
+sequence that looks random. The same seed always produces the same sequence.
+
+
+3. What is a seed?
+
+A seed is the initial value given to a pseudo-random number generator. It
+determines the sequence produced by the generator.
+
+
+4. Why are pseudo-random numbers useful in simulation?
+
+They are fast to generate and reproducible. Reproducibility helps us repeat an
+experiment, test a program, and compare results.
+
+
+5. What is the main weakness of the Middle-Square method?
+
+It can quickly enter a short cycle or become zero. After reaching zero, it
+continues generating zero forever. Its quality also depends heavily on the seed.
+
+
+6. Why are leading zeros important in the Middle-Square method?
+
+The square must always be treated as an 8-digit value so that the correct middle
+four positions are selected. Missing leading zeros changes those positions.
+
+
+7. What is the Linear Congruential Generator (LCG)?
+
+It generates integers using:
+
+X(next) = (a * X(current) + c) mod m
+
+The generated integer is commonly divided by m to obtain a value in [0, 1).
+
+
+8. What is the difference between mixed and multiplicative LCG?
+
+A mixed LCG uses a nonzero increment c. A multiplicative LCG uses c = 0.
+
+
+9. What is the period of a random-number generator?
+
+The period is the number of generated values before the sequence begins to
+repeat. A longer period is generally better for large simulations.
+
+
+10. Why does an LCG eventually repeat?
+
+An LCG has only a finite number of possible states. Once a previous state occurs
+again, all later values repeat in the same order.
+
+
+11. What qualities should a good random-number generator have?
+
+It should have a long period, an approximately uniform distribution, low
+correlation, few visible patterns, good speed, and reproducible results.
+
+
+12. What is the null hypothesis in a uniformity test?
+
+H0: The generated numbers follow a uniform distribution over [0, 1).
+
+
+13. What does significance level alpha = 0.05 mean?
+
+It means that we accept a 5 percent risk of rejecting the null hypothesis when
+it is actually true.
+
+
+14. How is a Chi-Square decision made?
+
+If p-value < 0.05, reject H0. Otherwise, do not reject H0.
+
+
+15. What does "do not reject H0" mean?
+
+It means there is not enough evidence to say that the values are non-uniform.
+It does not prove that the generator is perfectly uniform or truly random.
+
+
+16. Why is the expected count 100 for 1,000 values and 10 bins?
+
+For a uniform distribution, every bin has equal probability. Therefore:
+
+Expected count = 1000 / 10 = 100.
+
+
+17. What does the Chi-Square statistic measure?
+
+It measures the difference between observed and expected bin counts. A large
+value shows a large difference and gives more evidence against H0.
+
+
+18. What are the degrees of freedom for 10 bins?
+
+Degrees of freedom = number of bins - 1 = 10 - 1 = 9.
+
+
+19. What is the difference between Chi-Square and K-S tests?
+
+Chi-Square compares counts in intervals, while the Kolmogorov-Smirnov test
+compares the empirical cumulative distribution with the expected cumulative
+distribution. The K-S test does not require dividing the data into bins.
+
+
+20. What does an autocorrelation test check?
+
+It checks whether values in different positions of a sequence are related. A
+good random sequence should have autocorrelation close to zero.
+
+
+21. Can uniformly distributed values still be dependent?
+
+Yes. Values may have correct frequencies but still follow a predictable order.
+Therefore, uniformity and independence must be tested separately.
+
+
+22. What is Monte Carlo simulation?
+
+Monte Carlo simulation uses repeated random samples to estimate a numerical
+result or study a system containing uncertainty.
+
+
+23. Why does Monte Carlo accuracy usually improve with more samples?
+
+Random errors tend to average out as the number of samples increases. However,
+improvement is slow, so a much larger sample may be needed for high accuracy.
+
+
+24. How is pi estimated using Monte Carlo simulation?
+
+Generate points (x, y) in a unit square and count those satisfying
+x^2 + y^2 <= 1. Then use:
+
+pi estimate = 4 * points inside / total points.
+
+
+25. How does Monte Carlo integration work?
+
+It evaluates the function at many randomly selected points and uses the average
+function value multiplied by the length of the integration interval.
+
+
+26. What is the inverse transform method?
+
+It converts a uniform random value U into another distribution by applying the
+inverse cumulative distribution function: X = F^(-1)(U).
+
+
+27. What is the acceptance-rejection method?
+
+It generates a candidate value and accepts it only when another random point
+falls below the target density curve. Rejected candidates are discarded.
+
+
+28. What is importance sampling?
+
+Importance sampling draws more samples from important regions of the function
+and uses weights to correct the estimate. It can reduce Monte Carlo variance.
+
+
+29. What is the Metropolis-Hastings algorithm?
+
+It is an MCMC algorithm that builds a Markov chain whose long-run samples follow
+a target distribution. Each proposed value is accepted or rejected using an
+acceptance probability.
+
+
+30. What is the Metropolis-Hastings acceptance probability?
+
+For a symmetric proposal, it is:
+
+min(1, target density at proposal / target density at current value).
+
+For a non-symmetric proposal, the proposal probabilities must also be included.
+
+
+31. Why can Metropolis-Hastings accept a worse proposal?
+
+Occasionally accepting a lower-density proposal prevents the chain from getting
+stuck and allows it to explore the entire target distribution.
+
+
+32. What happens when a Metropolis-Hastings proposal is rejected?
+
+The current value is kept and added to the sample again. Repeated values are
+therefore a normal part of the algorithm.
+
+
+33. What is burn-in in MCMC?
+
+Burn-in is the initial part of an MCMC sequence that is discarded because the
+chain may still be strongly affected by its starting value.
+
+
+34. What is a Markov chain?
+
+It is a sequence in which the next state depends on the current state rather
+than the complete history of earlier states.
+
+
+35. What is the effect of proposal step size in Metropolis-Hastings?
+
+A very small step gives high acceptance but slow movement. A very large step
+causes many rejections. A suitable step size balances movement and acceptance.
+
+
+36. What is the difference between deterministic and stochastic simulation?
+
+A deterministic simulation produces the same result from fixed inputs. A
+stochastic simulation contains random variables and can produce different
+results on different runs.
+
+
+37. What is server utilization in a queue simulation?
+
+It is the proportion of simulation time during which the server is busy:
+
+utilization = total busy time / total simulation time.
+
+
+38. What is waiting time in a single-server FCFS queue?
+
+It is the time from a customer's arrival until service begins:
+
+waiting time = service start time - arrival time.
+
+
+39. What does FCFS mean?
+
+FCFS means First Come, First Served. Customers receive service in the same order
+in which they arrive.
+
+
+40. Why should simulation results be checked using several runs?
+
+One run may be unusually high or low because of random variation. Several runs
+provide a more reliable average and show how much the results vary.
+
+
+QUESTIONS FROM THE LAST PAGES OF THE PDF
+
+41. Why is the method called Monte Carlo?
+
+It is named after the Monte Carlo Casino in Monaco because the method depends on
+random sampling, similar to games of chance. It was developed during World War II
+by scientists including Stanislaw Ulam and John von Neumann.
+
+
+42. How do we estimate an expected value in Monte Carlo simulation?
+
+Generate many independent samples and calculate their sample mean:
+
+Y_bar = (Y1 + Y2 + ... + Yn) / n.
+
+According to the law of large numbers, this average approaches the true expected
+value as the number of samples becomes large.
+
+
+43. What is the sample mean estimator?
+
+The sample mean estimator is the average of the observed sample values. It is
+used to estimate the unknown population mean or expected value:
+
+Y_bar = (1/n) * sum(Yi).
+
+
+44. Why can an integral be estimated using a sample mean?
+
+An integral can be written as an expected value of a function of a random
+variable. Therefore, we can estimate the integral by averaging the function
+values obtained from many random samples.
+
+
+45. Does taking more Monte Carlo samples help?
+
+Generally, yes. As the sample size increases, the estimate usually becomes more
+stable and closer to the true value because of the law of large numbers.
+
+
+46. Why does Monte Carlo error not decrease monotonically?
+
+Every estimate is calculated from random samples, so the estimate itself is a
+random variable. A larger sample can occasionally produce a worse estimate than
+a smaller sample, although the overall accuracy improves as sample size grows.
+
+
+47. Why does the Monte Carlo method for estimating pi work?
+
+The probability that a uniform point in the unit square falls inside the quarter
+circle equals the ratio of their areas:
+
+P(inside) = (pi/4) / 1 = pi/4.
+
+Thus, inside points / total points is approximately pi/4, and multiplying this
+ratio by 4 gives an estimate of pi.
+
+
+48. Why do we check x^2 + y^2 <= 1 when estimating pi?
+
+A point (x, y) is inside a circle of radius 1 centered at the origin when its
+distance from the origin is at most 1. From the distance formula, this condition
+is x^2 + y^2 <= 1.
+
+
+49. Is a Monte Carlo answer exact?
+
+No. It is a statistical estimate containing sampling error. Increasing the
+number of samples usually reduces this error but does not remove randomness.
+
+
+50. State the law of large numbers in the context of Monte Carlo simulation.
+
+As the number of independent samples increases, their sample mean converges to
+the true expected value. This is the main reason Monte Carlo estimation works.

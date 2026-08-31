@@ -135,3 +135,4 @@ if __name__ == "__main__":
     print(f"D_critical={result['critical_value']:.4f}  p={result['p_value']:.4f}  "
           f"-> {result['decision']}")
     # Expected (matches slide): D+=0.2600 D-=0.2100 D=0.2600 D_crit=0.5094 -> Do not reject H0
+    plot_ks_test(sample=sample)

@@ -135,3 +135,6 @@ if __name__ == "__main__":
     #           f"critical={result['critical_value']:.4f}  p={result['p_value']:.6g}  "
     #           f"-> {result['decision']}"
     #           f"\n\t->{result['decision2']}"
+    # plot_chi_square(
+    #     uniforms=sample,
+    # )

@@ -184,3 +184,4 @@ if __name__ == "__main__":
     result = monte_carlo_estimate(trial, n=200000, seed=1)
     print(f"P(sum=7) estimate = {result['estimate']:.4f}  "
           f"(true = {1/6:.4f})  CI95={result['ci95']}")
+    plot_monte_carlo_convergence(trial, n=200000, seed=1)
