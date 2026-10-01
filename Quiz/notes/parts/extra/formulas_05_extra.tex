@@ -1,0 +1,267 @@
+\subsection{Golden Section Search --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(G1) Interval width after $n$ iterations --- the formula a past exam actually required.}
+Every iteration keeps the fraction $R$ of the current bracket, so the widths form a geometric sequence:
+\[
+L_1 = R\,L_0,\quad L_2 = R^2L_0,\quad\dots\quad
+\boxed{\;L_n = R^{\,n}\,L_0\;},\qquad R = \frac{\sqrt5-1}{2} = 0.618034 .
+\]
+With $L_0 = x_u - x_L$ the starting width. A question asking for the bracket after 3 iterations of $[0,4]$ is one multiplication: $4(0.236068) = 0.944272$ --- \emph{not} three rounds of hand iteration.
+
+\smallskip
+\textbf{(G2) Iterations required for a target width.} Solve $R^nL_0 \le \varepsilon$ (note $\ln R < 0$, so the inequality flips):
+\[
+\boxed{\;n \;\ge\; \frac{\ln(\varepsilon/L_0)}{\ln R} \;=\; \frac{\log(\varepsilon/L_0)}{\log 0.618034}\;}
+\]
+and round \emph{up}. Example: $L_0 = 1$, $\varepsilon = 0.01$ gives $n \ge 9.57 \Rightarrow 10$ iterations.
+
+\smallskip
+\textbf{(G3) Reported optimum and its uncertainty.} The answer is the bracket midpoint, so the worst-case error is \emph{half} the final width:
+\[
+x_{opt} = \frac{x_u+x_L}{2}, \qquad |x_{opt} - x^\ast| \;\le\; \frac{L_n}{2} = \frac{R^{\,n}L_0}{2}.
+\]
+
+\smallskip
+\textbf{(G4) Function-evaluation count.} Iteration 1 needs \textbf{two} interior evaluations; every later iteration reuses one point and needs only \textbf{one}:
+\[
+\boxed{\text{interior evaluations after } n \text{ iterations} = n+1}
+\]
+(Add 2 more if the problem also counts the endpoints $f_L, f_u$.) This is the entire point of the golden placement --- state your counting convention, because MCQ options differ by exactly these $\pm2$.
+
+\smallskip
+\textbf{(G5) The three identities of $R$ (each has appeared as an MCQ).}
+\[
+R^2 + R - 1 = 0 \;\Longrightarrow\;
+\boxed{R^2 = 1-R = 0.381966}, \qquad
+\boxed{\frac1R = 1+R = 1.618034}
+\]
+So $R^2$ and $1-R$ are the \emph{same number}, and $1/R$ exceeds $R$ by exactly 1.
+
+\smallskip
+\textbf{(G6) Per-iteration reduction, and why ``slower'' is still better here.}
+GSS discards $1-R = 38.2\%$ of the bracket per iteration; bisection discards $50\%$. So in raw width-per-iteration, \textbf{bisection wins}. But bisection solves $f(x)=0$ using a sign change, which an optimizer does not have; GSS needs only \emph{comparisons} of $f$ values, and it recycles one evaluation per round. Comparing widths:
+\[
+\text{GSS: } 0.618^n \qquad\text{vs}\qquad \text{bisection-style halving: } 0.5^n
+\]
+
+\smallskip
+\textbf{(G7) Absolute vs relative stopping.} The deck's criterion is \emph{relative}:
+\[
+\left|\frac{2(x_u-x_L)}{x_u+x_L}\right| < \varepsilon_s
+\]
+which is $L_n$ divided by the midpoint. On an interval far from the origin this triggers much earlier than an absolute test $L_n<\varepsilon$; near the origin it is far stricter. Read which one a question wants.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{$R^n$ --- memorize the first four, and know how to get the rest.}
+\begin{center}\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+$n$ & 1 & 2 & 3 & 4 & 5\\
+\midrule
+$R^n$ & 0.618034 & 0.381966 & \textbf{0.236068} & 0.145898 & 0.090170\\
+$0.5^n$ & 0.5 & 0.25 & 0.125 & 0.0625 & 0.03125\\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+$n$ & 6 & 7 & 8 & 9 & 10\\
+\midrule
+$R^n$ & 0.055728 & 0.034442 & 0.021286 & 0.013156 & 0.008131\\
+$0.5^n$ & 0.015625 & 0.00781 & 0.00391 & 0.00195 & 0.00098\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Iterations to shrink a unit interval} (round up):
+\begin{center}\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Target $\varepsilon$ & $0.1$ & $0.05$ & $0.01$ & $0.001$\\
+\midrule
+GSS $n$ & 5 & 7 & \textbf{10} & 15\\
+Halving $n$ & 4 & 5 & 7 & 10\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Constants:} $R = 0.618034$, $R^2 = 1-R = 0.381966$, $1/R = 1+R = 1.618034$, $\sqrt5 = 2.236068$.
+
+\textbf{The deck's worked run} ($f = 2\sin x - x^2/10$ on $[0,4]$): $d_1 = 2.47214$, $x_1 = 1.52786$, $x_2 = 2.47214$, $f_1 = 1.76580 > f_2 = 0.64586$, so $x_u \leftarrow 2.47214$. True optimum $x^\ast \approx 1.4276$, $f^\ast \approx 1.7757$.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{$R = 0.618$, not $1.618$.} The interval \emph{shrinks}; multiplying by $1.618$ grows it. Both numbers will be offered.
+\item \textbf{$L_n = R^nL_0$ --- do not forget $L_0$.} The answer for $[0,4]$ after 3 iterations is $4R^3$, not $R^3$.
+\item \textbf{Iterations vs function evaluations are different counts} ($n$ vs $n+1$ interior). Read the stem.
+\item \textbf{The reported error is $L_n/2$, not $L_n$}, because the answer is the midpoint.
+\item \textbf{GSS removes \emph{less} per iteration than bisection} ($38.2\%$ vs $50\%$). ``Golden'' refers to evaluation reuse, not to raw speed.
+\item \textbf{Unimodality is required.} With two maxima the comparison rule can discard the better one --- the method still returns an answer, silently wrong.
+\item \textbf{The deck's stopping test is relative}; comparing it directly against an absolute tolerance is a mismatch.
+\item \textbf{$R^2 = 1-R$}, so an option offering ``$0.382$'' and one offering ``$R^2$'' are the same answer.
+\end{itemize}
+\end{trapbox}
+
+\subsection{Gradient Descent --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(D1) The exact convergence condition on a quadratic --- the key hidden result.}
+For $J(x) = a(x-x^\ast)^2$ we have $J'(x) = 2a(x-x^\ast)$, so the update $x_{k+1} = x_k - \alpha J'(x_k)$ gives, in terms of the error $e_k = x_k - x^\ast$,
+\[
+\boxed{\,e_{k+1} = (1-2a\alpha)\,e_k\,}\qquad\Longrightarrow\qquad e_k = (1-2a\alpha)^k e_0 .
+\]
+Convergence requires $|1-2a\alpha| < 1$, i.e.
+\[
+\boxed{\;0 < \alpha < \frac1a\;}
+\]
+and the behaviour splits into four regimes:
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Range of $\alpha$ & Factor $1-2a\alpha$ & Behaviour & Example ($a=3$, $x^\ast=2$, $x_0=0$)\\
+\midrule
+$0<\alpha<\frac{1}{2a}$ & in $(0,1)$ & monotone convergence & $\alpha=0.1$: $1.2, 1.68, 1.872,\dots$\\
+$\alpha = \frac{1}{2a}$ & $0$ & \textbf{converges in one step} & $\alpha=\frac16$: $2.0$ immediately\\
+$\frac{1}{2a}<\alpha<\frac1a$ & in $(-1,0)$ & oscillating convergence & $\alpha=0.25$: $3.0, 1.5, 2.25, 1.875,\dots$\\
+$\alpha = \frac1a$ & $-1$ & \textbf{cycles forever} & $\alpha=\frac13$: $4,0,4,0,\dots$\\
+$\alpha > \frac1a$ & $<-1$ & diverges & $\alpha=0.4$: $4.8, -1.92, 7.49,\dots$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The boundary case $\alpha = 1/a$ producing a perfect 2-cycle is prime trap material: the iterate neither converges nor blows up.
+
+\smallskip
+\textbf{(D2) Multivariable version.} With Hessian $H$ having eigenvalues $\lambda_{\min}\le\dots\le\lambda_{\max}$:
+\[
+\alpha < \frac{2}{\lambda_{\max}}\ \text{ for stability}, \qquad
+\text{convergence factor} = \max_i|1-\alpha\lambda_i| .
+\]
+The slowness of ill-conditioned problems is measured by $\kappa = \lambda_{\max}/\lambda_{\min}$: large $\kappa$ forces a small $\alpha$ (set by $\lambda_{\max}$) while progress along the flat direction is governed by $\lambda_{\min}$ --- the classic zig-zag.
+
+\smallskip
+\textbf{(D3) The analytic optimum GD is chasing (intercept-only SSR).} Setting $\frac{\partial SSR}{\partial b} = -2\sum(y_i-b-mx_i) = 0$:
+\[
+b^\ast = \frac1n\sum_i (y_i - m x_i) = \overline{y - mx}.
+\]
+For the deck's data $(1,2),(2,3),(3,5)$ with $m=1$: $b^\ast = \frac13(1+1+2) = 1.3333$ --- exactly what the iterates $0.8, 1.12, 1.248,\dots$ are approaching, with the step shrinking by the constant factor $1-2a\alpha$ each round.
+
+\smallskip
+\textbf{(D4) Cost per step.} Batch GD touches all $m$ samples per step, $O(m)$ per parameter; strict SGD uses 1 sample, mini-batch uses $b$. Same update formula, different estimate of the same gradient --- the noise is the price of the speed.
+\end{derivedbox}
+
+\subsection{Newton's Method for Optimization --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(N1) On a quadratic, Newton lands on the optimum in exactly ONE step, from anywhere.}
+For $f(x) = a(x-x^\ast)^2$: $f' = 2a(x-x^\ast)$, $f'' = 2a$, so
+\[
+x_{1} = x_0 - \frac{2a(x_0-x^\ast)}{2a} = x^\ast .
+\]
+No dependence on $x_0$ at all. The reason is structural: Newton minimizes the \emph{second-order Taylor model}, and for a quadratic that model is exact. The same holds in $n$ dimensions with $x_1 = x_0 - H^{-1}g$.
+
+\smallskip
+\textbf{(N2) Newton solves $f'=0$ --- so it happily finds maxima and saddles.}
+Applying it to $f(x) = -x^2+4x$ from $x_0 = 5$ gives $x_1 = 2$ in one step, and $f''=-2<0$: that is the \textbf{maximum}. The update never inspects the sign of the curvature, which is precisely limitation (2) in the notes. Always check $f''>0$ (or $H$ positive definite) before calling a stationary point a minimum.
+
+\smallskip
+\textbf{(N3) Quadratic convergence.} Newton for optimization is Newton root-finding applied to $f'$, so it inherits
+\[
+e_{k+1} \approx \left|\frac{f'''(x^\ast)}{2f''(x^\ast)}\right| e_k^2,
+\]
+i.e.\ the number of correct digits roughly doubles per step --- the deck's $x^2-4\cos x$ run goes $0 \to 2 \to 5$ decimal places.
+
+\smallskip
+\textbf{(N4) Cost comparison, the reason ``when to use which'' has an answer.}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+& Gradient Descent & Newton\\
+\midrule
+Information & $\nabla f$ only & $\nabla f$ and $H$ ($n^2$ entries)\\
+Work per step & $O(n)$ & $O(n^3)$ to solve $Hy=g$\\
+Iterations & many (linear) & few (quadratic)\\
+Tuning & learning rate $\alpha$ & none\\
+\bottomrule
+\end{tabular}
+\end{center}
+Large $n$ (typical ML) $\Rightarrow$ GD; small $n$ with a cheap Hessian $\Rightarrow$ Newton.
+\end{derivedbox}
+
+\subsection{Stationary Points \& Lagrange --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(L1) The 2-D Hessian determinant test} \emph{(shortcut; the deck states the PSD condition, this is the practical version)}. At a stationary point of $f(x,y)$, with
+\[
+H = \begin{bmatrix}f_{xx} & f_{xy}\\ f_{xy} & f_{yy}\end{bmatrix},\qquad \det H = f_{xx}f_{yy}-f_{xy}^2 :
+\]
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+$\det H > 0$ and $f_{xx} > 0$ & both eigenvalues $>0$ & \textbf{minimum}\\
+$\det H > 0$ and $f_{xx} < 0$ & both eigenvalues $<0$ & \textbf{maximum}\\
+$\det H < 0$ & eigenvalues of opposite sign & \textbf{saddle}\\
+$\det H = 0$ & at least one zero eigenvalue & \textbf{inconclusive}\\
+\bottomrule
+\end{tabular}
+\end{center}
+Worked check on $f = x^3+y^3-3xy$: stationary points $(0,0)$ and $(1,1)$. At $(0,0)$, $H = \begin{bmatrix}0&-3\\-3&0\end{bmatrix}$, $\det = -9 < 0 \Rightarrow$ saddle. At $(1,1)$, $H = \begin{bmatrix}6&-3\\-3&6\end{bmatrix}$, $\det = 27>0$ with $f_{xx}=6>0 \Rightarrow$ minimum.
+
+\smallskip
+\textbf{(L2) $\lambda$ is the shadow price --- derived in the deck's own convention.}
+Write the constraint as $C = x_1+x_2+c = 0$ and minimize $J = x_1^2+x_2^2$. Solving the Lagrange system in general:
+\[
+x_1 = x_2 = -\frac{c}{2}, \qquad \lambda = c, \qquad J^\ast = \frac{c^2}{2}
+\]
+\[
+\Longrightarrow\qquad \boxed{\frac{dJ^\ast}{dc} = c = \lambda}
+\]
+So $\lambda$ measures exactly how much the optimal objective moves per unit change in the constraint constant. At $c=3$ (the deck's example) $\lambda = 3$ and $dJ^\ast/dc = 3$: tightening the constraint by $0.1$ raises the optimal cost by about $0.3$.
+
+\smallskip
+\textbf{(L3) Bordered Hessian sign rule (2 variables, 1 constraint).}
+\[
+\bar H = \begin{bmatrix}
+0 & C_{x_1} & C_{x_2}\\
+C_{x_1} & \Lambda_{x_1x_1} & \Lambda_{x_1x_2}\\
+C_{x_2} & \Lambda_{x_2x_1} & \Lambda_{x_2x_2}
+\end{bmatrix}
+\qquad
+\boxed{\det\bar H < 0 \Rightarrow \text{minimum},\qquad \det\bar H > 0 \Rightarrow \text{maximum}}
+\]
+Verified on the deck's example: $J = x_1^2+x_2^2$, $C = x_1+x_2+3$ gives $\bar H = \begin{bmatrix}0&1&1\\1&2&0\\1&0&2\end{bmatrix}$ with $\det = -4 < 0$ --- a minimum, matching the known answer $(-1.5,-1.5)$. Flipping to $J = -(x_1^2+x_2^2)$ gives $\det = +4 > 0$, a maximum.
+
+\smallskip
+\textbf{(L4) Housekeeping that costs marks.} A constraint given as $C(\mathbf x) = g$ must first be rewritten $C(\mathbf x) - g = 0$. The number of equations is always (number of variables) $+$ (number of constraints), because $\partial\Lambda/\partial\lambda = 0$ simply returns the constraint.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{GD regimes at a glance} (for $J = a(x-x^\ast)^2$, factor $q = 1-2a\alpha$):
+\[
+\alpha = \tfrac{1}{2a}\ (q=0)\ \text{one step} \quad\big|\quad
+\alpha = \tfrac1a\ (q=-1)\ \text{2-cycle} \quad\big|\quad
+\alpha > \tfrac1a\ \text{diverges}
+\]
+
+\textbf{Newton facts:} exactly 1 step on any quadratic; digits double otherwise; finds \emph{any} stationary point; $O(n^3)$ per step.
+
+\textbf{Lagrange:} $\lambda = dJ^\ast/dc$; $\det\bar H<0 \Rightarrow$ min, $>0 \Rightarrow$ max; the deck's example gives $x_1=x_2=-1.5$, $\lambda = 3$, $\det\bar H = -4$.
+
+\textbf{Hessian test:} $\det H<0$ always means saddle, regardless of $f_{xx}$.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{A larger learning rate is not ``faster''.} Past $\alpha = 1/(2a)$ the iterates oscillate; at $\alpha = 1/a$ they cycle forever; beyond that they diverge.
+\item \textbf{$\alpha = 1/a$ is not ``marginally convergent'' --- it never converges.} It produces an exact 2-cycle ($4,0,4,0,\dots$).
+\item \textbf{Newton converging in one step does not mean it found a minimum.} On $-x^2+4x$ it reaches the \emph{maximum} in one step.
+\item \textbf{Newton needs no learning rate}, so ``tune $\alpha$'' options are wrong for it; conversely GD needs no Hessian.
+\item \textbf{Zero gradient is necessary, never sufficient.} $x^3$ at $0$ has $J'=0$ and is a saddle.
+\item \textbf{$\det H = 0$ is inconclusive}, not ``saddle''.
+\item \textbf{The parallel-gradient condition only \emph{locates}} a constrained stationary point; classification needs the bordered Hessian.
+\item \textbf{Sign of $\lambda$ follows your sign convention.} State whether the constraint was written $C=0$ or $C=g$ before quoting $\lambda$ as a shadow price.
+\item \textbf{In the bordered Hessian the $(1,1)$ entry is $0$}, because $\partial^2\Lambda/\partial\lambda^2 = 0$ --- the constraint has no $\lambda$ in it.
+\end{itemize}
+\end{trapbox}

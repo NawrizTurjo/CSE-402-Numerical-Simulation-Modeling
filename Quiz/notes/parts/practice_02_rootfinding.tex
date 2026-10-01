@@ -1,0 +1,174 @@
+\section{Root Finding}
+
+\begin{defbox}
+Find $x$ such that $f(x)=0$. Transcendental equations ($e^x=3x$, $\sin x = x/2$) have no closed form, so roots are approximated iteratively until the error is small enough. Running example (all three methods): a rubber ball, specific gravity $0.6$, radius $R=5.5\,$cm floats in water with submerged depth $x$ satisfying
+\[
+f(x) = x^3 - 0.165x^2 + 3.993\times10^{-4} = 0, \qquad 0\le x\le 0.11.
+\]
+\end{defbox}
+
+\subsection{Bisection Method}
+
+\textbf{Intermediate Value Theorem.} If $f$ is real and continuous and $f(x_\ell)f(x_u)<0$, then $f(x)=0$ has \emph{at least one} root in $(x_\ell,x_u)$ — never guaranteed exactly one; if $f(x_\ell)f(x_u)>0$ there may or may not be a root.
+
+\textbf{Algorithm.}
+\begin{enumerate}
+\item Choose $x_\ell,x_u$ with $f(x_\ell)f(x_u)<0$.
+\item $x_m = \dfrac{x_\ell+x_u}{2}$.
+\item $f(x_\ell)f(x_m)<0\Rightarrow x_u=x_m$; $\ >0\Rightarrow x_\ell=x_m$; $=0\Rightarrow$ done.
+\item $|\epsilon_a|=\left|\dfrac{x_m^{new}-x_m^{old}}{x_m^{new}}\right|\times100\%$.
+\item Repeat until $|\epsilon_a|\le\epsilon_s$.
+\end{enumerate}
+
+\begin{examplebox}
+\textbf{Worked simulation — floating ball.} $f(0)=+3.993\times10^{-4}$, $f(0.11)=-2.662\times10^{-4}$: product $<0$, root guaranteed in $[0,0.11]$.
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Iter & $x_\ell$ & $x_u$ & $x_m$ & $|\epsilon_a|\%$\\
+\midrule
+1 & 0.00000 & 0.11000 & 0.05500 & --\\
+2 & 0.05500 & 0.11000 & 0.08250 & 33.33\\
+3 & 0.05500 & 0.08250 & 0.06875 & 20.00\\
+4 & 0.05500 & 0.06875 & 0.06188 & 11.11\\
+5 & 0.06188 & 0.06875 & 0.06531 & 5.263\\
+6 & 0.06188 & 0.06531 & 0.06359 & 2.702\\
+7 & 0.06188 & 0.06359 & 0.06273 & 1.370\\
+8 & 0.06188 & 0.06273 & 0.06230 & 0.6897\\
+9 & 0.06230 & 0.06273 & 0.06252 & 0.3436\\
+10& 0.06230 & 0.06252 & 0.06241 & 0.1721\\
+\bottomrule
+\end{tabular}
+\end{center}
+Digit check: $0.1721\le0.5\times10^{2-m}\Rightarrow m\le2.463\Rightarrow m=2$. \textbf{Result: $x_m=0.06241$, $\ge2$ correct digits, after 10 iterations.}
+\end{examplebox}
+
+\textbf{Advantages.} Always convergent (bracket always halves $\Rightarrow$ guaranteed); predictable error (iteration count for a target accuracy can be computed in advance).
+
+\textbf{Drawbacks.} Slow (linear convergence); wastes proximity information — always jumps to the exact midpoint even if one endpoint is already very near the root.
+
+\textbf{Failure cases.} (1) Roots that only \emph{touch} the axis without a sign change, e.g.\ $f(x)=x^2$ at $x=0$ — no valid bracket exists. (2) Singularities that flip sign, e.g.\ $f(x)=1/x$ with $x_\ell=-2,x_u=3$: $f(x_\ell)f(x_u)<0$ but there is \emph{no root} — bisection converges to the singularity instead.
+
+\subsection{False-Position Method}
+
+\begin{examplebox}
+\textbf{Derivation.} The secant line through $(x_L,f(x_L))$ and $(x_U,f(x_U))$ crosses the axis at $x_r$; by similar triangles:
+\[
+\frac{0-f(x_L)}{x_r-x_L} = \frac{0-f(x_U)}{x_r-x_U}
+\]
+Cross-multiplying: $x_Uf(x_L)-x_Lf(x_U) = x_r\{f(x_L)-f(x_U)\}$, so
+\[
+x_r = \frac{x_Uf(x_L)-x_Lf(x_U)}{f(x_L)-f(x_U)} = x_U - \frac{f(x_U)(x_U-x_L)}{f(x_U)-f(x_L)}. \qquad\blacksquare
+\]
+\end{examplebox}
+
+\textbf{Algorithm.} Identical to bisection except step 2 uses the $x_r$ formula above instead of the midpoint; steps 1, 3–5 are unchanged (``the only difference from bisection is the formula in steps 2 and 4'').
+
+\begin{examplebox}
+\textbf{Worked simulation — same floating ball.}
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+Iter & $x_L$ & $x_U$ & $x_r$ ($|\epsilon_a|\%$)\\
+\midrule
+1 & 0.0000 & 0.1100 & 0.0660 (--)\\
+2 & 0.0000 & 0.0660 & 0.0611 (8.00)\\
+3 & 0.0611 & 0.0660 & 0.0624 (2.05)\\
+4 & 0.0611 & 0.0624 & 0.06238 (0.020)\\
+5 & 0.0611 & 0.06238 & 0.06238 (0.0001)\\
+\bottomrule
+\end{tabular}
+\end{center}
+Note: $x_L$ freezes at $0.0611$ for iterations 3--5 while $f(x_r)$ shrinks $10^{-5}\to10^{-13}$ — one endpoint gets ``stuck.'' \textbf{Result: 5 iterations reach $\sim5$ correct digits} — faster here than bisection's 10 iterations for 2 digits.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation 2.} $f(x)=(x-4)^2(x+2)$, $x_L=-2.5,x_U=-1.0$, $\epsilon_s=0.1\%$.
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Iter & $x_L$ & $x_U$ & $x_r$ & $|\epsilon_a|\%$\\
+\midrule
+1 & -2.5 & -1.000 & -1.813 & --\\
+2 & -2.5 & -1.813 & -1.971 & 8.024\\
+3 & -2.5 & -1.971 & -1.996 & 1.229\\
+4 & -2.5 & -1.996 & -1.999 & 0.1828\\
+5 & -2.5 & -1.999 & -2.000 & 0.02706\\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Result: converges to $x=-2$ in 5 iterations}, $\ge3$ correct digits ($0.02706\le0.5\times10^{2-m}\Rightarrow m\le3.27$).
+\end{examplebox}
+
+\begin{keypoint}
+\textbf{Can false-position be slower than bisection?} Yes. For $f(x)=\ln x$, bracket $[10^{-4},10^4]$, stopping at $|\epsilon_a|<0.0001\%$: bisection took \textbf{34 iterations (5418\,ns)}; false-position took \textbf{126 iterations (14753\,ns)} — bisection was $2.7\times$ faster. Reason: an endpoint can stay frozen for many rounds while its function value shrinks only slowly, dragging out convergence.
+\end{keypoint}
+
+\subsection{Newton--Raphson Method}
+
+\begin{examplebox}
+\textbf{Derivation.} At $(x_i,f(x_i))$ the tangent's slope equals $f'(x_i)=\tan\theta=\dfrac{f(x_i)-0}{x_i-x_{i+1}}$, where $x_{i+1}$ is where the tangent meets the axis. Solving:
+\[
+x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}. \qquad\blacksquare
+\]
+\end{examplebox}
+
+\textbf{Algorithm.} (1) Evaluate $f'(x)$. (2) $x_{i+1}=x_i-f(x_i)/f'(x_i)$. (3) $|\epsilon_a|=\left|\frac{x_{i+1}-x_i}{x_{i+1}}\right|\times100\%$. (4) Repeat until $|\epsilon_a|\le\epsilon_s$.
+
+\begin{examplebox}
+\textbf{Worked simulation — same floating ball.} $f'(x)=3x^2-0.33x$. Start $x_0=0.05$ ($x_0=0$ or $0.11$ would give $f'=0$).
+\[
+x_1 = 0.05 - \frac{1.118\times10^{-4}}{-9\times10^{-3}} = 0.06242, \qquad |\epsilon_a|=19.90\%\ (0\text{ digits})
+\]
+\[
+x_2 = 0.06242 - \frac{3.97781\times10^{-7}}{8.90973\times10^{-3}} = 0.06238, \qquad |\epsilon_a|=0.0716\%\ (2\text{ digits})
+\]
+\[
+x_3 = 0.06238 - \frac{4.44\times10^{-11}}{8.91171\times10^{-3}} = 0.06238, \qquad |\epsilon_a|\approx0\%\ (4\text{ digits})
+\]
+\textbf{Result: 3 iterations, $19.9\%\to0$; correct digits roughly double each step (quadratic convergence)} — far faster than bisection (10 iter.) or false-position (5 iter.) on the same problem.
+\end{examplebox}
+
+\textbf{Advantages over bracketing methods.} Faster (fewer iterations); quadratic convergence (correct digits double each step). \textbf{Disadvantage.} Not guaranteed to converge (needs only 1 guess, no bracket).
+
+\begin{keypoint}
+\textbf{Four Newton--Raphson failure modes (memorize all four):}
+\begin{enumerate}
+\item \textbf{Division by zero / near-zero derivative.} E.g.\ ball's guesses $x_0=0,0.11$ give $f'=0$ exactly. For $f(x)=x^3-0.03x^2+2.4\times10^{-6}$ ($f'$ vanishes at $x=0,0.02$), starting near $x_0=0.01999$ avoids an exact crash but the tiny denominator still causes wild, unstable steps — fails to converge after 9 iterations.
+\item \textbf{Divergence near an inflection point.} $f(x)=(x-1)^3+0.512$, $x_0=5.0$: the iterate nears the inflection $x=1$ (where $f'=0$), the step explodes to $x=-30.119$, then crawls back, finally reaching $x\approx0.2$ after 18 iterations — a bracketing method would have boxed this in immediately.
+\item \textbf{Oscillation near a local max/min (no real root).} $f(x)=x^2+2=0$ has no real roots; starting $x_0=-1.0$, iterates bounce around the minimum forever and never settle (eventually diverge).
+\item \textbf{Root jumping.} $f(x)=\sin x=0$ has infinitely many roots; starting at $x_0=2.4\pi\approx7.54$ (intending $2\pi\approx6.283$), the iterates leap across several roots and converge to $x=0$ instead.
+\end{enumerate}
+\end{keypoint}
+
+\begin{qabox}
+\textbf{Q1:} What does the Intermediate Value Theorem guarantee for bisection, and what does it \emph{not} guarantee? \\
+\textbf{A:} If $f$ is continuous and $f(x_\ell)f(x_u)<0$, at least one root exists in $(x_\ell,x_u)$ — never exactly one; multiple roots are possible, and $f(x_\ell)f(x_u)>0$ says nothing either way.
+
+\textbf{Q2:} Why is bisection guaranteed to converge? \\
+\textbf{A:} It always keeps a bracket around the root and halves it every iteration, so the interval width shrinks to zero — this also lets you compute the number of iterations needed in advance.
+
+\textbf{Q3:} What is bisection's main weakness compared to false-position? \\
+\textbf{A:} It always takes the exact midpoint regardless of how close an endpoint's function value already is to zero, wasting that proximity information — converges only linearly.
+
+\textbf{Q4:} Give two situations where the sign-change bracketing test misleads bisection. \\
+\textbf{A:} (1) A root that only touches the axis without changing sign, e.g.\ $f(x)=x^2$ at $x=0$ — no valid bracket exists. (2) A singularity that flips sign, e.g.\ $f(x)=1/x$ on $[-2,3]$ — satisfies $f(x_\ell)f(x_u)<0$ but there is no real root; bisection converges to the singularity.
+
+\textbf{Q5:} Can false-position be slower than bisection — what evidence shows this? \\
+\textbf{A:} Yes: for $f(x)=\ln x$ on $[10^{-4},10^4]$ with $|\epsilon_a|<0.0001\%$, bisection took 34 iterations vs.\ false-position's 126 — bisection was $2.7\times$ faster, because false-position can leave one endpoint ``stuck'' for many rounds.
+
+\textbf{Q6:} What is the fundamental difference between Newton--Raphson and the bracketing methods? \\
+\textbf{A:} Newton--Raphson is an open method (needs only 1 guess, no bracket); not guaranteed to converge, but converges quadratically (fast) when it does — versus bracketing methods, which always converge but only linearly (slow).
+
+\textbf{Q7:} Why is $x_0=0$ or $x_0=0.11$ a bad initial guess in the floating-ball Newton--Raphson example? \\
+\textbf{A:} $f'(x)=3x(x-0.11)$ vanishes at both, giving a horizontal tangent and division by zero.
+
+\textbf{Q8:} What is an inflection point, and does $f''(c)=0$ always mean one is present? \\
+\textbf{A:} A point where concavity flips sign; requires $f'(c)$ to exist and $f''$ to \emph{change sign} at $c$. $f''(c)=0$ alone is not sufficient — e.g.\ $f(x)=x^4-16$ has $f''(0)=0$ but no concavity flip there.
+
+\textbf{Q9:} What is ``root jumping'' and which example illustrates it? \\
+\textbf{A:} When a function has many roots (e.g.\ $\sin x=0$), a Newton step can overshoot past the intended nearby root and converge to a different one entirely; starting at $x_0=2.4\pi$ aiming for $2\pi$, the iteration lands on $x=0$ instead.
+
+\textbf{Q10:} Compare convergence speed of all three methods on the floating-ball problem. \\
+\textbf{A:} Bisection: 10 iterations for 2 correct digits. False-position: 5 iterations for $\sim5$ digits. Newton--Raphson: 3 iterations, digits roughly doubling each step (0$\to$2$\to$4) — demonstrating quadratic vs.\ linear convergence.
+\end{qabox}

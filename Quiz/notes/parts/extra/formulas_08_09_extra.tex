@@ -1,0 +1,290 @@
+\subsection{Simulation \& Modeling --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(D1) Little's Law} --- \emph{named standard queueing result; used here as an extension, the deck never states it.}
+For any queueing system observed long enough,
+\[
+L = \lambda W, \qquad L_q = \lambda W_q .
+\]
+$L$ = time-average number in \emph{system}, $L_q$ = time-average number in \emph{queue}, $\lambda$ = arrival rate, $W$ = average time in system, $W_q$ = average delay in queue. In the deck's own notation $L_q \equiv \hat q(n)$ and $W_q \equiv \hat d(n)$, so
+\[
+\hat q(n) \;\approx\; \lambda\,\hat d(n), \qquad \lambda \approx \frac{\text{\# arrivals in }[0,T]}{T}.
+\]
+Companion identities (both follow immediately):
+\[
+W = W_q + E[S], \qquad L = L_q + \rho .
+\]
+
+\smallskip
+\textbf{(D2) The exact finite-run version of Little's Law.} Little's Law is a \emph{limit} statement, but a finite run obeys an exact bookkeeping identity:
+\[
+\int_0^{T} Q(t)\,dt \;=\; \sum (\text{time each customer spent in queue during }[0,T]).
+\]
+So $\lambda\hat d(n)$ reproduces $\hat q(n)$ \emph{exactly} only when the customer set in the numerator matches the one generating the area. Two safe ways to make it exact:
+\begin{itemize}
+\item Count only the $n$ customers whose delays completed, and use only \emph{their} share of the area.
+\item Count \emph{all} arrivals in $[0,T]$ and use each one's queue time so far, including those still waiting at $T$.
+\end{itemize}
+A short run mismatches because customers still standing in the queue at time $T$ have contributed area but no finished delay.
+
+\smallskip
+\textbf{(D3) Rates from mean times (implicit everywhere in the deck).}
+\[
+\lambda = \frac{1}{E[A]} \quad(\text{arrival rate}), \qquad \mu = \frac{1}{E[S]} \quad(\text{service rate}).
+\]
+\[
+\rho = \frac{\lambda}{\mu} = \frac{E[S]}{E[A]} = \text{offered load} \;\approx\; \hat u(n)
+\]
+(the last approximation holds in steady state for a single server).
+\textbf{Stability condition:} $\lambda < \mu$, i.e.\ $\rho < 1$. If $\lambda > \mu$, work arrives faster than it can be cleared, the backlog grows by about $(\lambda-\mu)$ customers per unit time, so $Q(t)\to\infty$ --- the deck's ``explosive queue.'' If $\rho\ge 1$ no steady state exists and $\hat u \to 1$.
+
+\smallskip
+\textbf{(D4) Time-average (continuous-time) vs.\ simple average (discrete-time).}
+\[
+\text{time average of } X(t) \text{ on } [0,T] \;=\; \frac{1}{T}\int_0^T X(t)\,dt \;=\; \frac{\sum_j x_j\,\Delta t_j}{\sum_j \Delta t_j},
+\]
+i.e.\ a \emph{duration-weighted} average. A plain arithmetic mean of the values seen at event times is the special case $\Delta t_j = $ constant, which is almost never true --- that is exactly where the bias comes from.
+
+\smallskip
+\textbf{(D5) Area-accumulation rule and the strict update order.}
+\[
+\text{new area} = (\text{\emph{old} value of } Q(t)\text{ or }B(t)) \times (\text{clock} - \text{time of last event}).
+\]
+Order at every event: (1) areas, using old state $\to$ (2) state variables $\to$ (3) time-of-last-event $\to$ (4) event list.
+Since $B(t)\in\{0,1\}$, $\int_0^T B\,dt$ is just the total busy time, so $\hat u(n)$ never needs rectangles --- add up the busy intervals.
+
+\smallskip
+\textbf{(D6) Event counting in a finite DES run.} With $a$ arrivals and $d$ departures processed,
+\[
+\text{total events} = a + d
+\]
+(initialization $e_0$ is normally not counted). Always $d \le a$, and $a - d$ is the number still in the system (in service or queued) at time $T$. Stopping after $n$ completed \emph{delays} is not the same as $n$ completed \emph{services}: a customer's delay ends when service \emph{starts}.
+
+\smallskip
+\textbf{(D7) Why departure $=\infty$.} $\infty$ is not a time, it is a sentinel guaranteeing that $\min(\text{event list})$ is an arrival. Omitting it creates a ``phantom departure'' for a customer who is not there.
+
+\smallskip
+\textbf{(D8) Arrival-time and stopping-time formulas.}
+\[
+t^{\text{arr}}_i = \sum_{j=1}^{i} A_j, \qquad T(n) = \text{clock at the event where the } n\text{-th delay completes}.
+\]
+$T(n)$ is itself a random variable --- you cannot know it before running the model.
+
+\smallskip
+\textbf{(D9) Flow-chart facts that get tested like formulas.} Both validation ``No'' branches (Step 3 assumptions, Step 6 model) return to \textbf{Step 2}, never to the immediately preceding step. V\&V triangle edges: Real $\leftrightarrow$ Conceptual $=$ \emph{conceptual validation}; Conceptual $\leftrightarrow$ Operational $=$ \emph{verification}; Real $\leftrightarrow$ Operational $=$ \emph{calibration \& validation}.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{The deck's single-server run (memorize the whole line).} $A=0.4,1.2,0.5,1.7,0.2,1.6,0.2,1.4,1.9$; $S=2.0,0.7,0.2,1.1,3.7,0.6$; stop at $n=6$ delays.
+\begin{itemize}
+\item Arrival times $0.4,\,1.6,\,2.1,\,3.8,\,4.0,\,5.6,\,5.8,\,7.2$ (and $9.1$ for C9).
+\item 13 events $=$ 8 arrivals $+$ 5 departures. $T(6)=8.6$.
+\item Delays $D_1\ldots D_6 = 0,\ 0.8,\ 1.0,\ 0,\ 0.9,\ 3.0$; $\sum D_i = 5.7$.
+\item $\int Q\,dt = 9.9$, $\int B\,dt = 7.7$.
+\item $\hat d(6)=5.7/6=\mathbf{0.95}$; $\hat q(6)=9.9/8.6=\mathbf{1.1512}$ (slide rounds to $1.15$); $\hat u(6)=7.7/8.6=\mathbf{0.8953}$ (slide rounds to $0.90$ --- it is \emph{not} exactly $0.90$).
+\item Busy intervals $[0.4,3.3]$ (length $2.9$) and $[3.8,8.6]$ (length $4.8$); $2.9+4.8=7.7$. Idle only on $[0,0.4]$ and $[3.3,3.8]$, total $0.9$, and $8.6-0.9=7.7$ $\checkmark$
+\end{itemize}
+\textbf{Little's Law on that very run.} $\lambda_6 = 6/8.6 = 0.6977$ and $\lambda_6\,\hat d(6) = 5.7/8.6 = \mathbf{0.6628}$, which is exactly the queue-area contributed by C1--C6. The reported $\hat q(6)=1.1512$ is larger because C7 (waits $8.6-5.8=2.8$) and C8 (waits $8.6-7.2=1.4$) contribute another $4.2$: $5.7+4.2 = 9.9$ $\checkmark$. Counting all 8 arrivals instead: $(8/8.6)\times(9.9/8) = 1.1512$ --- exact.
+
+\smallskip
+\textbf{Stability of the deck's own data.} $E[A] = 7.2/8 = 0.9$ so $\lambda = 1.111$; $E[S] = 8.3/6 = 1.3833$ so $\mu = 0.7229$; $\rho = 1.537 > 1$. The example queue is \emph{unstable} --- which is exactly why $Q(t)$ is still climbing ($Q=2$) when the run stops.
+
+\smallskip
+\textbf{One more event, if asked to extend to $n=7$.} $e_{14}$: Arr C9 at $9.1$ ($Q: 2\to3$, $\Delta t = 0.5$). $e_{15}$: Dep C6 at $9.2$, $D_7 = 9.2-5.8 = 3.4$. Then $T(7)=9.2$, $\int Q = 11.2$, $\int B = 8.3$, $\hat d(7)=9.1/7=1.3$, $\hat q(7)=1.2174$, $\hat u(7)=0.9022$.
+
+\smallskip
+\textbf{Other numbers to have ready.} Trace-bug example $\hat L_Q = 7/16 = 0.4375$ over $T=16$. Biased-average trap: queue $=0$ for 9 h and $=10$ for 1 h gives time-average $\mathbf{1.0}$, not $5$. Healthy utilization band $70$--$85\%$. Minimum-server common-sense rule: $100/12 \to 9$ servers (no simulation needed).
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item $\hat u(6)$ is $7.7/8.6 = 0.8953$, \emph{not} $0.90$ --- the slide rounds. Know the exact value.
+\item $\lambda\hat d(n)$ does \emph{not} equal $\hat q(n)$ on a short run unless you count customers consistently. Little's Law is asymptotic, not an event-by-event identity.
+\item The area rectangle uses the \textbf{old} state value and width $\text{clock}-\text{time of last event}$. Updating $Q$ first is the single most common bug.
+\item $\hat d$, $\hat q$, $\hat u$ are not the same kind of average: $\hat d$ is discrete-time (plain mean over customers), $\hat q$ and $\hat u$ are continuous-time (area over time).
+\item ``Verified'' $\ne$ ``valid.'' A program can perfectly implement a conceptual model whose assumptions are wrong about reality.
+\item A validation failure sends you back to \textbf{Step 2}, not to Step 4 or 5.
+\item Delay $D_i$ excludes service; time in system is $D_i+S_i$. $\hat q$ counts only those \emph{waiting}, not the one in service.
+\item $\rho > 1$ does not make $\hat u > 1$; $\hat u \in [0,1]$ always. What blows up is $Q(t)$, not $\hat u$.
+\end{itemize}
+\end{trapbox}
+
+\subsection{RNG \& Monte Carlo --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(R1) The $1/\sqrt{n}$ law --- the most exam-worthy hidden formula in this topic.} \emph{Standard statistics result (CLT); the deck only shows the error shrinking empirically.} For $\bar Y(n)=\frac1n\sum Y_i$ with $Y_i$ i.i.d.\ and $\mathrm{Var}(Y_i)=\sigma^2$,
+\[
+\mathrm{Var}\big(\bar Y(n)\big)=\frac{\sigma^2}{n}, \qquad \mathrm{SE}\big(\bar Y(n)\big)=\frac{\sigma}{\sqrt n}.
+\]
+Immediate consequences (these are the MCQs):
+\[
+n \to 4n \ \Rightarrow\ \text{error} \to \tfrac12\,\text{error}; \qquad
+\text{error}\to\tfrac{1}{10}\,\text{error} \ \Rightarrow\ n \to 100n.
+\]
+\[
+\text{In general, to shrink the error by a factor } f, \text{ multiply } n \text{ by } f^2 .
+\]
+\textbf{95\% confidence interval:} $\bar Y(n) \pm 1.96\,\sigma/\sqrt n$.
+\textbf{Sample size for a target accuracy $E$} (invert the SE):
+\[
+\mathrm{SE}\le E \ \Rightarrow\ n \ge \left(\frac{\sigma}{E}\right)^2, \qquad
+\text{95\% half-width} \le E \ \Rightarrow\ n \ge \left(\frac{1.96\,\sigma}{E}\right)^2 .
+\]
+This is also why Monte Carlo beats quadrature in high dimensions: the $1/\sqrt n$ rate does \emph{not} depend on the dimension.
+
+\smallskip
+\textbf{(R2) Variance of the Monte Carlo integration estimator.} With $X\sim U(a,b)$ and $Y=(b-a)g(X)$,
+\[
+\sigma^2 = \mathrm{Var}(Y) = (b-a)^2\Big( E[g(X)^2] - E[g(X)]^2 \Big),
+\]
+\[
+E[g(X)^k] = \frac{1}{b-a}\int_a^b g(x)^k\,dx .
+\]
+
+\smallskip
+\textbf{(R3) Hit-or-miss $\pi$: the indicator is Bernoulli.} Let $H_i = \mathbf 1\{X_i^2+Y_i^2\le1\}$. Then $H_i\sim\mathrm{Bernoulli}(p)$ with $p=\pi/4$, so
+\[
+E[H]=p=\frac{\pi}{4}, \qquad \mathrm{Var}(H)=p(1-p)=\frac{\pi}{4}\Big(1-\frac{\pi}{4}\Big)=0.16855 .
+\]
+Since $\hat\pi = 4\bar H$,
+\[
+\mathrm{SE}(\hat\pi) = 4\sqrt{\frac{p(1-p)}{n}} = \frac{1.6422}{\sqrt n},
+\qquad \text{95\% CI: } \hat\pi \pm \frac{3.2187}{\sqrt n}.
+\]
+
+\smallskip
+\textbf{(R4) $U(0,1)$ moments and the products behind the autocorrelation test.}
+\[
+E[R]=\tfrac12,\qquad E[R^2]=\tfrac13,\qquad \mathrm{Var}(R)=\tfrac1{12}.
+\]
+For independent $A,B\sim U(0,1)$ and the product $Y=AB$,
+\[
+E[AB]=\tfrac14 \ \ (\text{this is the } 0.25 \text{ that gets subtracted}),
+\]
+\[
+E[(AB)^2]=\tfrac19, \qquad \mathrm{Var}(AB)=\tfrac19-\tfrac1{16}=\tfrac{7}{144}.
+\]
+Adjacent products share one factor, so they are \emph{not} independent:
+\[
+E[AB\cdot BC] = E[A]\,E[B^2]\,E[C] = \tfrac1{12}, \qquad
+\mathrm{Cov} = \tfrac1{12}-\tfrac1{16} = \tfrac1{48},
+\]
+while non-adjacent products have zero covariance. Assembling,
+\[
+\mathrm{Var}(\hat\rho_{i\ell}) = \frac{(M{+}1)\tfrac{7}{144} + 2M\cdot\tfrac1{48}}{(M+1)^2}
+= \frac{13M+7}{144(M+1)^2},
+\]
+\[
+\sigma_{\hat\rho_{i\ell}} = \frac{\sqrt{13M+7}}{12(M+1)} .
+\]
+
+\smallskip
+\textbf{(R5) $M$ for the autocorrelation test --- closed form (students mis-count this constantly).} $M$ is the largest integer with $i+(M+1)\ell\le N$, i.e.
+\[
+M = \left\lfloor \frac{N-i}{\ell} \right\rfloor - 1 .
+\]
+You then use $M+2$ values $R_i,R_{i+\ell},\dots,R_{i+(M+1)\ell}$ and form $M+1$ products. Divide by $M+1$ --- not by $M$, and not by the number of values.
+
+\smallskip
+\textbf{(R6) LCG structural facts.}
+\[
+R_i \in \Big\{0,\tfrac1m,\tfrac2m,\dots,\tfrac{m-1}{m}\Big\}
+\ \Rightarrow\ \text{grid spacing} = \frac1m,\quad \max R_i = \frac{m-1}{m},\quad R_i \ne 1 \text{ ever}.
+\]
+\begin{itemize}
+\item There are at most $m$ distinct states, so the period satisfies $P\le m$; the map $X\mapsto(aX+c)\bmod m$ is a \emph{function}, so once any value repeats the \emph{entire} sequence repeats from there.
+\item For $c=0$ the state $0$ is absorbing, so $P\le m-1$ automatically and $X_0=0$ is fatal.
+\item The three max-period cases in the deck are the standard \emph{Hull--Dobell}-type conditions (the deck gives the conditions but never the name):
+  \begin{enumerate}[label=(\alph*)]
+  \item $m=2^b,\ c\ne0$: $P=m$ iff $\gcd(c,m)=1$ and $a=1+4k$.
+  \item $m=2^b,\ c=0$: $P_{\max}=m/4=2^{b-2}$, needs $X_0$ odd and $a=3+8k$ or $a=5+8k$.
+  \item $m$ prime, $c=0$: $P_{\max}=m-1$, needs the smallest $k$ with $m\mid(a^k-1)$ to be $k=m-1$ (i.e.\ $a$ a primitive root mod $m$).
+  \end{enumerate}
+\item \textbf{These three cases are not exhaustive.} If $m$ is neither a power of $2$ nor prime (e.g.\ $m=100$), none of them applies and the period can be tiny. The general full-period rule for $c\ne0$ is: $\gcd(c,m)=1$; $(a-1)$ divisible by every prime factor of $m$; and $(a-1)$ divisible by $4$ if $4\mid m$.
+\end{itemize}
+
+\smallskip
+\textbf{(R7) Testing formulas that are left implicit.}
+\[
+\text{chi-square: } E_i = \frac{N}{n}, \qquad \mathrm{df} = n-1 \ (\text{bins} - 1),
+\]
+\[
+\chi_0^2 = \sum_{i=1}^n \frac{(O_i-E_i)^2}{E_i}.
+\]
+Note $\sum O_i = \sum E_i = N$ always --- a free arithmetic check. Equal-width bins on $[0,1]$ each have probability $1/n$ under $H_0$.
+\[
+D^+=\max_i\Big(\tfrac{i}{N}-R_{(i)}\Big),\quad D^-=\max_i\Big(R_{(i)}-\tfrac{i-1}{N}\Big),\quad D=\max(D^+,D^-).
+\]
+$D^+$ catches data shifted \emph{low}; $D^-$ catches data shifted \emph{high}. Chi-square discards within-bin position (needs $N\gtrsim50$); K-S uses every point and works for tiny $N$.
+\[
+P(\ge 1 \text{ false reject in } k \text{ tests}) = 1-(1-\alpha)^k, \qquad E[\#\text{rejects}] = k\alpha .
+\]
+
+\smallskip
+\textbf{(R8) Uniformity $\not\Rightarrow$ independence.} The sequence $0.01,0.02,0.03,\dots$ passes every uniformity test yet is perfectly predictable. Conversely a stream can be independent but biased. Both properties must be tested \emph{separately} --- that is the entire reason the autocorrelation test exists.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Multiple-testing table ($\alpha=0.05$) --- memorize at least $k=10$ and $k=20$.}
+
+\smallskip
+\begin{center}\small
+\begin{tabular}{lcccccc}
+\toprule
+$k$ (tests) & 1 & 5 & 10 & 20 & 50 & 100 \\
+\midrule
+$1-(0.95)^k$ & 0.05 & 0.226 & 0.401 & 0.642 & 0.923 & 0.994 \\
+$E[\#\text{rejects}]=0.05k$ & 0.05 & 0.25 & 0.5 & 1.0 & 2.5 & 5.0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\smallskip
+\textbf{$U(0,1)$ constants.} $E[R]=0.5$; $E[R^2]=1/3$; $\mathrm{Var}(R)=1/12\approx0.0833$; $\mathrm{SD}(R)=1/\sqrt{12}\approx0.2887$.
+
+\textbf{Products of two independent uniforms.} $E[AB]=1/4$; $E[(AB)^2]=1/9$; $\mathrm{Var}(AB)=7/144\approx0.04861$; $\mathrm{Cov}$ of adjacent products $=1/48\approx0.02083$.
+
+\smallskip
+\textbf{Autocorrelation $\sigma$ values}, $\sigma=\sqrt{13M+7}/[12(M+1)]$:
+$M{=}2:\ \sqrt{33}/36 = 0.1596$;\ \
+$M{=}3:\ \sqrt{46}/48 = 0.1413$;\ \
+$M{=}4:\ \sqrt{59}/60 = 0.1280$ (deck example);\ \
+$M{=}5:\ \sqrt{72}/72 = 0.1179$;\ \
+$M{=}9:\ \sqrt{124}/120 = 0.0928$.
+
+\smallskip
+\textbf{Critical values.} $z_{0.025}=1.96$.
+$\chi^2_{0.05}$: df$\,{=}\,3\!:\,7.81$; df$\,{=}\,4\!:\,9.49$; df$\,{=}\,5\!:\,11.07$; df$\,{=}\,9\!:\,16.92$ (deck example); df$\,{=}\,19\!:\,30.14$.
+K-S $D_{0.05}$: $N{=}5\!:\,0.565$ (deck example); $N{=}10\!:\,0.410$; $N{=}20\!:\,0.294$.
+
+\smallskip
+\textbf{Deck worked answers.} LCG $(X_0,a,c,m)=(27,17,43,100)$ gives $2,77,52$ ($R=0.02,0.77,0.52$) --- \emph{and its period is only 4}: $27\to2\to77\to52\to27$.
+$13X\bmod64$: seeds $1,2,3,4$ give periods $16,8,16,4$; the maximum is $m/4=16$.
+K-S example: $D=0.26 < 0.565$, do not reject.
+Chi-square example: $\chi_0^2=3.4 < 16.9$, do not reject.
+Autocorrelation example: $M=4$, $\hat\rho=-0.1945$, $\sigma=0.1280$, $Z_0=-1.52$, do not reject.
+$a=7^5=16807$, $c=0$, $m=2^{31}-1$ (prime) gives $P=m-1$ and gap $1/m\approx4.66\times10^{-10}$.
+
+\smallskip
+\textbf{Monte Carlo constants.} $\pi/4 = 0.7854$; $p(1-p)=0.16855$; $\mathrm{SE}(\hat\pi)=1.6422/\sqrt n$.
+$n=10^4$ gives $\mathrm{SE}=0.0164$ and 95\% half-width $0.0322$.
+Half-width $\le0.01$ needs $n\ge 103{,}599$; $\le0.001$ needs $n\ge 1.036\times10^7$.
+For $\int_0^{\pi}\sin x\,dx=2$: $E[g]=2/\pi=0.6366$, $E[g^2]=1/2$, $\sigma_Y=\pi\sqrt{1/2-4/\pi^2}=0.9669$, so $\mathrm{SE}=0.9669/\sqrt n$ ($n{=}10\Rightarrow0.306$; $n{=}160\Rightarrow0.076$); $\mathrm{SE}\le0.01$ needs $n\ge 9349$.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item ``Doubling $n$ halves the Monte Carlo error'' is \textbf{FALSE}. Doubling divides it by $\sqrt2\approx1.41$; you must \emph{quadruple} $n$ to halve the error.
+\item Passing a uniformity test says nothing about independence. Quote $0.01,0.02,0.03,\dots$ as the counterexample.
+\item Maximum period for a multiplicative LCG with $m=2^b$ is $m/4$ --- not $m$, not $m-1$. Only the \emph{mixed} case reaches $m$; only the \emph{prime-modulus} case gives $m-1$.
+\item $m=100$ is neither $2^b$ nor prime, so none of the three slide cases applies. Do not ``check'' $a=1+4k$ and conclude full period --- the deck's own $(17,43,100)$ generator has period 4.
+\item Chi-square df is (bins $-1$) $= n-1$, \emph{not} $N-1$ and not the number of bins.
+\item $M$ in the autocorrelation test is $\lfloor (N-i)/\ell\rfloor - 1$; you use $M+2$ numbers, form $M+1$ products, and divide by $M+1$.
+\item The autocorrelation test is \textbf{two-tailed}: a strongly \emph{negative} $\hat\rho$ is just as damning as a positive one. Compare $|Z_0|$ with $1.96$.
+\item $\hat\rho_{i\ell}$ is not a correlation coefficient with the usual $[-1,1]$ meaning; it is a mean product minus $0.25$, so its natural range is $[-0.25,\,0.75]$.
+\item Failing one test among many is expected: at $\alpha=0.05$ with $k=10$ tests there is a 40\% chance of at least one false rejection.
+\item $R_i=X_i/m$ can equal $0$ but never $1$. Some texts divide by $m+1$ to dodge the $0$; the deck's $2^{31}-1$ example divides by $m+1=2^{31}$.
+\item Monte Carlo error is itself \emph{random}: $\bar Y(40)$ being worse than $\bar Y(20)$ in one run does not contradict $1/\sqrt n$, which describes a standard deviation, not any single run.
+\item A larger $m$ improves \emph{density} (gap $1/m$), not automatically the period --- the period also needs the right $a$, $c$ and seed.
+\end{itemize}
+\end{trapbox}

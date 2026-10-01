@@ -1,0 +1,223 @@
+\subsection{Optimization --- MCQs}
+
+\begin{mcqbox}
+\textbf{Q1.} Golden Section Search starts on $[0,6]$. The bracket width after 3 iterations is\\
+(a) $0.75$ \quad (b) $1.416408$ \quad (c) $2.291796$ \quad (d) $3.708204$\\
+\textbf{Ans: (b)} --- $L_3 = 6R^3 = 6(0.236068) = 1.416408$. \emph{This is the past-exam pattern: one multiplication, not three iterations.}
+
+\textbf{Q2.} Starting from $[0,4]$, the width after 3 iterations is\\
+(a) $0.944272$ \quad (b) $0.5$ \quad (c) $1.527864$ \quad (d) $2.472136$\\
+\textbf{Ans: (a)} --- $4R^3 = 0.944272$. Option (c) is $4R^2/\ldots$-style bait and (d) is $4R$.
+
+\textbf{Q3.} $R^2$ equals\\
+(a) $1+R$ \quad (b) $1-R$ \quad (c) $2R$ \quad (d) $R/2$\\
+\textbf{Ans: (b)} --- from $R^2+R-1 = 0$. Numerically $0.381966$.
+
+\textbf{Q4.} $1/R$ equals\\
+(a) $R-1$ \quad (b) $1-R$ \quad (c) $1+R = 1.618034$ \quad (d) $2R$\\
+\textbf{Ans: (c)}
+
+\textbf{Q5.} Beginning with a unit interval, the number of GSS iterations needed to shrink it below $0.01$ is\\
+(a) 7 \quad (b) 8 \quad (c) 10 \quad (d) 12\\
+\textbf{Ans: (c)} --- $n \ge \ln(0.01)/\ln(0.618034) = 9.57 \Rightarrow 10$.
+
+\textbf{Q6.} After 6 GSS iterations, the number of \emph{interior} function evaluations performed is\\
+(a) 6 \quad (b) 7 \quad (c) 12 \quad (d) 13\\
+\textbf{Ans: (b)} --- 2 on the first iteration, then 1 each: $2 + 5 = 7 = n+1$.
+
+\textbf{Q7.} Per iteration, Golden Section Search discards what fraction of the bracket?\\
+(a) $50\%$ \quad (b) $61.8\%$ \quad (c) $38.2\%$ \quad (d) $23.6\%$\\
+\textbf{Ans: (c)} --- it keeps $R = 61.8\%$ and discards $1-R = 38.2\%$. Note this is \emph{less} than bisection's 50\%.
+
+\textbf{Q8.} GSS reports the optimum as the bracket midpoint. After $n$ iterations the worst-case error is\\
+(a) $R^nL_0$ \quad (b) $R^nL_0/2$ \quad (c) $2R^nL_0$ \quad (d) $R^{n}/2$\\
+\textbf{Ans: (b)}
+
+\textbf{Q9.} Gradient descent on $J(x) = 5(x-3)^2$ converges for exactly which learning rates?\\
+(a) $0<\alpha<0.1$ \quad (b) $0<\alpha<0.2$ \quad (c) $0<\alpha<5$ \quad (d) all $\alpha>0$\\
+\textbf{Ans: (b)} --- here $a = 5$, and the condition is $0<\alpha<1/a = 0.2$.
+
+\textbf{Q10.} For that same $J$, which $\alpha$ reaches the minimum in a \textbf{single} step?\\
+(a) $0.05$ \quad (b) $0.1$ \quad (c) $0.2$ \quad (d) no such $\alpha$ exists\\
+\textbf{Ans: (b)} --- $\alpha = 1/(2a) = 0.1$ makes the factor $1-2a\alpha$ exactly zero.
+
+\textbf{Q11.} Still on $J = 5(x-3)^2$, taking $\alpha = 0.2$ exactly produces\\
+(a) convergence \quad (b) divergence to infinity \quad (c) an endless 2-cycle \quad (d) convergence to a saddle\\
+\textbf{Ans: (c)} --- the factor is $-1$, so from $x_0=0$ the iterates cycle $6, 0, 6, 0, \dots$ forever. The stability boundary is not ``slow convergence''.
+
+\textbf{Q12.} Newton's method for optimization applied to any quadratic converges in\\
+(a) exactly one step, from any start \quad (b) two steps \quad (c) a number of steps depending on $x_0$ \quad (d) never\\
+\textbf{Ans: (a)} --- the second-order Taylor model is exact for a quadratic.
+
+\textbf{Q13.} Newton's method for optimization is applied to $f(x) = -x^2+4x$ from $x_0 = 5$. It converges to $x = 2$, which is\\
+(a) a minimum \quad (b) a maximum \quad (c) a saddle \quad (d) not stationary\\
+\textbf{Ans: (b)} --- $f'' = -2 < 0$. Newton solves $f'=0$ and never checks curvature.
+
+\textbf{Q14.} At a stationary point, $f_{xx} = 0$ and $\det H = -16$. The point is a\\
+(a) minimum \quad (b) maximum \quad (c) saddle \quad (d) inconclusive\\
+\textbf{Ans: (c)} --- $\det H < 0$ means eigenvalues of opposite sign, whatever $f_{xx}$ is.
+
+\textbf{Q15.} At a stationary point $\det H = 0$. Then the point is\\
+(a) definitely a minimum \quad (b) definitely a saddle \quad (c) inconclusive by this test \quad (d) definitely a maximum\\
+\textbf{Ans: (c)}
+
+\textbf{Q16.} Which requires \textbf{no} derivative information at all?\\
+(a) Gradient descent \quad (b) Newton's method \quad (c) Golden Section Search \quad (d) all need derivatives\\
+\textbf{Ans: (c)} --- GSS only compares function values, which is exactly why it survives non-differentiable objectives.
+
+\textbf{Q17.} For a problem with $n = 10^6$ parameters, the sensible choice is\\
+(a) Newton, for quadratic convergence \quad (b) gradient descent, because the Hessian is $10^{12}$ entries\\
+(c) Golden Section Search \quad (d) Lagrange multipliers\\
+\textbf{Ans: (b)}
+
+\textbf{Q18.} In the bordered Hessian, the $(1,1)$ entry is $0$ because\\
+(a) the constraint is linear \quad (b) $\partial^2\Lambda/\partial\lambda^2 = 0$, since $\lambda$ appears only linearly\\
+(c) the objective is quadratic \quad (d) it is a convention\\
+\textbf{Ans: (b)}
+
+\textbf{Q19.} For a 2-variable, 1-constraint problem, $\det\bar H < 0$ indicates a\\
+(a) maximum \quad (b) minimum \quad (c) saddle \quad (d) inflection\\
+\textbf{Ans: (b)} --- verified on $J = x_1^2+x_2^2$ with $C = x_1+x_2+3$: $\det\bar H = -4$, and the point $(-1.5,-1.5)$ is indeed the minimum.
+
+\textbf{Q20.} Which statement is \textbf{FALSE}?\\
+(a) GSS requires unimodality \quad (b) Newton for optimization needs no learning rate\\
+(c) A zero gradient guarantees a minimum \quad (d) $\lambda$ carries sensitivity information\\
+\textbf{Ans: (c)} --- zero gradient is necessary but never sufficient; $x^3$ at $0$ is the standard counterexample.
+\end{mcqbox}
+
+\subsection{Optimization --- Problems}
+
+\begin{probbox}
+\PQ{P1.} Maximize $f(x) = 8x - x^2$ on $[0,6]$ by Golden Section Search. (i) Perform 3 iterations showing $x_1,x_2,f_1,f_2$ and the surviving bracket. (ii) Verify each width against $L_n = R^nL_0$. (iii) Report the optimum and its uncertainty. (iv) State the width after 8 iterations without iterating.
+
+\ans $R = 0.618034$, $L_0 = 6$. (True maximum at $x = 4$.)
+
+\emph{Iteration 1:} $d = R(6) = 3.708204$; $x_1 = 6-3.708204 = 2.291796$, $x_2 = 0+3.708204 = 3.708204$.
+$f_1 = 13.082039$, $f_2 = 15.914855$. Since $f_1 < f_2$, the maximum lies right: $x_L \leftarrow x_1$.
+Bracket $[2.291796,\ 6]$, width $3.708204$; check $6R = 3.708204$ $\checkmark$
+
+\emph{Iteration 2:} $d = R(3.708204) = 2.291796$; $x_1 = 3.708204$ (reused), $x_2 = 4.583592$.
+$f_1 = 15.914855$, $f_2 = 15.659420$. Now $f_1 > f_2$, so the maximum is left: $x_u \leftarrow x_2$.
+Bracket $[2.291796,\ 4.583592]$, width $2.291796$; check $6R^2 = 2.291796$ $\checkmark$
+
+\emph{Iteration 3:} $d = R(2.291796) = 1.416408$; $x_1 = 3.167184$, $x_2 = 3.708204$ (reused).
+$f_1 = 15.306418$, $f_2 = 15.914855$. $f_1 < f_2$, maximum right: $x_L \leftarrow x_1$.
+Bracket $[3.167184,\ 4.583592]$, width $1.416408$; check $6R^3 = 1.416408$ $\checkmark$
+
+\emph{(iii)} $x_{opt} = \dfrac{3.167184+4.583592}{2} = 3.875388$, uncertainty $\pm L_3/2 = \pm 0.708204$. The true optimum $4$ lies comfortably inside.
+
+\emph{(iv)} $L_8 = 6R^8 = 6(0.021286) = \mathbf{0.127717}$ --- no iteration needed.
+
+\PQ{P2.} A GSS run begins on $[1,9]$. (i) How many iterations guarantee a bracket below $0.05$? (ii) What is the actual width then? (iii) How many interior function evaluations does that cost?
+
+\ans $L_0 = 9-1 = 8$.
+
+\emph{(i)} $n \ge \dfrac{\ln(0.05/8)}{\ln 0.618034} = \dfrac{\ln 0.00625}{-0.481212} = 10.55 \Rightarrow n = \mathbf{11}$.
+
+\emph{(ii)} $L_{11} = 8R^{11} = 8(0.005025) = \mathbf{0.040200} < 0.05$ $\checkmark$ (and $L_{10} = 0.065$, which fails --- so 11 really is the minimum).
+
+\emph{(iii)} Interior evaluations $= n+1 = \mathbf{12}$ (plus the 2 endpoint evaluations if the question counts them, giving 14).
+
+\PQ{P3.} For $J(x) = 5(x-3)^2$ with $x_0 = 0$: (i) derive the error recursion; (ii) give the full range of $\alpha$ for convergence; (iii) tabulate the first 5 iterates for $\alpha = 0.05,\ 0.1,\ 0.15,\ 0.2,\ 0.25$ and classify each regime.
+
+\ans \emph{(i)} $J'(x) = 10(x-3)$, so with $e_k = x_k - 3$:
+\[
+x_{k+1} = x_k - 10\alpha(x_k-3) \;\Longrightarrow\; e_{k+1} = (1-10\alpha)e_k .
+\]
+Here $a = 5$, matching the general $e_{k+1} = (1-2a\alpha)e_k$.
+
+\emph{(ii)} $|1-10\alpha| < 1 \Rightarrow 0 < \alpha < 0.2$, i.e.\ $0<\alpha<1/a$.
+
+\emph{(iii)}
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+$\alpha$ & $q = 1-10\alpha$ & Iterates $x_1..x_5$ & Regime\\
+\midrule
+$0.05$ & $+0.50$ & $1.5,\ 2.25,\ 2.625,\ 2.8125,\ 2.90625$ & monotone convergence\\
+$0.10$ & $0$ & $3,\ 3,\ 3,\ 3,\ 3$ & \textbf{one-step} ($\alpha = 1/(2a)$)\\
+$0.15$ & $-0.50$ & $4.5,\ 2.25,\ 3.375,\ 2.8125,\ 3.09375$ & oscillating convergence\\
+$0.20$ & $-1.00$ & $6,\ 0,\ 6,\ 0,\ 6$ & \textbf{2-cycle, never converges}\\
+$0.25$ & $-1.50$ & $7.5,\ -3.75,\ 13.125,\ -12.1875,\ 25.78$ & divergence\\
+\bottomrule
+\end{tabular}
+\end{center}
+Note how $\alpha = 0.2$ --- exactly the stability boundary --- neither converges nor diverges.
+
+\PQ{P4.} (i) Show Newton's method for optimization reaches the minimum of $f(x) = 3(x-2)^2$ in one step from $x_0 = 10$. (ii) Apply the same method to $f(x) = -x^2+4x$ from $x_0 = 5$ and classify what it finds.
+
+\ans \emph{(i)} $f'(x) = 6(x-2)$, $f''(x) = 6$:
+\[
+x_1 = 10 - \frac{6(10-2)}{6} = 10-8 = 2 = x^\ast .
+\]
+One step, and the starting point cancelled out entirely --- as it must, since Newton minimizes the quadratic model and here the model \emph{is} $f$.
+
+\emph{(ii)} $f'(x) = -2x+4$, $f''(x) = -2$:
+\[
+x_1 = 5 - \frac{-2(5)+4}{-2} = 5 - \frac{-6}{-2} = 5-3 = 2 .
+\]
+Also one step. But $f''(2) = -2 < 0$, so $x=2$ is a \textbf{maximum}, not a minimum. Newton solved $f'=0$ faithfully and gave the wrong \emph{kind} of point --- exactly limitation (2) in the notes. The remedy is to check the sign of $f''$ (or the definiteness of $H$) before accepting the answer.
+
+\PQ{P5.} Find and classify all stationary points of $f(x,y) = x^4+y^4-4xy$.
+
+\ans $f_x = 4x^3-4y = 0 \Rightarrow y = x^3$; $f_y = 4y^3-4x = 0 \Rightarrow x = y^3$.
+Substituting: $x = x^9 \Rightarrow x(x^8-1) = 0$, giving real solutions $x = 0, 1, -1$ and hence the stationary points
+\[
+(0,0), \qquad (1,1), \qquad (-1,-1).
+\]
+Hessian: $H = \begin{bmatrix}12x^2 & -4\\ -4 & 12y^2\end{bmatrix}$.
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Point & $H$ & $\det H$ & Classification\\
+\midrule
+$(0,0)$ & $\begin{bmatrix}0&-4\\-4&0\end{bmatrix}$ & $-16 < 0$ & \textbf{saddle}\\[6pt]
+$(1,1)$ & $\begin{bmatrix}12&-4\\-4&12\end{bmatrix}$ & $128 > 0$, $f_{xx} = 12>0$ & \textbf{minimum}\\[6pt]
+$(-1,-1)$ & $\begin{bmatrix}12&-4\\-4&12\end{bmatrix}$ & $128 > 0$, $f_{xx} = 12>0$ & \textbf{minimum}\\
+\bottomrule
+\end{tabular}
+\end{center}
+Note $(0,0)$ has $f_{xx} = 0$ yet is decisively a saddle --- $\det H<0$ settles it on its own.
+
+\PQ{P6.} Minimize $J = 2x_1^2+3x_2^2$ subject to $x_1+x_2 = 10$. (i) Solve with Lagrange multipliers. (ii) Classify the point with the bordered Hessian. (iii) Use $\lambda$ to predict the change in $J^\ast$ if the constraint becomes $x_1+x_2 = 10.5$, then verify by re-solving.
+
+\ans \emph{(i)} Write the constraint as $C = x_1+x_2-10 = 0$ and form $\Lambda = 2x_1^2+3x_2^2+\lambda(x_1+x_2-10)$:
+\[
+\frac{\partial\Lambda}{\partial x_1} = 4x_1+\lambda = 0, \qquad
+\frac{\partial\Lambda}{\partial x_2} = 6x_2+\lambda = 0, \qquad
+x_1+x_2 = 10 .
+\]
+From the first two, $x_1 = -\lambda/4$ and $x_2 = -\lambda/6$. Substituting:
+$-\lambda\left(\frac14+\frac16\right) = 10 \Rightarrow -\lambda\frac{5}{12} = 10 \Rightarrow \lambda = -24$.
+\[
+x_1 = 6,\qquad x_2 = 4,\qquad \lambda = -24,\qquad J^\ast = 2(36)+3(16) = 120 .
+\]
+Gradient check: $\nabla J = (4x_1, 6x_2) = (24,24)$ and $\nabla C = (1,1)$ --- parallel $\checkmark$
+
+\emph{(ii)} $\Lambda_{x_1x_1} = 4$, $\Lambda_{x_2x_2} = 6$, $\Lambda_{x_1x_2} = 0$, $C_{x_1} = C_{x_2} = 1$:
+\[
+\bar H = \begin{bmatrix}0&1&1\\1&4&0\\1&0&6\end{bmatrix}, \qquad \det\bar H = -10 < 0 \;\Rightarrow\; \textbf{minimum}\ \checkmark
+\]
+
+\emph{(iii)} With the constraint written $x_1+x_2 = b$, the sensitivity rule is $dJ^\ast/db = -\lambda = 24$. For $\Delta b = 0.5$ the prediction is
+\[
+\Delta J^\ast \approx 24(0.5) = 12 \;\Longrightarrow\; J^\ast \approx 132 .
+\]
+\emph{Verification:} solving in general gives $x_1 = 3b/5$, $x_2 = 2b/5$ and $J^\ast = \tfrac65 b^2$. At $b = 10.5$: $J^\ast = 1.2(110.25) = 132.3$. The prediction $132$ is right to within the second-order term --- and is exact in the limit of small $\Delta b$, since $dJ^\ast/db = \tfrac{12}{5}b = 24$ at $b=10$. $\checkmark$
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{$R = 0.618$ shrinks; $1.618$ grows.} Both will be offered, and $1/R = 1+R$ makes them easy to confuse.
+\item \textbf{$L_n = R^nL_0$ needs the original width.} For $[1,9]$ that is $8$, not $9$.
+\item \textbf{``Iterations'' $\ne$ ``function evaluations''} ($n$ vs $n+1$ interior, vs $n+3$ if endpoints count).
+\item \textbf{GSS error is $L_n/2$,} because the answer is the midpoint.
+\item \textbf{GSS removes less per iteration than bisection.} ``Golden'' is about reusing evaluations, not about a faster width reduction.
+\item \textbf{A bigger learning rate is not monotonically better.} Past $1/(2a)$ you oscillate; at $1/a$ you cycle forever; past that you diverge.
+\item \textbf{The stability boundary $\alpha = 1/a$ does not converge slowly --- it does not converge at all.}
+\item \textbf{Newton reaching the answer in one step says nothing about min vs max.} Check $f''$ or $H$.
+\item \textbf{$\det H<0$ is a saddle even when $f_{xx} = 0$;} $\det H = 0$ is inconclusive, not a saddle.
+\item \textbf{The sign of $\lambda$ depends on how you wrote the constraint.} With $g(\mathbf x) = b$ and $\Lambda = J+\lambda(g-b)$, the sensitivity is $dJ^\ast/db = -\lambda$. Safest under pressure: re-solve with the perturbed constant and compare.
+\item \textbf{The parallel-gradient condition only locates a point.} Classification needs $\bar H$ --- and for 2 variables with 1 constraint, $\det\bar H<0$ means \emph{minimum} (the reverse of the unconstrained intuition).
+\end{itemize}
+\end{trapbox}

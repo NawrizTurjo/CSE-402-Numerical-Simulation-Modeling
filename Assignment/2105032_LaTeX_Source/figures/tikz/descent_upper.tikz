@@ -1,0 +1,34 @@
+% 1-D descent lemma: f, tangent line, quadratic upper bound touching at x_k,
+% the GD step as the minimiser of the upper bound, and the guaranteed drop.
+% f(x) = 0.35 x^2 + 0.5 cos(2x) + 0.6  (f'' <= 0.7 + 2 = 2.7, so L = 2.7)
+\begin{tikzpicture}[xscale=1.45, yscale=0.8, >={Stealth[length=5pt]},
+  declare function={f(\x)=0.35*\x*\x + 0.5*cos(deg(2*\x)) + 0.6;
+                    fp(\x)=0.7*\x - sin(deg(2*\x));
+                    q(\x)=f(2.1) + fp(2.1)*(\x-2.1) + 0.5*2.7*(\x-2.1)*(\x-2.1);}]
+  \def\xk{2.1}
+  \def\Lc{2.7}
+  \pgfmathsetmacro{\xn}{\xk - fp(\xk)/\Lc}
+  \pgfmathsetmacro{\fk}{f(\xk)}
+  \pgfmathsetmacro{\qn}{\fk - fp(\xk)*fp(\xk)/(2*\Lc)}
+  \pgfmathsetmacro{\fn}{f(\xn)}
+  % gap between the upper model and f
+  \fill[mOrange!12, domain=0.7:2.75, samples=60]
+    plot (\x, {q(\x)}) -- plot[domain=2.75:0.7, samples=60] (\x, {f(\x)}) -- cycle;
+  % axes
+  \draw[->, mGrey] (-0.6,0) -- (3.1,0) node[right, font=\scriptsize] {$x$};
+  % models and f
+  \draw[line width=1pt, mBlue, dashed, domain=1.4:2.8] plot (\x, {\fk + fp(\xk)*(\x-\xk)});
+  \draw[line width=1.2pt, mOrange, domain=0.7:2.75, samples=60] plot (\x, {q(\x)});
+  \draw[line width=1.8pt, mInk, domain=-0.4:2.9, samples=100] plot (\x, {f(\x)});
+  % drop lines and points
+  \draw[mGrey, densely dotted] (\xk,0) node[below, font=\scriptsize, mInk] {$x_k$} -- (\xk,\fk);
+  \draw[mGrey, densely dotted] (\xn,0) node[below, font=\scriptsize, mInk] {$x_{k+1}$} -- (\xn,\qn);
+  \draw[->, line width=1pt, mOrange] (\xk,-0.42) -- node[below=-1pt, font=\tiny] {$-\tfrac1L f'(x_k)$} (\xn,-0.42);
+  % guaranteed decrease bracket
+  \draw[decorate, decoration={brace, amplitude=3pt, mirror}, mGreen, line width=0.8pt]
+    (\xn+0.06,\qn) -- (\xn+0.06,\fk) node[midway, right=2pt, font=\tiny, align=left] {drop $\ge$\\$\frac{1}{2L}f'(x_k)^2$};
+  \draw[mGrey!70, densely dashed] (\xn,\fk) -- (\xk,\fk);
+  \fill[mInk] (\xk,\fk) circle (1.7pt);
+  \fill[mOrange] (\xn,\qn) circle (1.7pt);
+  \fill[mGreen] (\xn,\fn) circle (1.7pt);
+\end{tikzpicture}

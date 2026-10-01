@@ -1,0 +1,118 @@
+\section{Master Comparison Tables}
+
+\begin{keypoint}
+Most ``which of the following is true'' MCQs are really asking you to compare two methods along one axis: \emph{what it guarantees}, \emph{how fast it converges}, \emph{what it costs}, or \emph{what it needs to start}. These tables put every comparison the course can ask about in one place.
+\end{keypoint}
+
+\subsection{Root-Finding Methods}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.16\textwidth}p{0.13\textwidth}p{0.17\textwidth}p{0.15\textwidth}p{0.29\textwidth}@{}}
+\toprule
+\textbf{Method} & \textbf{Type} & \textbf{Needs} & \textbf{Convergence} & \textbf{Key property} \\
+\midrule
+Bisection & Bracketing & 2 guesses, $f(x_\ell)f(x_u)<0$ & Linear, rate $1/2$ & \textbf{Always} converges; iteration count known in advance; ignores how close $f$ is to 0 \\
+False Position & Bracketing & 2 guesses, sign change & Linear (generally) & Usually faster, but an endpoint can freeze; \emph{can} be slower than bisection \\
+Newton--Raphson & Open & 1 guess $+$ $f'(x)$ & \textbf{Quadratic} ($p=2$) & Fastest when it works; no convergence guarantee; 4 distinct failure modes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+\noindent\textbf{On the same floating-ball problem:} bisection needed 10 iterations (2 digits), false position 5 (about 5 digits), Newton--Raphson 3 (digits doubling $0\to2\to4$).
+
+\subsection{Linear-System Methods}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.19\textwidth}p{0.20\textwidth}p{0.17\textwidth}p{0.36\textwidth}@{}}
+\toprule
+\textbf{Method} & \textbf{End state of $A$} & \textbf{Cost (1 RHS)} & \textbf{When it is the right choice} \\
+\midrule
+Naive Gauss & Upper triangular & $\sim\tfrac23n^3$ & Baseline; fails on a zero pivot, fragile to round-off \\
+Gauss $+$ partial pivoting & Upper triangular & $\sim\tfrac23n^3$ $+$ swaps & \textbf{Default.} Fixes zero pivots and round-off blowup for negligible extra cost \\
+Gauss--Jordan & Identity & $\sim n^3$ & When you want the answer read straight off the RHS (no back substitution); more arithmetic \\
+LU decomposition & $A=LU$ stored & $=$ Gauss exactly & \textbf{Many right-hand sides.} Decompose once, reuse: $A^{-1}$ costs $\sim n^3$ vs Gauss's $\sim n^4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Optimization Methods}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.17\textwidth}p{0.15\textwidth}p{0.17\textwidth}p{0.17\textwidth}p{0.24\textwidth}@{}}
+\toprule
+\textbf{Method} & \textbf{Derivatives} & \textbf{Per-iteration cost} & \textbf{Convergence} & \textbf{Main weakness} \\
+\midrule
+Golden Section & \textbf{None} & 1 function eval (after the first iter.) & Linear, factor $R=0.618$ & 1-D only; needs unimodality and a bracket \\
+Gradient Descent & 1st order ($\nabla f$) & $O(n)$ & Linear; depends on $\alpha$ and $\kappa(H)$ & Learning-rate tuning; slow zig-zag when ill-conditioned \\
+Newton (opt.) & 2nd order ($\nabla f, H$) & $O(n^3)$ (solve $Hy=g$) & \textbf{Quadratic} & Hessian cost; converges to \emph{any} stationary point, including maxima/saddles \\
+Lagrange multipliers & 1st order $+$ constraint & solve the system & exact (analytic) & Only locates stationary points; needs the bordered Hessian to classify \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+\noindent\textbf{GD vs Newton, one line:} use GD when $n$ is large (the Hessian is unaffordable); use Newton when $n$ is small (buy the quadratic convergence).
+
+\subsection{Interpolation Methods}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.17\textwidth}p{0.14\textwidth}p{0.22\textwidth}p{0.39\textwidth}@{}}
+\toprule
+\textbf{Method} & \textbf{Scope} & \textbf{Adding a new point} & \textbf{Notes} \\
+\midrule
+Lagrange & Global & Rebuild \textbf{everything} & Same polynomial as Newton, different form; clean to state, expensive to extend \\
+Newton div.\ diff. & Global & Append \textbf{one} row $+$ one term & The ``recalculation-free'' property; top diagonal $=$ coefficients \\
+Linear spline & Local & Trivial & Continuous but kinked; no curvature \\
+Quadratic spline & Local & --- & $3n$ unknowns; matches $P'$ at interior knots \\
+Cubic spline & Local & --- & $4n$ unknowns; matches $P'$ \emph{and} $P''$; smoothest, costliest; avoids Runge \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+\noindent\textbf{Regression vs interpolation:} regression finds a best fit and need \emph{not} pass through any point (tolerates noise); interpolation passes through \emph{every} point exactly (and so chases noise if the data are noisy).
+
+\subsection{RNG Statistical Tests}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.19\textwidth}p{0.16\textwidth}p{0.26\textwidth}p{0.31\textwidth}@{}}
+\toprule
+\textbf{Test} & \textbf{Property tested} & \textbf{Statistic} & \textbf{Reject $H_0$ when} \\
+\midrule
+Kolmogorov--Smirnov & Uniformity & $D=\max(D^+,D^-)$ & $D > D_\alpha$; works for \textbf{small} $N$, more powerful \\
+Chi-square & Uniformity & $\chi_0^2=\sum\frac{(O_i-E_i)^2}{E_i}$ & $\chi_0^2>\chi^2_{\alpha,n-1}$; needs \textbf{large} $N$ ($\gtrsim50$) \\
+Autocorrelation & Independence & $Z_0=\hat\rho_{i\ell}/\sigma_{\hat\rho_{i\ell}}$ & $|Z_0|>1.96$ at $\alpha=0.05$ (two-tailed) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+\noindent\textbf{Critical reminder:} uniformity tests ignore \emph{ordering}. A perfectly uniform but perfectly predictable sequence ($0.01, 0.02, 0.03,\dots$) sails through K-S and chi-square and is caught only by the autocorrelation test.
+
+\subsection{Convergence Orders --- One Table}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{0.34\textwidth}p{0.18\textwidth}p{0.42\textwidth}@{}}
+\toprule
+\textbf{Method} & \textbf{Order $p$} & \textbf{Error behaviour} \\
+\midrule
+Bisection & 1 (linear) & $L_n=(b-a)/2^n$; exactly one bit per iteration \\
+Golden Section Search & 1 (linear) & $L_n = R^nL_0$, $R=0.618$ \\
+False position & 1 (linear, typically) & bracket can shrink very slowly if an endpoint sticks \\
+Gradient descent & 1 (linear) & $|e_{k+1}|=|1-2a\alpha||e_k|$ on a quadratic \\
+Newton--Raphson (roots) & \textbf{2} (quadratic) & $e_{k+1}\approx C e_k^2$; digits double \\
+Newton (optimization) & \textbf{2} (quadratic) & one step exactly on a quadratic objective \\
+Newton at a multiple root & 1 (linear) & rate $1-1/k$ for multiplicity $k$ \\
+Power method & 1 (linear) & error $\sim|\lambda_2/\lambda_1|^k$ \\
+Monte Carlo & --- & error $\propto n^{-1/2}$ (not an iteration order) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\renewcommand{\arraystretch}{1.25}

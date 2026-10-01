@@ -1,0 +1,83 @@
+% =====================================================================
+%  6. Function classes: smoothness, convexity, strong convexity
+% =====================================================================
+\section{What we need to assume about $f$}
+
+\begin{frame}{Three assumptions, and which functions satisfy them}
+  \small
+  \begin{tabular}{@{}p{2.6cm} p{5.2cm} p{3.6cm}@{}}
+    \toprule
+    Property & Definition & If $f\in C^2$ \\
+    \midrule
+    $L$-smooth & $\norm{\nabla f(\x)-\nabla f(\y)}\le L\norm{\x-\y}$ & $-L\bI\preceq\nabla^2f\preceq L\bI$ \\[3pt]
+    convex & $f(\y)\ge f(\x)+\nabla f(\x)\T(\y-\x)$ & $\nabla^2 f\succeq 0$ \\[3pt]
+    $\mu$-strongly convex & $f(\y)\ge f(\x)+\nabla f(\x)\T(\y-\x)+\tfrac\mu2\norm{\y-\x}^2$ & $\nabla^2 f\succeq\mu\bI$ \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  \begin{tabular}{@{}l c c c@{}}
+    \toprule
+    Example & $L$-smooth? & convex? & strongly convex? \\
+    \midrule
+    $\tfrac12\x\T\bA\x - \vb\T\x$, $\bA\succ0$ & \checkmark\ $L=\lmax$ & \checkmark & \checkmark\ $\mu=\lmin$ \\
+    logistic loss $\log(1+e^{-y\,\mathbf a\T\x})$ & \checkmark & \checkmark & $\times$ \\
+    $x^4$ & $\times$ (not globally) & \checkmark & $\times$ (flat at 0) \\
+    $x^4+y^4-4xy$ (M1) & $\times$ (not globally) & $\times$ & $\times$ \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Squeezed between two parabolas}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \input{figures/tikz/sandwich.tikz}
+
+      \scriptsize
+      \textcolor{mRed}{\rule[2pt]{10pt}{1.1pt}} upper, curvature $L$ \quad
+      \textcolor{mInk}{\rule[2pt]{10pt}{1.8pt}} $f$ \quad
+      \textcolor{mBlue}{\rule[2pt]{10pt}{1.1pt}} lower, curvature $\mu$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \small
+      If $f$ is $L$-smooth and $\mu$-strongly convex, then at every point it lives inside the shaded corridor
+      between two parabolas.
+
+      \vspace{3pt}
+      Minimising the lower parabola over $\y$ gives
+      \[
+        f^\star \ge f(\x) - \frac{1}{2\mu}\norm{\nabla f(\x)}^2 ,
+      \]
+      and three useful facts follow:
+      \begin{itemize}\footnotesize
+        \item The gradient \emph{certifies} how close you are: $f(\x)-f^\star\le\frac{\norm{\nabla f}^2}{2\mu}$ and
+              $\norm{\x-\x^\star}\le\frac{\norm{\nabla f(\x)}}{\mu}$.
+        \item There is exactly one minimiser.
+        \item The upper parabola is where the step $1/L$ comes from (\S3, View 2).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The condition number $\kappa = L/\mu$}
+  \begin{itemize}\small
+    \item $\kappa\ge1$ compares the steepest curvature with the flattest. For a quadratic, the contour ellipses
+          are $\sqrt\kappa$ times longer than they are wide.
+    \item Keep an eye on it: $\kappa$ shows up in \emph{every} rate from here on. GD needs $O(\kappa\log\frac1\varepsilon)$ iterations,
+          accelerated methods $O(\sqrt\kappa\log\frac1\varepsilon)$.
+  \end{itemize}
+  \vspace{2pt}
+  \centering\small
+  \begin{tabular}{@{}l c l@{}}
+    \toprule
+    Problem & $\kappa$ & Where the ill-conditioning comes from \\
+    \midrule
+    M3 quadratic & $2$ & nowhere, it is a friendly problem \\
+    A1 regression, raw feature & $46.1$ & the columns $[x,\mathbf 1]$ are correlated \\
+    A1 after centring & $1.5$ & preprocessing removed it \\
+    A2 spring chain, $k_1 = 1000$ & $1002$ & one very stiff member next to a soft one \\
+    Rosenbrock at $(1,1)$ & $\approx2508$ & curved valley ($\lambda = 1001.6,\ 0.399$) \\
+    \bottomrule
+  \end{tabular}
+\end{frame}

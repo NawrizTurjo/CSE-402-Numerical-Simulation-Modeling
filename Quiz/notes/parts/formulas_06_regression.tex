@@ -1,0 +1,41 @@
+\section{Regression}
+
+\subsection{Least-Squares Linear Regression}
+\begin{formulabox}
+Model $\hat y = mx+b$, error $= y_i - (mx_i+b)$:
+\[
+SSE = \sum_{i=1}^n \big(y_i - m x_i - b\big)^2
+\]
+Normal-equation results:
+\[
+b = \frac{\sum y - m\sum x}{n}, \qquad
+m = \frac{n\sum xy - \sum x \sum y}{n\sum x^2 - \left(\sum x\right)^2}
+\]
+Correlation coefficient and coefficient of determination:
+\[
+r = \frac{n\sum xy - \sum x\sum y}{\sqrt{\big[n\sum x^2-(\sum x)^2\big]\big[n\sum y^2-(\sum y)^2\big]}}
+\]
+$r^2 = $ fraction of variance explained.
+Running sums needed: $\sum x,\ \sum y,\ \sum x^2,\ \sum y^2,\ \sum xy$.
+\end{formulabox}
+
+\subsection{Multiple Linear Regression}
+\begin{formulabox}
+Hyperplane model:
+\[
+\hat y = w_0 + w_1 x_1 + w_2 x_2 + \dots + w_n x_n
+\]
+Cost function (Mean Squared Error, $m$ = \# samples):
+\[
+J(\mathbf w) = \frac{1}{2m}\sum_{i=1}^m \big(\hat y_i - y_i\big)^2
+\]
+Gradient of the cost (with $\hat y_i = \sum_k w_k x_{ik}$, $x_{i0}=1$):
+\[
+\frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_{i=1}^m \big(\hat y_i - y_i\big)x_{ij}
+\]
+Gradient descent update:
+\[
+w_j \leftarrow w_j - \alpha\,\frac{\partial J}{\partial w_j} = w_j - \frac{\alpha}{m}\sum_{i=1}^m (\hat y_i - y_i)x_{ij}
+\]
+\textbf{Five assumptions:} Linearity, Independence, Homoscedasticity (constant error variance), Normality (errors $\sim \mathcal N$), No multicollinearity.
+\end{formulabox}

@@ -1,0 +1,94 @@
+\section{Optimization}
+
+\subsection{Golden Section Search}
+\begin{formulabox}
+Golden ratio and interior-point placement:
+\[
+R = \frac{\sqrt5 - 1}{2} \approx 0.618, \qquad d = R\,(x_u - x_L)
+\]
+\[
+x_1 = x_u - d, \qquad x_2 = x_L + d
+\]
+Decision rule (maximization): $f_1 > f_2 \Rightarrow$ max is left ($x_u \gets x_2$); $f_1 < f_2 \Rightarrow$ max is right ($x_L \gets x_1$).
+Reuse the surviving interior point; only \emph{one} new function value is computed per iteration after the first.
+\[
+x_{opt} = \frac{x_u + x_L}{2}, \qquad f_{opt} = f(x_{opt})
+\]
+Stopping criterion:
+\[
+\left|\frac{2 - R}{R}\right|\cdot\left|\frac{x_u - x_L}{x_u+x_L}\right| \;\text{or simply}\; \left|\frac{x_u - x_L}{x_u + x_L}\right| \times 2 < \varepsilon_s
+\]
+\end{formulabox}
+
+\subsection{Gradient Descent}
+\begin{formulabox}
+Single variable:
+\[
+\text{step} = \frac{d(\text{loss})}{d(\text{param})}\times \alpha, \qquad \text{param}_{new} = \text{param}_{old} - \text{step}
+\]
+General parameter $w_j$ ($\alpha$ = learning rate):
+\[
+w_j \leftarrow w_j - \alpha\,\frac{\partial J}{\partial w_j}
+\]
+SSR loss and its gradients (simple linear regression $\hat y = b + mx$, residual $r_i = y_i - (b+mx_i)$):
+\[
+SSR = \sum_{i=1}^n \big(y_i - b - m x_i\big)^2
+\]
+\[
+\frac{\partial\, SSR}{\partial b} = -2\sum_{i=1}^n \big(y_i - b - mx_i\big)
+\]
+\[
+\frac{\partial\, SSR}{\partial m} = -2\sum_{i=1}^n x_i\big(y_i - b - mx_i\big)
+\]
+Stop when: step size $\approx 0$ \textbf{or} max iterations reached.
+\end{formulabox}
+
+\subsection{Newton's Method for Optimization}
+\begin{formulabox}
+Root finding: \quad $x_{t+1} = x_t - \dfrac{f(x_t)}{f'(x_t)}$
+
+Optimization: \quad $x_{t+1} = x_t - \dfrac{f'(x_t)}{f''(x_t)}$
+
+Vector / multivariate form ($g=\nabla f$, $H = \nabla^2 f$):
+\[
+x_{t+1} = x_t - H^{-1} g
+\]
+Damped: $x_{t+1} = x_t - t\,H^{-1}g,\ t>0$. Practical: solve $Hy = g$ for $y$, then $x_{t+1} = x_t - y$ (avoid explicit inversion).
+
+Second-order minimum condition: $\nabla^2 q = H$ must be PSD (all eigenvalues $\ge 0$).
+
+Convex $f \;\Rightarrow\; H$ PSD. Quadratic convergence: correct digits $\approx$ double each step.
+\end{formulabox}
+
+\subsection{Foundations: Gradient \& Stationary Points}
+\begin{formulabox}
+1-D: solve $f'(x)=0$; classify with $f''(x)$: $f''>0$ min, $f''<0$ max, sign change (or $f''=0$) $\Rightarrow$ saddle/inflection.
+$n$-D gradient vector:
+\[
+\nabla J(\mathbf x) = \left(\frac{\partial J}{\partial x_1}, \frac{\partial J}{\partial x_2}, \dots, \frac{\partial J}{\partial x_n}\right)^{\!\top}
+\]
+Basis of optimization: (1) set up objective function; (2) solve $\nabla J = 0$.
+\end{formulabox}
+
+\subsection{Constrained Optimization (Lagrange Multipliers)}
+\begin{formulabox}
+Problem: minimize/maximize $J(\mathbf x)$ subject to $C(\mathbf x)=0$. Lagrangian:
+\[
+\Lambda(\mathbf x,\lambda) = J(\mathbf x) + \lambda\, C(\mathbf x)
+\]
+Stationarity (parallel-gradient) condition:
+\[
+\nabla J(\mathbf x) + \lambda \nabla C(\mathbf x) = 0 \quad\Longleftrightarrow\quad \nabla J = -\lambda \nabla C
+\]
+Bordered Hessian ($n$ variables):
+\[
+H(\Lambda) =
+\begin{pmatrix}
+0 & \partial C/\partial x_1 & \cdots & \partial C/\partial x_n \\
+\partial C/\partial x_1 & \partial^2\Lambda/\partial x_1^2 & \cdots & \partial^2\Lambda/\partial x_1\partial x_n \\
+\vdots & \vdots & \ddots & \vdots \\
+\partial C/\partial x_n & \partial^2 \Lambda/\partial x_1\partial x_n & \cdots & \partial^2\Lambda/\partial x_n^2
+\end{pmatrix}
+\]
+used to classify the stationary point as min / max / saddle. If $C(\mathbf x)=g$ (not $0$), first rewrite as $C(\mathbf x) - g = 0$.
+\end{formulabox}

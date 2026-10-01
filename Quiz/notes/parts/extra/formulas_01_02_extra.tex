@@ -1,0 +1,185 @@
+\subsection{Errors --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(E1) Inverting the significant-digit criterion --- the most useful hidden formula here.}
+The slides give one direction only: $|\epsilon_a| \le 0.5\times10^{\,2-m}\%$ certifies $m$ digits. Solve it for $m$:
+\[
+|\epsilon_a| \le 0.5\times10^{\,2-m} \;\Longrightarrow\; \log_{10}\!\big(2|\epsilon_a|\big) \le 2-m
+\]
+\[
+\boxed{\,m = \left\lfloor 2 - \log_{10}\!\big(2|\epsilon_a|\big)\right\rfloor\,}\qquad (|\epsilon_a| \text{ expressed in \%})
+\]
+Now an MCQ like ``$|\epsilon_a| = 0.04\%$, how many digits are trusted?'' is one line: $\lfloor 2-\log_{10}0.08\rfloor = \lfloor 3.097\rfloor = 3$.
+
+\smallskip
+\textbf{(E2) The two error criteria are the same statement.} Relative form $\Leftrightarrow$ absolute form:
+\[
+\left|\frac{x-\hat x}{x}\right| \le \tfrac12\times10^{-M}
+\quad\Longleftrightarrow\quad
+|x-\hat x| \le \tfrac12\times10^{\,n-M+1},\qquad n = \lfloor\log_{10}|x|\rfloor .
+\]
+The right-hand side is exactly ``half a unit in the place of the $M$-th significant digit'' --- i.e.\ the error you make by correctly \emph{rounding} to $M$ figures.
+
+\smallskip
+\textbf{(E3) Taylor remainder and the order of a truncation error.}
+\[
+f(x+h) = \sum_{k=0}^{n}\frac{f^{(k)}(x)}{k!}h^k + \underbrace{\frac{f^{(n+1)}(\xi)}{(n+1)!}h^{\,n+1}}_{R_n}, \qquad R_n = O(h^{\,n+1}).
+\]
+Consequence for derivatives:
+\[
+\underbrace{\frac{f(x+h)-f(x)}{h}}_{\text{forward difference}} = f'(x) + O(h),
+\qquad
+\underbrace{\frac{f(x+h)-f(x-h)}{2h}}_{\text{central difference}} = f'(x) + O(h^2).
+\]
+So halving $h$ halves a forward-difference error but \emph{quarters} a central-difference error.
+
+\smallskip
+\textbf{(E4) The round-off / truncation trade-off (U-shaped total error).}
+Truncation error falls like $h$; round-off in the subtraction $f(x+h)-f(x)$ grows like $\varepsilon_{\text{mach}}/h$. Total:
+\[
+E_{\text{tot}}(h) \;\approx\; \underbrace{C_1 h}_{\text{truncation}} + \underbrace{\frac{C_2\,\varepsilon_{\text{mach}}}{h}}_{\text{round-off}}
+\]
+which is minimized at $h^\ast \propto \sqrt{\varepsilon_{\text{mach}}}$. \textbf{Shrinking $h$ past $h^\ast$ makes the answer worse}, not better --- the single most counter-intuitive fact in this topic.
+
+\smallskip
+\textbf{(E5) Error propagation (implicit whenever a question chains computations).}
+\[
+\text{sums/differences: absolute errors add} \qquad |E_{x\pm y}| \le |E_x| + |E_y|
+\]
+\[
+\text{products/quotients: \emph{relative} errors add} \qquad |\epsilon_{xy}| \approx |\epsilon_x| + |\epsilon_y|
+\]
+This is why subtracting two nearly equal numbers is catastrophic: the absolute error stays the same while the result shrinks, so the \emph{relative} error explodes.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Digit table --- read it straight off.} $m = \lfloor 2-\log_{10}(2|\epsilon_a|)\rfloor$, $|\epsilon_a|$ in \%:
+\begin{center}\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+$|\epsilon_a|$ & $5\%$ & $1\%$ & $0.5\%$ & $0.1\%$ & $0.05\%$ & $0.005\%$\\
+\midrule
+digits $m$ & 1 & 1 & 2 & 2 & 3 & 4\\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Threshold form (equivalent, often faster):} $m=1 \Rightarrow 5\%$; $m=2 \Rightarrow 0.5\%$; $m=3 \Rightarrow 0.05\%$; $m=4 \Rightarrow 0.005\%$. Each extra digit costs a factor of 10.
+
+\smallskip
+\textbf{Worth knowing cold.} $\tfrac13 - 0.333333 = 3.3333\times10^{-7}$ (6-digit round-off). $\int_3^9 x^2dx = 234$; 2 rectangles give $135$ (error $99$), 4 give $182.25$ (error $51.75$). $e^{1.2}$ series needs $n=7$ terms for 2 digits ($|\epsilon_a| = 0.12494\%$). Trunnion: wrong model $-0.01504''$ vs correct $-0.013689''$ against $0.015''$ required.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item $\epsilon_a$ is \textbf{undefined on the first iteration} --- there is no previous estimate. Tables always start with a dash.
+\item ``More iterations'' does not mean ``more accuracy'' once round-off dominates (E4).
+\item Decimal places $\ne$ significant figures. $0.00640$ has \textbf{5} decimal places but \textbf{3} significant figures.
+\item $E_t$ uses the \emph{true} value, $E_a$ uses the \emph{previous} iterate. A question giving you only successive iterates cannot be asking for $E_t$.
+\item The sign of $E_t$ matters: $E_t<0$ means the approximation \emph{overshot}. Many MCQs list both $+$ and $-$ options.
+\item Central difference is $O(h^2)$ but needs \emph{two} extra evaluations; forward is $O(h)$ with one. Accuracy and cost move in opposite directions.
+\item A ``correct'' calculation on a wrong model is still wrong (the trunnion). Modelling error is not reduced by more precision.
+\item $0.5\times10^{2-m}\%$ already contains the \%; do not divide by 100 twice.
+\end{itemize}
+\end{trapbox}
+
+\subsection{Root Finding --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(R1) Bisection interval width and error bound after $n$ iterations.}
+Each iteration halves the bracket exactly, so
+\[
+\boxed{\,L_n = \frac{b-a}{2^{\,n}}\,}\qquad\text{and}\qquad |x^\ast - x_m^{(n)}| \le \frac{b-a}{2^{\,n+1}}
+\]
+(the estimate is the midpoint, so the error is at most \emph{half} the bracket).
+
+\smallskip
+\textbf{(R2) Iterations required, known before you start.} Setting $L_n \le \varepsilon$:
+\[
+\boxed{\;n \;\ge\; \log_2\!\frac{b-a}{\varepsilon} \;=\; \frac{\ln\big((b-a)/\varepsilon\big)}{\ln 2}\;}
+\]
+and round \emph{up}. This is the property the slides call ``predictable error.'' Note what is absent: $f$ itself. \textbf{Bisection's iteration count depends only on the bracket and the tolerance, never on the function.}
+
+\smallskip
+\textbf{(R3) Order of convergence.} With $e_k = |x_k - x^\ast|$, a method has order $p$ if $e_{k+1}\approx C\,e_k^{\,p}$:
+\begin{center}\small
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Method & $p$ & $C$ & Meaning\\
+\midrule
+Bisection & 1 & $1/2$ & one bit per iteration\\
+False position & 1 & --- & linear; slower when an endpoint sticks\\
+Newton--Raphson & \textbf{2} & $\left|\frac{f''(x^\ast)}{2f'(x^\ast)}\right|$ & correct digits \emph{double}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\smallskip
+\textbf{(R4) Newton's error law, derived.} Taylor-expand $f$ about the root $x^\ast$ and substitute the Newton step:
+\[
+\boxed{\;e_{k+1} \;\approx\; \frac{f''(x^\ast)}{2f'(x^\ast)}\;e_k^{\,2}\;}
+\]
+This is what ``quadratic convergence'' literally means: squaring the error each step, hence doubling the number of correct digits. It also shows Newton breaks down when $f'(x^\ast)\to 0$.
+
+\smallskip
+\textbf{(R5) Newton at a repeated root --- the big trap.} If $x^\ast$ has multiplicity $k>1$, then $f'(x^\ast)=0$ too and (R4) fails. Newton degrades to \textbf{linear} convergence with rate $1-\tfrac1k$:
+\[
+e_{k+1} \approx \left(1-\frac1k\right)e_k .
+\]
+For $f(x)=x^2$ (double root at 0) the iteration collapses to $x_{k+1} = x_k - \dfrac{x_k^2}{2x_k} = \dfrac{x_k}{2}$ --- exactly halving, i.e.\ \emph{no faster than bisection}. The repair is the \textbf{modified Newton} step
+\[
+x_{k+1} = x_k - k\,\frac{f(x_k)}{f'(x_k)},
+\]
+which restores quadratic convergence.
+
+\smallskip
+\textbf{(R6) Two classical Newton specializations worth recognizing on sight.}
+\[
+f(x)=x^2-a \;\Rightarrow\; x_{k+1} = \frac12\left(x_k + \frac{a}{x_k}\right)
+\quad\text{(square-root / ``Babylonian'' iteration)}
+\]
+\[
+f(x)=\frac1x-a \;\Rightarrow\; x_{k+1} = x_k(2-a\,x_k)
+\quad\text{(reciprocal, division-free)}
+\]
+
+\smallskip
+\textbf{(R7) False position: which endpoint moves.} The new estimate $x_r$ always replaces the endpoint whose $f$ has the \emph{same sign} as $f(x_r)$. If $f$ is strongly convex/concave on the bracket, one endpoint is never that one, so it \textbf{freezes} --- the bracket width stops going to zero even though $x_r$ converges. This is why $|\epsilon_a|$, not the bracket width, must be used as the stopping test.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Powers of 2 (for bisection counts).} $2^5=32$, $2^{10}=1024$, $2^{15}=32768$, $2^{20}=1048576$. Rule of thumb: \textbf{10 iterations $\approx$ 3 decimal digits} (since $2^{10}\approx10^3$).
+
+\smallskip
+\textbf{Worked iteration counts} ($n \ge \log_2\frac{b-a}{\varepsilon}$, rounded up):
+\begin{center}\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Bracket & $[1,2]$ & $[0,0.11]$ & $[0,1]$ & $[2,3]$\\
+Tolerance & $10^{-3}$ & $10^{-4}$ & $10^{-6}$ & $0.5\times10^{-4}$\\
+\midrule
+$n$ & \textbf{10} & \textbf{11} & \textbf{20} & \textbf{15}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\smallskip
+\textbf{The deck's floating-ball benchmark} ($f(x)=x^3-0.165x^2+3.993\times10^{-4}$, bracket $[0,0.11]$, root $0.06238$):
+bisection \textbf{10} iterations for 2 digits; false position \textbf{5} iterations for about 5 digits; Newton--Raphson \textbf{3} iterations with digits $0\to2\to4$. $f'(x)=3x(x-0.11)$ vanishes at both bracket ends.
+
+\smallskip
+\textbf{Newton on $\sqrt2$ from $x_0=1$:} $1.5$, $1.416667$, $1.414216$, $1.4142136$ --- errors $8.6\times10^{-2}$, $2.5\times10^{-3}$, $2.1\times10^{-6}$, $1.6\times10^{-12}$. Each error is about $0.354$ times the square of the previous one.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{Bisection's iteration count does not depend on $f$} --- only on $b-a$ and $\varepsilon$. Options mentioning the function are distractors.
+\item $f(x_\ell)f(x_u)<0$ is \textbf{sufficient, not necessary}. $f(x)=x^2$ has a root at $0$ with \emph{no} sign change anywhere; bisection can never find it.
+\item A sign change does \textbf{not} guarantee a root: $f(x)=1/x$ on $[-2,3]$ satisfies the test but has a \emph{singularity}, not a root. Bisection converges to $x=0$ and reports it confidently.
+\item ``At least one root'' --- the IVT never promises exactly one. A bracket may contain three roots.
+\item Quadratic convergence means the \emph{number of correct digits} doubles, not that the error halves.
+\item Newton needs $f'$ evaluated every step; ``fewer iterations'' is not automatically ``less work'' if $f'$ is expensive.
+\item False position is \emph{not} always faster than bisection: on $\ln x$ over $[10^{-4},10^4]$ it took \textbf{126} iterations against bisection's \textbf{34}.
+\item In false position the bracket width may never approach zero (frozen endpoint), so never use bracket width as the convergence test there.
+\item Newton at a multiple root is only linear --- if a question says ``double root,'' quadratic convergence is the wrong answer.
+\end{itemize}
+\end{trapbox}

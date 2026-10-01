@@ -1,0 +1,27 @@
+\section{Root Finding}
+
+\begin{formulabox}
+\textbf{Bisection.} Requires $f(x_\ell)f(x_u)<0$ (Intermediate Value Theorem: guarantees $\ge1$ root, never exactly one).
+\[
+x_m = \frac{x_\ell+x_u}{2}
+\]
+Update: $f(x_\ell)f(x_m)<0 \Rightarrow x_u=x_m$; $f(x_\ell)f(x_m)>0 \Rightarrow x_\ell = x_m$.
+
+\textbf{False Position.} From similar triangles on the secant:
+\[
+x_r = \frac{x_U f(x_L) - x_L f(x_U)}{f(x_L)-f(x_U)} = x_U - \frac{f(x_U)(x_U-x_L)}{f(x_U)-f(x_L)}
+\]
+Update rule identical in form to bisection, using $x_r$ in place of $x_m$.
+
+\textbf{Newton--Raphson.} From the tangent-slope relation $f'(x_i)=\dfrac{f(x_i)}{x_i-x_{i+1}}$:
+\[
+x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
+\]
+Stopping error (all three methods, with $x^{new}$ = latest estimate):
+\[
+|\epsilon_a| = \left|\frac{x^{new}-x^{old}}{x^{new}}\right|\times100\%
+\]
+\textbf{Convergence:} Bisection/False-Position $\to$ guaranteed, linear. Newton--Raphson $\to$ not guaranteed, quadratic (correct digits double each step) when it converges.
+
+\textbf{NR failure modes:} $f'(x_i)=0$ (division by zero), inflection points nearby, oscillation near local max/min (no real root), root jumping (multiple/periodic roots).
+\end{formulabox}

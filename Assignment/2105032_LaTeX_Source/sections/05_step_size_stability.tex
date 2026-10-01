@@ -1,0 +1,94 @@
+% =====================================================================
+%  5. Step-size analysis and stability
+% =====================================================================
+\section{How big a step can we take?}
+
+\begin{frame}{Start with quadratics, where everything is exact}
+  Take $f(\x) = \tfrac12\x\T\bA\x - \vb\T\x$ with $\bA\succ0$ symmetric, so $\nabla f = \bA\x - \vb$ and $\bA\x^\star = \vb$. Then
+  \[
+    \e_{k+1} = \x_{k+1} - \x^\star = (\bI - \alpha\bA)\,\e_k \;\Longrightarrow\; \e_k = (\bI-\alpha\bA)^k\e_0 .
+  \]
+  Diagonalise $\bA = \mathbf Q\boldsymbol\Lambda\mathbf Q\T$ and write $\mathbf z_k = \mathbf Q\T\e_k$. The coupled iteration
+  \alert{falls apart into $n$ independent scalar ones}:
+  \[
+    z_i^{(k)} = (1 - \alpha\lambda_i)^k\, z_i^{(0)}, \qquad i = 1,\dots,n .
+  \]
+  \begin{keybox}[Why bother with quadratics?]
+    Close to a strict minimiser, $f(\x)\approx f(\x^\star) + \tfrac12(\x-\x^\star)\T\nabla^2 f(\x^\star)(\x-\x^\star)$.
+    So the quadratic analysis with $\bA = \nabla^2 f(\x^\star)$ predicts how GD behaves \emph{near the end}
+    on any smooth $f$ (Problem M1(d) uses exactly this).
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Theorem: the stable window and the best fixed step}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{thmbox}[Theorem]
+        \small
+        GD converges from every $\x_0$ iff $0 < \alpha < 2/\lmax$, at rate
+        \[
+          \rho(\alpha) = \max\bigl\{|1-\alpha\lmin|,\ |1-\alpha\lmax|\bigr\}.
+        \]
+        The best choice is $\alpha^\star = \frac{2}{\lmin+\lmax}$, giving $\rho^\star = \frac{\kappa-1}{\kappa+1}$ with $\kappa = \frac{\lmax}{\lmin}$.
+      \end{thmbox}
+      \footnotesize\textbf{Proof.} $|1-\alpha\lambda|$ is convex in $\lambda$, so its maximum over $[\lmin,\lmax]$ sits at an end.
+      Both ends are below 1 iff $\alpha<2/\lmax$. The best $\alpha$ makes the two ends equal: $1-\alpha\lmin = \alpha\lmax - 1$. $\blacksquare$
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_amplification}
+
+      \vspace{2pt}
+      \footnotesize To reach accuracy $\varepsilon$ you need about $\frac{\kappa+1}{2}\ln\frac1\varepsilon$ steps, i.e.\ $O\!\bigl(\kappa\log\tfrac1\varepsilon\bigr)$.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Same problem, four step sizes}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{fig_stepsize_compare}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      $\lambda(\bA)\in\{2,4\}$, so GD is stable only for $\alpha<0.5$.
+      \begin{itemize}\footnotesize
+        \item $\alpha=0.05$: $\rho = 0.9$. It gets there, eventually.
+        \item $\alpha = \tfrac13$: $\rho = \tfrac13$, the M3 optimum.
+        \item $\alpha = 0.48$: $|1-4\alpha| = 0.92$, rattling across the valley.
+        \item $\alpha = 0.52$: $|1-4\alpha| = 1.08$, and the swings grow without bound.
+      \end{itemize}
+      \footnotesize\textcolor{mGrey}{Too small wastes time; too large wrecks the run.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Seen from numerical ODEs: Euler's stability region}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      For a quadratic the gradient flow is $\dot\e = -\bA\e$, so each mode is the Dahlquist test equation
+      $\dot y = \lambda y$ with $\lambda = -\lambda_i < 0$.
+      \begin{itemize}\footnotesize
+        \item The \textbf{exact flow} decays for every $\lambda_i>0$. Nothing can go wrong in continuous time.
+        \item \textbf{Forward Euler} is stable only when $z = h\lambda$ lies in the disk $|1+z|<1$.
+              Here $z_i = -\alpha\lambda_i$, so we need $0<\alpha\lambda_i<2$, which is exactly $\alpha<2/\lmax$.
+        \item This is \textbf{stiffness}: the \emph{fastest} mode ($\lmax$) limits the step, while the \emph{slowest}
+              ($\lmin$) decides how long you wait. Any explicit scheme pays roughly $\kappa$ steps.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \input{figures/tikz/euler_disk.tikz}
+
+      \footnotesize
+      \textcolor{mBlue}{$\bullet$} $\alpha = \frac13$: $z = -\frac23, -\frac43$, both inside.\quad
+      \textcolor{mRed}{$\circ$} $\alpha = 0.6$: $z = -1.2, -2.4$, one escapes.
+
+      \vspace{2pt}
+      Backward Euler, $\x_{k+1} = \x_k - h\nabla f(\x_{k+1})$, is stable for every $h$.
+      That is the proximal-point method; the catch is that each step is itself an optimisation problem.
+    \end{column}
+  \end{columns}
+\end{frame}

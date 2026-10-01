@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\input{preamble}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\color{navy}\bfseries CSE 402 --- Numerical Methods}
+\fancyhead[R]{\small\color{navy}\bfseries Practice: Maths, Derivations \& Problem Bank}
+\fancyfoot[C]{\small\thepage}
+
+\title{\textbf{\color{navy}CSE 402: Numerical Methods}\\[6pt]\Large\textbf{\color{gold}Complete Practice Booklet}\\[4pt]\large Derivations $\cdot$ Worked Simulations $\cdot$ MCQ Bank $\cdot$ Trap Questions $\cdot$ Mock Quiz}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{minipage}{0.88\textwidth}
+\begin{keypoint}
+\textbf{Scope.} Full syllabus: Errors \& Approximations, Root Finding, Systems of Linear Equations, Eigenvalue Decomposition, Optimization (Golden Section, Gradient Descent, Newton's Method, Lagrange Multipliers), Regression, Interpolation, Simulation \& Modeling, and Random Number Generation \& Monte Carlo.
+
+\textbf{How the three parts work together.}
+\begin{itemize}
+\item \textbf{Part I --- Theory \& Derivations.} Every proof and worked numeric simulation. Reproduce each boxed derivation from memory.
+\item \textbf{Part II --- Problem Bank.} MCQs, multi-step problems and \emph{trap questions} per topic. This is where ``conceptually basic but hard to answer'' questions live: the ones where the obvious answer is wrong.
+\item \textbf{Part III --- Mock Quiz.} A full mixed paper under time pressure, with an answer key. Sit it cold --- mixed topics are far harder than topic-by-topic drilling, and that is what the real quiz feels like.
+\end{itemize}
+\end{keypoint}
+\end{minipage}
+\end{center}
+
+\tableofcontents
+\newpage
+
+\parttitle{Part I --- Theory, Derivations \& Worked Simulations}{Every proof and every step-by-step numeric run}
+
+\IfFileExists{parts/practice_01_errors.tex}{\input{parts/practice_01_errors}}{}
+\IfFileExists{parts/practice_02_rootfinding.tex}{\input{parts/practice_02_rootfinding}}{}
+\IfFileExists{parts/practice_03_systems.tex}{\input{parts/practice_03_systems}}{}
+\IfFileExists{parts/practice_04_eigen.tex}{\input{parts/practice_04_eigen}}{}
+\IfFileExists{parts/practice_05_optimization.tex}{\input{parts/practice_05_optimization}}{}
+\IfFileExists{parts/practice_06_regression.tex}{\input{parts/practice_06_regression}}{}
+\IfFileExists{parts/practice_07_interpolation.tex}{\input{parts/practice_07_interpolation}}{}
+\IfFileExists{parts/practice_08_simulation.tex}{\input{parts/practice_08_simulation}}{}
+\IfFileExists{parts/practice_09_rng_mc.tex}{\input{parts/practice_09_rng_mc}}{}
+
+\parttitle{Part II --- Problem Bank}{MCQs, multi-step problems and trap questions, topic by topic}
+
+\section{Errors \& Root Finding --- Problem Bank}
+\IfFileExists{parts/extra/practice_01_02_extra.tex}{\input{parts/extra/practice_01_02_extra}}{}
+
+\section{Linear Systems \& Eigenvalues --- Problem Bank}
+\IfFileExists{parts/extra/practice_03_04_extra.tex}{\input{parts/extra/practice_03_04_extra}}{}
+
+\section{Optimization --- Problem Bank}
+\IfFileExists{parts/extra/practice_05_extra.tex}{\input{parts/extra/practice_05_extra}}{}
+
+\section{Regression \& Interpolation --- Problem Bank}
+\IfFileExists{parts/extra/practice_06_07_extra.tex}{\input{parts/extra/practice_06_07_extra}}{}
+
+\section{Simulation, RNG \& Monte Carlo --- Problem Bank}
+\IfFileExists{parts/extra/practice_08_09_extra.tex}{\input{parts/extra/practice_08_09_extra}}{}
+
+\parttitle{Part III --- Mock Quiz}{A full mixed paper, 60 minutes, answer key at the end}
+
+\IfFileExists{parts/practice_99_mock.tex}{\input{parts/practice_99_mock}}{}
+
+\end{document}

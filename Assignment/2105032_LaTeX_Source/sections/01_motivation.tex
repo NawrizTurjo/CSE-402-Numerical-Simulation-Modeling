@@ -1,0 +1,73 @@
+% =====================================================================
+%  1. Motivation and the optimization problem
+% =====================================================================
+\section{The optimization problem}
+
+\begin{frame}{One question behind many problems}
+  Train a model, settle a structure, plan production, fit data. Each asks: \alert{which input makes one number smallest?}
+
+  \centering\small
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    Field & Unknown $\x$ & Objective $f(\x)$ to minimise \\
+    \midrule
+    Machine learning & model weights & training loss \\
+    Structural mechanics & nodal displacements & potential energy \\
+    Economics & production levels & $-$profit \\
+    Parameter estimation & physical constants & sum of squared residuals \\
+    Signal processing & filter or estimate & mean-squared error \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \begin{keybox}[The common form]
+    \centering $\displaystyle \min_{\x\in\R^n} f(\x), \qquad f:\R^n\to\R \text{ differentiable}\quad\text{(maximise $P$ = minimise $-P$).}$
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{What counts as a solution?}
+  \small
+  $\x^\star$ is a \textbf{global minimiser} if $f(\x^\star)\le f(\x)$ for every $\x$, and a \textbf{local minimiser}
+  if that only holds near $\x^\star$.
+  \begin{thmbox}[First-order necessary condition]
+    If $\x^\star$ is a local minimiser and $f$ is differentiable, then $\nabla f(\x^\star) = \mathbf 0$.
+  \end{thmbox}
+  \textbf{Proof.} Suppose $\g = \nabla f(\x^\star)\ne\mathbf 0$. Then
+  $f(\x^\star - t\g) = f(\x^\star) - t\norm{\g}^2 + o(t) < f(\x^\star)$ for small $t>0$, so $\x^\star$ was not a minimiser. $\blacksquare$
+
+  \vspace{4pt}
+  \begin{itemize}\small
+    \item Second order: $\nabla^2 f(\x^\star)\succeq 0$ is necessary, and $\nabla f = \mathbf 0$ with $\nabla^2 f\succ0$ is sufficient.
+    \item A zero gradient does not guarantee a minimum. $x^4+y^4-4xy$ has a \alert{saddle} at the origin (Problem M1).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why not just solve $\nabla f = \mathbf 0$?}
+  \begin{itemize}\small
+    \item $\nabla f(\x) = \mathbf 0$ is a system of $n$ \emph{nonlinear} equations, and closed-form solutions are rare.
+    \item Second-order methods use the Hessian, which costs $n^2$ memory and $O(n^3)$ work per linear solve.
+          They are a separate topic and appear here only for contrast.
+    \item \textbf{First-order methods} need only $\nabla f$: $O(n)$ memory and one gradient per iteration.
+          That is cheap enough for $n\sim10^9$, the size of modern neural networks.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \begin{keybox}[A little history]
+        \small Cauchy proposed steepest descent in 1847 to solve systems of simultaneous equations,
+        by driving a nonnegative function down to zero~\cite{cauchy1847}. More than 175 years later,
+        variants of the same idea train today's largest models~\cite{bottou2018}.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \small
+      \textbf{In this module we}
+      \begin{itemize}\footnotesize
+        \item derive gradient descent and prove how fast it converges,
+        \item find out \emph{when} and \emph{why} it slows down,
+        \item fix it with adaptive steps, momentum and SGD.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}

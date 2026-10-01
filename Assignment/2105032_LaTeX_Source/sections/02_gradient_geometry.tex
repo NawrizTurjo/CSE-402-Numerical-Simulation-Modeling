@@ -1,0 +1,101 @@
+% =====================================================================
+%  2. Gradient and directional derivative
+% =====================================================================
+\section{The gradient: which way is downhill?}
+
+\begin{frame}{Gradient and directional derivative}
+  \begin{itemize}\small
+    \item The gradient collects all partial derivatives: $\nabla f(\x) = \bigl(\tfrac{\partial f}{\partial x_1},\dots,\tfrac{\partial f}{\partial x_n}\bigr)\T$.
+    \item The directional derivative along $\vd$ tells you how fast $f$ changes if you move that way
+          (chain rule on $t\mapsto f(\x+t\vd)$):
+  \end{itemize}
+  \[
+    D_{\vd} f(\x) = \lim_{t\to0}\frac{f(\x + t\vd) - f(\x)}{t} = \nabla f(\x)\T\vd .
+  \]
+  \begin{itemize}\small
+    \item First-order Taylor expansion: $f(\x + t\vd) = f(\x) + t\,\nabla f(\x)\T\vd + o(t)$.
+    \item So if $\nabla f(\x)\T\vd < 0$, a small step along $\vd$ lowers $f$. We call $\vd$ a \alert{descent direction}.
+  \end{itemize}
+  \begin{keybox}[The question that starts everything]
+    Of all the unit directions you could step in, which one lowers $f$ the \emph{fastest}?
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Theorem: $-\nabla f$ is the steepest way down}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{thmbox}[Theorem (steepest descent)]
+        If $\nabla f(\x)\neq\mathbf 0$, then
+        \[
+          \min_{\norm{\vd}=1}\nabla f(\x)\T\vd = -\norm{\nabla f(\x)},
+        \]
+        and the only minimiser is $\vd^\star = -\nabla f(\x)/\norm{\nabla f(\x)}$.
+      \end{thmbox}
+      \small\textbf{Proof.}
+      \pause
+      By Cauchy--Schwarz, $|\nabla f\T\vd| \le \norm{\nabla f}\norm{\vd} = \norm{\nabla f}$, so
+      $\nabla f\T\vd \ge -\norm{\nabla f}$.
+      \pause
+      Cauchy--Schwarz is an equality only when $\vd$ is parallel to $\nabla f$. Taking the minus sign,
+      $\vd = -\nabla f/\norm{\nabla f}$ reaches the bound. $\blacksquare$
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \input{figures/tikz/steepest_dir.tikz}
+
+      \footnotesize $D_{\vd}f = \norm{\nabla f}\cos\theta$, which is smallest at $\theta = \pi$.
+      Every arrow in the green half-plane goes downhill; $\vd^\star$ goes down fastest.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The gradient is perpendicular to the contours}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      \small
+      Take any smooth curve $\gamma(t)$ that stays on the level set $\{f = c\}$, with $\gamma(0) = \x$. Then
+      \[
+        f(\gamma(t)) = c \;\Rightarrow\; \nabla f(\x)\T\gamma'(0) = 0 .
+      \]
+      So $\nabla f(\x)$ is perpendicular to every direction along the contour.
+
+      \vspace{4pt}
+      \begin{itemize}\footnotesize
+        \item The arrows show $-\nabla f$ (normalised) for $f = x^4+y^4-4xy$.
+        \item Look at how they cross every contour at a right angle, run away from the saddle along $(1,1)$,
+              and pour into the two minima.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.51\textwidth}
+      \centering
+      \includegraphics[width=0.92\linewidth]{fig_landscape_contour}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{``Steepest'' depends on how you measure length}
+  Swap the Euclidean norm for $\norm{\vd}_{\bP} = \sqrt{\vd\T\bP\vd}$ with $\bP\succ0$, and the answer changes:
+  \[
+    \min_{\vd\T\bP\vd\le1}\nabla f\T\vd
+    \quad\Longrightarrow\quad
+    \vd^\star \propto -\bP^{-1}\nabla f(\x).
+  \]
+  \small\textbf{Proof.} Substitute $\vd = \bP^{-1/2}\mathbf z$ with $\norm{\mathbf z}\le1$. The objective becomes
+  $(\bP^{-1/2}\nabla f)\T\mathbf z$, so the previous theorem gives $\mathbf z^\star\propto-\bP^{-1/2}\nabla f$ and therefore
+  $\vd^\star\propto-\bP^{-1}\nabla f$. $\blacksquare$
+
+  \vspace{4pt}
+  \begin{center}
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    Choice of $\bP$ & What you get \\
+    \midrule
+    $\bI$ & plain gradient descent \\
+    a diagonal scaling & feature standardisation, Adam-type methods (\S13) \\
+    $\nabla^2 f(\x)$ & the Newton direction (a different topic, mentioned only) \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \footnotesize\textcolor{mGrey}{So there is no single ``steepest'' direction. It depends on the geometry you pick~\cite{boyd2004},
+  and choosing that geometry well is what preconditioning does (\S8).}
+\end{frame}

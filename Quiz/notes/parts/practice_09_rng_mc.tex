@@ -1,0 +1,260 @@
+\section{Random Number Generation \& Monte Carlo Simulation}
+
+\subsection{Random Number Generation}
+
+\begin{defbox}
+A random number $R$ is drawn from $[0,1]$ with every value equally likely: $R\sim U(0,1)$. A sequence $R_1,R_2,\dots$ must satisfy \textbf{two properties simultaneously}: \textbf{Uniformity} (no subinterval of $[0,1]$ is preferred) and \textbf{Independence} (knowing $R_1$ tells you nothing about $R_2$). Since computers are deterministic, generated numbers are only \emph{pseudo-random} — computed by a formula but statistically indistinguishable from true randomness. Repeatability from a known seed is actually useful: debugging, fair comparison of designs, and verification by others.
+\end{defbox}
+
+\textbf{A good generator is:} fast, portable, has a long period, is repeatable (same seed $\Rightarrow$ same sequence), and is statistically good (passes uniformity/independence tests).
+
+\begin{examplebox}
+\textbf{Mean and variance of $U(0,1)$.} pdf $f(x)=1$ on $[0,1]$.
+\[
+E(R) = \int_0^1 x\,dx = \left[\frac{x^2}{2}\right]_0^1 = \frac12, \qquad E(R^2)=\int_0^1 x^2\,dx=\frac13
+\]
+\[
+\mathrm{Var}(R) = E(R^2)-[E(R)]^2 = \frac13-\frac14 = \frac{1}{12}\approx0.0833
+\]
+\end{examplebox}
+
+\subsubsection{The Linear Congruential Generator (LCG)}
+
+\[
+X_{i+1} = (aX_i+c)\bmod m, \qquad R_i = \frac{X_i}{m}
+\]
+$X_0$ = seed, $a$ = multiplier, $c$ = increment, $m$ = modulus. $c\neq0$: \textbf{mixed} congruential; $c=0$: \textbf{multiplicative} congruential. \textbf{Key weakness:} each $X_i$ completely determines $X_{i+1}$ — no actual randomness, only apparent randomness from the choice of $(a,c,m)$.
+
+\textbf{Period.} Since $X_i\in\{0,\dots,m-1\}$, the sequence must eventually repeat; the period $P$ is the length before it repeats. Ideal: $P=m$.
+
+\textbf{Maximum-period conditions:}
+\begin{itemize}
+\item $m=2^b,\ c\neq0$ (mixed): $P=m$ if $\gcd(c,m)=1$ and $a=1+4k$.
+\item $m=2^b,\ c=0$ (multiplicative): $P=m/4=2^{b-2}$ only, if $X_0$ is odd and $a=3+8k$ or $a=5+8k$.
+\item $m$ prime, $c=0$: $P=m-1$, if the smallest $k$ with $m\mid(a^k-1)$ is $k=m-1$.
+\end{itemize}
+\textbf{Density.} Gap between representable $R_i$ values $=1/m$; a large $m$ (e.g.\ $2^{31}-1\approx2.1\times10^9$) gives gap $\approx4.7\times10^{-10}$ — ``practically continuous.'' Powers of 2 are attractive because $X\bmod 2^b$ is just ``keep the last $b$ bits'' — essentially free on a binary computer (directly analogous to mod 100 = keep the last 2 decimal digits).
+
+\begin{examplebox}
+\textbf{Worked example — basic LCG.} $X_0=27,\ a=17,\ c=43,\ m=100$.
+\[
+X_1=(17{\times}27+43)\bmod100 = 502\bmod100=2 \Rightarrow R_1=0.02
+\]
+\[
+X_2=(17{\times}2+43)\bmod100=77 \Rightarrow R_2=0.77, \qquad X_3=(17{\times}77+43)\bmod100=52\Rightarrow R_3=0.52
+\]
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked example — period behavior.} $X_{i+1}=13X_i\bmod64$ ($c=0$), four seeds $X_0=1,2,3,4$. Generating the full sequence for each seed until it returns to $X_0$ gives observed periods: $X_0=4\to$ period 4; $X_0=2\to$ period 8; $X_0=1\to$ period 16; $X_0=3\to$ period 16. \textbf{Odd seeds reach the max period; even seeds fall short.}
+
+\textbf{Verification:} $m=2^6=64,\ c=0\Rightarrow$ multiplicative case, max period $=m/4=16$. Multiplier check: $a=13=5+8(1)$ $\checkmark$ (form $5+8k$). Seed check: $X_0=1,3$ (odd) $\to$ period 16 $\checkmark$; $X_0=2,4$ (even) $\to$ shorter periods (8, 4) as predicted.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{A real-world generator.} $a=7^5=16{,}807,\ c=0,\ m=2^{31}-1=2{,}147{,}483{,}647$ (prime $\Rightarrow$ max period $P=m-1>2$ billion). Seed $X_0=123{,}457$: $X_1=2{,}074{,}941{,}799\Rightarrow R_1=X_1/2^{31}=0.9662$; $X_2=559{,}872{,}160\Rightarrow R_2=0.2607$; $X_3=1{,}645{,}535{,}613\Rightarrow R_3=0.7662$.
+\end{examplebox}
+
+\subsubsection{Statistical Testing of RNGs}
+
+\begin{defbox}
+Two categories, matching the two sacred properties: \textbf{uniformity tests} (K-S, Chi-square) and \textbf{independence tests} (Autocorrelation, Runs, Serial). Passing all tests never \emph{guarantees} randomness (a pattern might go undetected), but failing one is a red flag. Hypotheses: $H_0:R_i\sim U(0,1)$ (or independent) vs.\ $H_1$: not so, at significance level $\alpha$ (typically $0.05$).
+\end{defbox}
+
+\textbf{Multiple-testing problem.} For $k$ independent tests at level $\alpha$, all $H_0$ true:
+\[
+P(\text{at least one false rejection}) = 1-(1-\alpha)^k
+\]
+E.g.\ $\alpha=0.05$: $k=10\to0.40$, $k=20\to0.64$. \textbf{Lesson:} an isolated test failure does not prove an RNG is bad — repeated failures of the \emph{same} test, or failures across several different tests, are the real red flag.
+
+\textbf{Kolmogorov--Smirnov (K-S) test.} Sort sample: $R_{(1)}\le\cdots\le R_{(N)}$.
+\[
+D^+ = \max_i\left(\frac{i}{N}-R_{(i)}\right), \qquad D^- = \max_i\left(R_{(i)}-\frac{i-1}{N}\right), \qquad D=\max(D^+,D^-)
+\]
+Reject $H_0$ if $D>D_\alpha$ (table value for given $N,\alpha$).
+
+\begin{examplebox}
+\textbf{Worked K-S test.} Data $0.44,0.81,0.14,0.05,0.93$, $N=5,\alpha=0.05$. Sorted: $0.05,0.14,0.44,0.81,0.93$.
+\begin{center}\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+$i$ & $R_{(i)}$ & $i/N$ & $D_i^+$ & $(i{-}1)/N$ & $D_i^-$\\
+\midrule
+1&0.05&0.20&0.15&0.00&0.05\\
+2&0.14&0.40&\textbf{0.26}&0.20&0.06\\
+3&0.44&0.60&0.16&0.40&0.04\\
+4&0.81&0.80&-0.01&0.60&\textbf{0.21}\\
+5&0.93&1.00&0.07&0.80&0.13\\
+\bottomrule
+\end{tabular}
+\end{center}
+$D^+=0.26,\ D^-=0.21\Rightarrow D=0.26$. $D_{0.05,5}=0.565$. Since $0.26<0.565$: \textbf{do not reject $H_0$}.
+\end{examplebox}
+
+\textbf{Chi-square test.} Bins $1,\dots,n$; $E_i=N/n$; $O_i$ observed count:
+\[
+\chi_0^2 = \sum_{i=1}^n\frac{(O_i-E_i)^2}{E_i}
+\]
+Reject if $\chi_0^2>\chi^2_{\alpha,n-1}$. Valid for large samples ($N\gtrsim50$); K-S is more powerful and works for small samples too.
+
+\begin{examplebox}
+\textbf{Worked Chi-square test.} $N=100$, $n=10$ bins, $E_i=10$ each.
+\begin{center}\small
+\begin{tabular}{@{}cc|cc@{}}
+\toprule
+$O_i$ (10 bins, [0,1) split into tenths): & 8,8,10,9,12,8,10,14,10,11 & Total $O_i$ & 100\\
+\bottomrule
+\end{tabular}
+\end{center}
+$\chi_0^2=\sum(O_i-E_i)^2/E_i = 0.4{+}0.4{+}0{+}0.1{+}0.4{+}0.4{+}0{+}1.6{+}0{+}0.1=3.4$. Critical value $\chi^2_{0.05,9}=16.9$. Since $3.4\ll16.9$: \textbf{do not reject $H_0$} — ``looks fine.''
+\end{examplebox}
+
+\textbf{Autocorrelation test.} Tests independence at lag $\ell$ starting at index $i$; $H_0:\rho_{i\ell}=0$ (two-tailed — both $>0$ and $<0$ indicate dependence). $M$ = largest integer with $i+(M{+}1)\ell\le N$.
+\[
+\hat\rho_{i\ell} = \frac{1}{M+1}\sum_{k=0}^M R_{i+k\ell}R_{i+(k+1)\ell} - 0.25
+\]
+(0.25 subtracted since independent $U(0,1)$'s give $E[RR']=\tfrac12\cdot\tfrac12=0.25$.)
+
+\begin{examplebox}
+\textbf{Derivation of $\sigma_{\hat\rho_{i\ell}}$.} Let $Y_k=R_{i+k\ell}R_{i+(k+1)\ell}=AB$, $A,B$ independent $U(0,1)$.
+\[
+E[Y_k]=E[A]E[B]=\tfrac14, \qquad E[Y_k^2]=E[A^2]E[B^2]=\tfrac19, \qquad \mathrm{Var}(Y_k)=\tfrac19-\tfrac1{16}=\tfrac{7}{144}
+\]
+Adjacent products $Y_k=AB,\ Y_{k+1}=BC$ share $B$:
+\[
+E[Y_kY_{k+1}] = E[A]E[B^2]E[C] = \tfrac12\cdot\tfrac13\cdot\tfrac12=\tfrac1{12}, \qquad \mathrm{Cov}(Y_k,Y_{k+1}) = \tfrac1{12}-\tfrac1{16}=\tfrac1{48}
+\]
+(non-adjacent products have zero covariance). With $S=\sum_{k=0}^M Y_k$ and $\hat\rho_{i\ell}=\frac{S}{M+1}-0.25$:
+\[
+\mathrm{Var}(S) = (M{+}1)\tfrac{7}{144} + 2M\tfrac1{48}, \qquad \mathrm{Var}(\hat\rho_{i\ell}) = \frac{\mathrm{Var}(S)}{(M+1)^2} = \frac{13M+7}{144(M+1)^2}
+\]
+\[
+\sigma_{\hat\rho_{i\ell}} = \sqrt{\mathrm{Var}(\hat\rho_{i\ell})} = \frac{\sqrt{13M+7}}{12(M+1)} \qquad\blacksquare
+\]
+Test statistic $Z_0 = \hat\rho_{i\ell}/\sigma_{\hat\rho_{i\ell}}$; reject $H_0$ if $|Z_0|>1.96$ ($\alpha=0.05$).
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked autocorrelation test.} $i=3,\ \ell=5,\ N=30\Rightarrow M=4$. Subsequence $R_3,R_8,\dots,R_{28} = 0.23,0.28,0.33,0.27,0.05,0.36$.
+\[
+\hat\rho_{35} = \tfrac15\big[(0.23)(0.28)+(0.28)(0.33)+(0.33)(0.27)+(0.27)(0.05)+(0.05)(0.36)\big]-0.25
+\]
+\[
+= 0.0555-0.25=-0.1945
+\]
+\[
+\sigma = \frac{\sqrt{13(4)+7}}{12(5)}=\frac{\sqrt{59}}{60}=0.1280, \qquad Z_0=\frac{-0.1945}{0.1280}=-1.52
+\]
+$|Z_0|=1.52<1.96$: \textbf{do not reject $H_0$} — no evidence of autocorrelation.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What two properties must a random-number sequence satisfy, and must they hold together? \\
+\textbf{A:} Uniformity and Independence, simultaneously — one without the other is not enough (e.g.\ $0.01,0.02,\dots,0.09,0.11,\dots$ is perfectly uniform but completely predictable).
+
+\textbf{Q2:} Why are computer-generated random numbers called ``pseudo-random''? \\
+\textbf{A:} Computers are deterministic — the same seed always produces the same sequence via a formula, not true randomness; but this repeatability enables debugging, fair comparison, and verification.
+
+\textbf{Q3:} What is the key structural weakness of an LCG? \\
+\textbf{A:} Each $X_i$ completely determines $X_{i+1}$ — there is no actual randomness, only the appearance of it, entirely governed by the choice of $(a,c,m,X_0)$.
+
+\textbf{Q4:} Why do many real generators choose $m$ as a power of 2? \\
+\textbf{A:} Because $X\bmod 2^b$ is just ``keep the last $b$ bits'' on a binary computer — essentially free to compute — though (per the multiplicative case) this only achieves period $m/4$, a speed/period trade-off versus a prime modulus.
+
+\textbf{Q5:} Why does testing an RNG with many statistical tests risk false alarms? \\
+\textbf{A:} By the multiple-testing effect, $P(\text{at least one false rejection})=1-(1-\alpha)^k$ grows quickly with $k$ (e.g.\ $\approx40\%$ for 10 tests at $\alpha=0.05$) even for a perfectly correct generator — so isolated failures don't prove the RNG is bad.
+
+\textbf{Q6:} Why are uniformity tests (K-S, Chi-square) alone insufficient to certify a generator? \\
+\textbf{A:} They ignore ordering — a sequence can be perfectly uniform yet fully predictable in sequence; independence must be separately tested (e.g.\ via autocorrelation).
+
+\textbf{Q7:} In the autocorrelation test, why is 0.25 subtracted in $\hat\rho_{i\ell}$? \\
+\textbf{A:} For independent $U(0,1)$ variables, $E[RR']=E[R]E[R']=\tfrac12\cdot\tfrac12=0.25$; subtracting it centers the estimator at 0 under the null (independence).
+
+\textbf{Q8:} Why is the autocorrelation test two-tailed? \\
+\textbf{A:} Both $\rho_{i\ell}>0$ (products larger than expected) and $\rho_{i\ell}<0$ (smaller than expected) signal dependence; only $\rho_{i\ell}=0$ indicates independence.
+
+\textbf{Q9:} Compare K-S and Chi-square tests. \\
+\textbf{A:} Both test uniformity; K-S is more powerful and valid even for small samples, while Chi-square requires large samples ($N\gtrsim50$).
+\end{qabox}
+
+\subsection{Monte Carlo Simulation}
+
+\begin{defbox}
+A scheme employing random numbers to solve stochastic \emph{or deterministic} problems (named after the Monte Carlo Casino; developed during WWII on the Manhattan Project by Stanislaw Ulam and John von Neumann). The surprising part: randomness can compute an exact, non-random answer (e.g.\ estimating $\pi$).
+\end{defbox}
+
+\textbf{Motivation.} Evaluating $I=\int_a^b g(x)\,dx$ when $g$ has no closed form; classical quadrature (Simpson's, trapezoidal) works well in 1-D but struggles in high dimensions — Monte Carlo does not suffer the same curse of dimensionality.
+
+\begin{examplebox}
+\textbf{Derivation — integration as expectation.} Let $X\sim U(a,b)$ (pdf $f_X(x)=\tfrac{1}{b-a}$) and $Y=(b-a)g(X)$.
+\[
+E(Y) = (b-a)\int_a^b g(x)f_X(x)\,dx = (b-a)\cdot\frac{1}{b-a}\int_a^b g(x)\,dx = \int_a^b g(x)\,dx = I \qquad\blacksquare
+\]
+So the deterministic integral $I$ equals the expected value of the random variable $Y$ — an estimation problem, solved (by the Law of Large Numbers) with a sample mean:
+\[
+\bar Y(n) = (b-a)\cdot\frac1n\sum_{i=1}^n g(X_i), \qquad X_1,\dots,X_n \stackrel{iid}{\sim} U(a,b)
+\]
+Geometrically, $\bar Y(n)$ is the area of a rectangle of base $(b-a)$ and height equal to the average sampled height of $g$.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked example — $\int_0^\pi \sin x\,dx$, $n=10$.} Exact: $[-\cos x]_0^\pi = 2$. Sampled $X_i\sim U(0,\pi)$: $0.52,1.19,2.83,0.21,1.77,2.50,0.89,1.53,2.97,2.11$; $\sin(X_i)$: $0.497,0.929,0.301,0.208,0.980,0.599,0.777,0.999,0.172,0.870$.
+\[
+\bar g = \frac{1}{10}\sum \sin(X_i) = 0.633, \qquad \bar Y(10) = \pi\times0.633 = 1.989
+\]
+True value $2$; error $\approx0.5\%$ with just 10 points.
+
+\textbf{Convergence table (a separate run).}
+\begin{center}\small
+\begin{tabular}{@{}ccc@{}}
+\toprule
+$n$ & $\bar Y(n)$ & Error\\
+\midrule
+10 & 2.213 & 10.7\%\\
+20 & 1.951 & 2.5\%\\
+40 & 1.948 & 2.6\%\\
+80 & 1.989 & 0.6\%\\
+160 & 1.993 & 0.4\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+Note $\bar Y(40)=1.948$ is \emph{worse} than $\bar Y(20)=1.951$ — not a bug: $\bar Y(n)$ is itself a random variable, so error need not shrink monotonically; it converges only ``on average'' (Law of Large Numbers).
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Estimating $\pi$.} Quarter circle radius 1 inscribed in the unit square: $P(\text{inside circle}) = \frac{\pi/4}{1}=\frac{\pi}{4}$. Generate $n$ pairs $(X_i,Y_i)\sim U(0,1)$, count hits $h$ where $X_i^2+Y_i^2\le1$:
+\[
+\hat\pi = \frac{4h}{n}
+\]
+\begin{center}\small
+\begin{tabular}{@{}cc@{}}
+\toprule
+$n$ & $\hat\pi$\\
+\midrule
+100 & 3.24\\
+1{,}000 & 3.16\\
+10{,}000 & 3.1436\\
+100{,}000 & 3.1412\\
+1{,}000{,}000 & 3.14178\\
+\bottomrule
+\end{tabular}
+\end{center}
+Converges toward $\pi=3.14159\ldots$ as $n$ grows (not strictly monotonically).
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} Why can Monte Carlo simulation solve deterministic problems (like computing $\pi$)? \\
+\textbf{A:} Any deterministic quantity that can be expressed as an expected value or a probability (e.g.\ area ratio) can be estimated by sampling — the randomness is a computational tool, not a property of the answer itself.
+
+\textbf{Q2:} What is the key trick that converts $\int_a^b g(x)\,dx$ into a Monte Carlo estimation problem? \\
+\textbf{A:} If $X\sim U(a,b)$ and $Y=(b-a)g(X)$, then $E(Y)=\int_a^b g(x)\,dx$; the integral becomes the expected value of a random variable, estimated by a sample mean.
+
+\textbf{Q3:} Why does the Monte Carlo estimate improve as $n$ increases, and does it do so monotonically? \\
+\textbf{A:} By the Law of Large Numbers, the sample mean converges to the true expectation as $n\to\infty$ — but $\bar Y(n)$ is itself a random variable, so an individual run's error need not shrink at every step (e.g.\ $n=40$ can be worse than $n=20$).
+
+\textbf{Q4:} Describe the Monte Carlo method for estimating $\pi$ and justify the formula $\hat\pi=4h/n$. \\
+\textbf{A:} Inscribe a quarter unit-circle in a unit square; generate random $(X,Y)\in[0,1]^2$ and count hits with $X^2+Y^2\le1$. Since $P(\text{hit})=\pi/4$, the hit fraction $h/n\approx\pi/4$, so $\pi\approx4h/n$.
+
+\textbf{Q5:} Why is Monte Carlo integration preferred over Simpson's/trapezoidal rule in some cases? \\
+\textbf{A:} Classical quadrature works well in 1-D but degrades badly in high-dimensional (multiple) integrals; Monte Carlo does not suffer the same curse of dimensionality.
+\end{qabox}

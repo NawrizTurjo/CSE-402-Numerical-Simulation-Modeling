@@ -1,0 +1,29 @@
+\section{Systems of Linear Equations}
+
+\begin{formulabox}
+\textbf{Gauss elimination.} Multiplier and update at step $k$:
+\[
+m_{ik} = \frac{a_{ik}^{(k-1)}}{a_{kk}^{(k-1)}}, \qquad a_{ij}^{(k)} = a_{ij}^{(k-1)} - m_{ik}a_{kj}^{(k-1)}
+\]
+Back substitution:
+\[
+x_n = \frac{b_n^{(n-1)}}{a_{nn}^{(n-1)}}, \qquad x_i = \frac{b_i^{(i-1)} - \sum_{j=i+1}^n a_{ij}^{(i-1)}x_j}{a_{ii}^{(i-1)}}
+\]
+\textbf{Partial pivoting:} swap in $\max_i|a_{ik}|$ as pivot each step $k$ — fixes zero-pivot and round-off blowup.
+
+\textbf{Determinant:} row add/sub $\Rightarrow \det$ unchanged; triangular $\Rightarrow \det=\prod a_{ii}$; row swap $\Rightarrow \det$ flips sign.
+
+\textbf{Gauss--Jordan:} normalize each pivot row to 1, eliminate that column from \emph{every} other row (above \& below) $\Rightarrow$ coefficient matrix $\to I$; RHS $=$ solution (no back-sub).
+
+\textbf{LU decomposition:} $A=LU$; $U=$ result of naive forward elimination; $L=$ unit-lower-triangular with $m_{ij}$ at position $(i,j)$.
+\[
+LZ=C \ \text{(forward sub.)}, \qquad UX=Z \ \text{(back sub.)}
+\]
+\[
+z_1=c_1,\quad z_i = c_i - \sum_{j<i}\ell_{ij}z_j
+\]
+\[
+x_n=\frac{z_n}{u_{nn}}, \quad x_i = \frac{z_i-\sum_{j>i}u_{ij}x_j}{u_{ii}}
+\]
+\textbf{Cost:} single solve $C_T|_{LU}=C_T|_{GE}$ (identical); for $A^{-1}$ ($n$ RHS's), LU $\sim n^3$ total vs.\ Gauss $\sim n^4$ — ratio $\approx n/4$.
+\end{formulabox}

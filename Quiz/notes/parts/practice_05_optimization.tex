@@ -1,0 +1,282 @@
+\section{Optimization}
+
+\subsection{Golden Section Search}
+
+\begin{defbox}
+Golden Section Search (GSS) is an optimization technique: an efficient way to locate the extremum (maximum or minimum) of a single-variable, \emph{unimodal} function, using the Golden Ratio to place search points so function evaluations are reused across iterations.
+\end{defbox}
+
+\textbf{Setup and assumption.} Choose $x_L, x_u$ bracketing a single extremum. \textbf{Key assumption:} exactly one extremum lies in $[x_L,x_u]$ (unimodal on the interval). The method \emph{fails} if there are multiple extrema, because the ``keep the better side'' logic can discard the region containing the true optimum.
+
+\textbf{Algorithm (maximization).}
+\begin{enumerate}
+\item Evaluate endpoints $f_L = f(x_L)$, $f_u = f(x_u)$.
+\item Golden distance $d = R(x_u-x_L)$ with $R=\tfrac{\sqrt5-1}{2}\approx 0.618$.
+\item Interior points: $x_1 = x_u - d,\ f_1=f(x_1)$; \quad $x_2 = x_L+d,\ f_2=f(x_2)$.
+\item Locate region: $f_1>f_2 \Rightarrow$ max is left ($x_u \gets x_2$, reuse $x_2\to x_1$, $f_2\to f_1$, recompute new $x_2$); $f_1<f_2 \Rightarrow$ max is right ($x_L\gets x_1$, reuse $x_1\to x_2$, $f_1 \to f_2$, recompute new $x_1$).
+\item Repeat until $\left|\dfrac{2(x_u-x_L)}{x_u+x_L}\right| < \varepsilon_s$; report $x_{opt}=\dfrac{x_u+x_L}{2}$, $f_{opt}=f(x_{opt})$.
+\end{enumerate}
+\textbf{Efficiency:} first iteration costs 2 interior evaluations (4 with endpoints); every later iteration needs only \emph{one} new function call, because golden placement always lands a new point exactly on a previously evaluated one.
+
+\begin{examplebox}
+\textbf{Derivation of the Golden Ratio.} Let $\ell_0=x_u-x_L$, $\ell_1=x_2-x_L$, $\ell_2=x_u-x_2$ be interval lengths in one iteration. To make next-iteration points reuse a previous point:
+\[
+\text{(i)}\ \ell_0=\ell_1+\ell_2, \qquad \text{(ii)}\ \frac{\ell_1}{\ell_0}=\frac{\ell_2}{\ell_1}.
+\]
+Substitute (i) into (ii):
+\[
+\frac{\ell_1}{\ell_1+\ell_2} = \frac{\ell_2}{\ell_1} \;\Longrightarrow\; \ell_1^2 = \ell_2(\ell_1+\ell_2) \;\Longrightarrow\; 1+\frac{\ell_2}{\ell_1} = \frac{\ell_1}{\ell_2}.
+\]
+Let $R=\ell_2/\ell_1$. Then $1+R = 1/R \Rightarrow R^2+R-1=0$, so
+\[
+R = \frac{-1\pm\sqrt5}{2}.
+\]
+Taking the positive root: $R = \dfrac{\sqrt5-1}{2}\approx 0.618$ — the Golden Ratio. $\blacksquare$
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation.} Maximize $f(x) = 2\sin x - \dfrac{x^2}{10}$ on $[0,4]$, $R=0.61803$.
+
+\emph{Iteration 1:} $x_L=0,x_u=4$, $d=R(4)=2.47214$. $x_1=1.52786$, $x_2=2.47214$.
+\[
+f(x_1)=2\sin(1.52786)-\tfrac{1.52786^2}{10}=1.99924-0.23344=1.76580
+\]
+\[
+f(x_2)=2\sin(2.47214)-\tfrac{2.47214^2}{10}=1.25701-0.61115=0.64586
+\]
+Since $f_1>f_2$: max is left $\Rightarrow x_u=x_2=2.47214$ (reuse $x_1\to x_2$, $f_2=1.76580$).
+
+\emph{Iteration 2:} $d=R(2.47214-0)=1.52786$, new $x_1=0.94427$:
+\[
+f(x_1)=2\sin(0.94427)-\tfrac{0.94427^2}{10}=1.61804-0.08916=1.52888
+\]
+$f_1=1.52888 < f_2=1.76580 \Rightarrow$ max is right $\Rightarrow x_L=x_1=0.94427$.
+
+Convergence check: $\left|\dfrac{2(2.47214-0.94427)}{2.47214+0.94427}\right| = 0.8947$ (still large; continue). Iterating further converges to $x^\ast\approx1.4276$, $f(x^\ast)\approx1.7757$.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What assumption must hold for GSS to work, and when does it fail? \\
+\textbf{A:} Unimodality — exactly one extremum in $[x_L,x_u]$. It fails with multiple extrema in the bracket, since the discard rule can drop the region holding the true optimum.
+
+\textbf{Q2:} Why is the method called ``golden'', i.e.\ what is the efficiency advantage? \\
+\textbf{A:} Interior points are placed at ratio $R\approx0.618$ so one new point of the next iteration coincides with an already-evaluated point — only 1 new function evaluation per iteration after the first, minimizing (possibly expensive) function calls.
+
+\textbf{Q3:} How do you decide which side contains the maximum, and which old point is reused? \\
+\textbf{A:} Compare $f_1,f_2$: $f_1>f_2\Rightarrow$ max left, $x_u=x_2$; $f_1<f_2\Rightarrow$ max right, $x_L=x_1$. The surviving interior point is reused (with its stored $f$ value) as one of the new interior points.
+
+\textbf{Q4:} How is the final optimum reported and when do you stop? \\
+\textbf{A:} $x_{opt}=\frac{x_u+x_L}{2}$, $f_{opt}=f(x_{opt})$; stop when $\left|\frac{2(x_u-x_L)}{x_u+x_L}\right|<\varepsilon_s$.
+\end{qabox}
+
+\subsection{Gradient Descent (GD) and Linear Regression}
+
+\begin{defbox}
+Gradient Descent is a general iterative optimization tool: it can tune the slope/intercept of a regression line, the parameters of a logistic ``squiggle'', or a cluster arrangement — any differentiable loss surface.
+\end{defbox}
+
+\textbf{Why GD instead of setting the derivative to zero?} Analytically solving $\text{slope}=0$ is fine for small problems, but often infeasible in closed form with many parameters or huge data. GD instead takes steps from an initial guess — cheap coarse steps far from the optimum, finer steps near it.
+
+\textbf{Single-variable update:}
+\[
+\text{step} = \frac{d(SSR)}{d(b)}\times \alpha, \qquad b_{new}=b_{old}-\text{step}.
+\]
+\textbf{Schedule:} the rule for shrinking the learning rate from large (early) to small (later).
+\textbf{Stopping:} step size $\approx 0$, or a maximum number of steps reached.
+
+\textbf{Multiple parameters (slope $m$ and intercept $b$ together):}
+\begin{enumerate}
+\item Differentiate the loss w.r.t.\ each parameter.
+\item Initialize each parameter (e.g.\ $b{=}0,\ m{=}1$).
+\item Plug current values into the derivatives.
+\item step $=$ derivative $\times \alpha$ for each parameter.
+\item new $=$ old $-$ step, for each parameter.
+\item Repeat until convergence.
+\end{enumerate}
+
+\textbf{Stochastic / mini-batch GD.} Problem: with millions of parameters/samples, a full-data gradient every step is too expensive (data is often redundant). Fix: Stochastic GD (SGD) uses one random sample per step (strict definition) or a small random mini-batch (common practice) — cheaper per step, robust to redundancy, and lets you keep updating as new data streams in without restarting.
+
+\begin{examplebox}
+\textbf{Derivation of the SSR gradients.} Residual $r_i = y_i-(b+mx_i)$, $SSR=\sum_{i=1}^n(y_i-b-mx_i)^2$.
+\[
+\frac{\partial\,SSR}{\partial b} = \sum_{i=1}^n 2(y_i-b-mx_i)(-1) = -2\sum_{i=1}^n(y_i-b-mx_i)
+\]
+\[
+\frac{\partial\,SSR}{\partial m} = \sum_{i=1}^n 2(y_i-b-mx_i)(-x_i) = -2\sum_{i=1}^n x_i(y_i-b-mx_i)
+\]
+These two derivatives are exactly what GD plugs $(b,m)$ into at every step.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation — 1-variable GD.} Data $(x,y)=(1,2),(2,3),(3,5)$; fix slope $m=1$, tune intercept $b$. Learning rate $\alpha=0.1$. $SSR(b)=\sum(y_i-b-x_i)^2$, gradient $=-2\sum(y_i-b-x_i)$.
+
+$b_0=0$: residuals $1,1,2$ ($y_i-x_i$), sum $=4$; grad $=-2(4)=-8$; step $=0.1\times(-8)=-0.8$; $b_1 = 0-(-0.8)=0.8$.
+
+$b_1=0.8$: residuals $2-1.8=0.2,\,3-2.8=0.2,\,5-3.8=1.2$, sum $=1.6$; grad $=-3.2$; step $=-0.32$; $b_2=0.8+0.32=1.12$.
+
+$b_2=1.12$: residuals $-0.12,-0.12,0.88$, sum $=0.64$; grad $=-1.28$; step $=-0.128$; $b_3=1.248$.
+
+Steps $(0.8\to0.32\to0.128\to\cdots)$ shrink each round. Analytic optimum: set gradient $=0\Rightarrow b^\ast=\frac{1}{3}\sum(y_i-x_i)=\frac{1}{3}(1+1+2)=1.3333$. The iterates march toward $1.3333$.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} Why square the residuals in the loss function? \\
+\textbf{A:} So positive and negative errors don't cancel; $SSR$ vs.\ a parameter is then a convex bowl whose bottom is the optimum.
+
+\textbf{Q2:} What is a ``schedule'' in GD? \\
+\textbf{A:} The rule for shrinking the learning rate from relatively large early on to relatively small later.
+
+\textbf{Q3:} What problem does plain (batch) GD face on very large datasets, and what is the fix? \\
+\textbf{A:} Every step scans the whole dataset — too expensive with millions of samples/parameters (also redundant). Fix: Stochastic/mini-batch GD, using one sample or a small random subset per step.
+
+\textbf{Q4:} State two advantages of SGD. \\
+\textbf{A:} (i) Best of both worlds — cheaper steps, still statistically representative; (ii) more stable estimates in fewer effective passes; also lets you update online as new data arrives without restarting.
+\end{qabox}
+
+\subsection{Newton's Method for Optimization}
+
+\begin{defbox}
+Root finding uses first-order information ($f'$); optimization uses second-order information (gradient \emph{and} Hessian) to jump directly to the vertex of a local quadratic approximation of $f$.
+\end{defbox}
+
+\[
+\text{Zero-finding: } x_{t+1}=x_t-\frac{f(x_t)}{f'(x_t)} \qquad\quad \text{Optimization: } x_{t+1}=x_t-\frac{f'(x_t)}{f''(x_t)}
+\]
+Vector form: $x_{t+1}=x_t-H^{-1}g$, with $g=\nabla f(x_t)$, $H=\nabla^2 f(x_t)$; damped variant $x_{t+1}=x_t-tH^{-1}g$.
+
+\textbf{Limitations.}
+\begin{enumerate}
+\item Finds \emph{any} stationary point (min, max, or saddle) — not guaranteed the global optimum; a saddle/max has zero slope but is not a minimum.
+\item Can move toward a maximum if started in the wrong place, since the raw update does not check the sign of $f''$. Remedy: mix in GD steps / check curvature direction.
+\end{enumerate}
+\textbf{Advantages over GD.}
+\begin{enumerate}
+\item Faster (fewer iterations).
+\item Not sensitive to a learning rate (none to tune).
+\item Quadratic convergence — correct digits roughly double each step.
+\end{enumerate}
+\textbf{When to use which:} GD for large problems (Hessian huge/expensive); Newton for small problems (Hessian cheap) to enjoy quadratic convergence.
+
+\begin{examplebox}
+\textbf{Derivation via 2nd-order Taylor expansion.} Near $a$, for smooth $f$:
+\[
+f(x)\approx f(a) + g^\top(x-a) + \tfrac12 (x-a)^\top H (x-a), \qquad g=\nabla f(a),\ H=\nabla^2 f(a).
+\]
+Expand the quadratic term (using $H=H^\top$, $x^\top a = a^\top x$):
+\[
+(x-a)^\top H(x-a) = x^\top Hx - 2a^\top Hx + a^\top Ha.
+\]
+Standard quadratic form: $q(x)=\tfrac12 x^\top Hx + b^\top x + c$, with $b = g - Ha$, $c = f(a)-g^\top a+\tfrac12 a^\top Ha$.
+
+Minimize: $\nabla q = Hx+b = 0 \Rightarrow x = -H^{-1}b = -H^{-1}(g-Ha) = a - H^{-1}g$.
+
+Hence the Newton step $x_{t+1}=x_t - H^{-1}g$. $\blacksquare$
+\end{examplebox}
+
+\textbf{Second-order (minimum) condition.} $\nabla^2 q = H$; the stationary point is a minimum iff $H$ is positive semi-definite (all eigenvalues real, $\ge0$); positive definite if all $>0$. Convex $f \Rightarrow H$ PSD.
+
+\begin{examplebox}
+\textbf{Worked simulation.} $f(x)=x^2-4\cos x$ (radians), $x_0=1$.
+\[
+f'(x)=2x+4\sin x, \qquad f''(x)=2+4\cos x.
+\]
+$x_0=1$: $f'=2+4\sin1 = 2+3.3659=5.3659$; $f''=2+4\cos1=2+2.1612=4.1612$.
+\[
+x_1 = 1-\frac{5.3659}{4.1612}=1-1.2895=-0.2895.
+\]
+$x_1=-0.2895$: $f'=2(-0.2895)+4\sin(-0.2895)=-0.5790-1.1420=-1.7210$; $f''=2+4\cos(-0.2895)=2+3.8336=5.8336$.
+\[
+x_2 = -0.2895-\frac{-1.7210}{5.8336}=-0.2895+0.2950=0.00554.
+\]
+$x_2=0.00554$: $f'\approx2(0.00554)+4\sin(0.00554)\approx0.01108+0.02216=0.03324$; $f''\approx2+4\cos(0.00554)\approx5.99994$.
+\[
+x_3 = 0.00554-\frac{0.03324}{5.99994}=0.00554-0.00554=0.00000.
+\]
+True minimum is at $x=0$. Correct digits roughly double each step ($x_1$: 0 dp, $x_2$: 2 dp, $x_3$: 5 dp) — quadratic convergence. $f''>0$ throughout, so we converge to a minimum.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} How does the order of information differ between root finding and optimization? \\
+\textbf{A:} Root finding uses first-order information ($f$ and $f'$); optimization uses second-order information (gradient and Hessian).
+
+\textbf{Q2:} State the two limitations of Newton's method for optimization. \\
+\textbf{A:} (i) Converges to \emph{any} stationary point, not necessarily the global optimum; (ii) can converge to a maximum if started poorly, since the update ignores the sign of the curvature.
+
+\textbf{Q3:} What smoothness condition does $f$ need? \\
+\textbf{A:} $f:\mathbb R^n\to\mathbb R$ must be sufficiently smooth (continuous derivatives exist); otherwise the method fails.
+
+\textbf{Q4:} What is done in practice instead of explicitly inverting $H$? \\
+\textbf{A:} Solve the linear system $Hy=g$ for $y$, then update $x_{t+1}=x_t-y$ — cheaper and more numerically stable. If $H$ fails to be positive definite, blend toward GD (Levenberg--Marquardt).
+\end{qabox}
+
+\subsection{Foundations: Gradient and Stationary Points}
+
+\begin{defbox}
+The gradient returns a vector field giving the direction and magnitude of steepest ascent at every point. All optimization reduces to: (1) set up an objective function; (2) solve/search for locations of zero gradient.
+\end{defbox}
+
+\begin{examplebox}
+\textbf{1-D classification examples.}
+\[
+J=x^2:\ J'=2x=0\Rightarrow x=0,\ J''=2>0 \Rightarrow \text{minimum}.
+\]
+\[
+J=-x^2:\ J'=-2x=0\Rightarrow x=0,\ J''=-2<0 \Rightarrow \text{maximum}.
+\]
+\[
+J=x^3:\ J'=3x^2=0\Rightarrow x=0,\ J''=6x \text{ changes sign} \Rightarrow \text{saddle point}.
+\]
+\textbf{2-D example.} $J(\mathbf x)=x_1^2+x_2^2 \Rightarrow \nabla J = (2x_1,2x_2)^\top = 0 \Rightarrow (x_1,x_2)=(0,0)$ (minimum).
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} For $J=x^3$, the derivative is zero at $x=0$ — is that a minimum? \\
+\textbf{A:} No. $J'=3x^2=0$ at $x=0$, but $J''=6x$ changes sign across $x=0$, so it is a saddle/inflection point — a zero derivative alone never guarantees an extremum; you must check the second derivative (or Hessian) too.
+\end{qabox}
+
+\subsection{Constrained Optimization (Lagrange Multipliers)}
+
+\begin{defbox}
+Constrained optimization finds the min/max of $J(\mathbf x)$ subject to $C(\mathbf x)=0$ — harder than the unconstrained case because the search is confined to the constraint surface.
+\end{defbox}
+
+\textbf{Geometric idea.} On a contour plot, the constrained optimum is where the constraint curve is tangent to a level curve of $J$ — equivalently, $\nabla J$ and $\nabla C$ are parallel.
+
+\begin{examplebox}
+\textbf{Why the gradients are parallel (derivation).} At a constrained optimum, $J$ cannot decrease by moving along the constraint, so $\nabla J$ has no component along the constraint curve — i.e.\ $\nabla J$ is parallel to $\nabla C$:
+\[
+\nabla J(\mathbf x) = k\,\nabla C(\mathbf x) \;\Longrightarrow\; \nabla J(\mathbf x) - k\nabla C(\mathbf x)=0 \;\Longrightarrow\; \nabla J(\mathbf x)+\lambda \nabla C(\mathbf x)=0,\ \ \lambda=-k.
+\]
+This is exactly the stationarity of $\Lambda = J(\mathbf x)+\lambda C(\mathbf x)$. $\blacksquare$
+\end{examplebox}
+
+\textbf{Bordered Hessian.} Used to classify the stationary point (min/max/saddle):
+\[
+H(\Lambda)=\begin{pmatrix}0 & \partial C/\partial x_1 & \cdots & \partial C/\partial x_n\\ \partial C/\partial x_1 & \partial^2\Lambda/\partial x_1^2 & \cdots & \partial^2 \Lambda/\partial x_1\partial x_n\\ \vdots&\vdots&\ddots&\vdots \\ \partial C/\partial x_n & \partial^2\Lambda/\partial x_1\partial x_n & \cdots & \partial^2\Lambda/\partial x_n^2\end{pmatrix}
+\]
+The $(1,1)$ entry is $0$ because $\partial \Lambda/\partial \lambda = C(\mathbf x)=0$; the border is the constraint gradient.
+
+\begin{examplebox}
+\textbf{Worked example (full solve).} Minimize $J=x_1^2+x_2^2$ subject to $C=x_1+x_2+3=0$.
+\[
+\Lambda = x_1^2+x_2^2+\lambda(x_1+x_2+3).
+\]
+Stationarity: $\partial\Lambda/\partial x_1 = 2x_1+\lambda=0$, $\partial\Lambda/\partial x_2=2x_2+\lambda=0$, $\partial \Lambda/\partial\lambda = x_1+x_2+3=0$.
+
+From the first two: $x_1=x_2=-\lambda/2$. Substitute into the third: $-\lambda/2-\lambda/2+3=0\Rightarrow \lambda=3$.
+\[
+x_1=-1.5,\quad x_2=-1.5,\quad \lambda=3.
+\]
+Check: $\nabla J=(2x_1,2x_2)=(-3,-3)$ and $\nabla C=(1,1)$; indeed $\nabla J = -3\nabla C$, parallel. $\blacksquare$
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} Why do we need the bordered Hessian if we already have the parallel-gradient condition? \\
+\textbf{A:} The parallel-gradient (stationarity) condition only \emph{locates} a stationary point; it cannot tell whether it is a min, max, or saddle. The bordered Hessian (second-derivative information) is needed to classify it.
+
+\textbf{Q2:} If the constraint is given as $C(\mathbf x)=g$ rather than $=0$, what do you do first? \\
+\textbf{A:} Rewrite it as $C(\mathbf x)-g=0$, then form the Lagrangian and proceed as usual.
+
+\textbf{Q3:} State three advantages of the Lagrange-multiplier method. \\
+\textbf{A:} (i) Converts a constrained problem into an unconstrained one; (ii) $\lambda$ carries useful scale information; (iii) it shows how the objective changes as the constraint changes ($\lambda$ = sensitivity / shadow price).
+\end{qabox}

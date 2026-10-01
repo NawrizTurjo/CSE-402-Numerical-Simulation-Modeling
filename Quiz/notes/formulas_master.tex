@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\input{preamble}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\color{navy}\bfseries CSE 402 --- Numerical Methods}
+\fancyhead[R]{\small\color{navy}\bfseries Formula Sheet}
+\fancyfoot[C]{\small\thepage}
+
+\title{\textbf{\color{navy}CSE 402: Numerical Methods}\\[6pt]\Large\textbf{\color{gold}Complete Formula Sheet}\\[4pt]\large Core Formulas $+$ Derived Shortcuts $+$ Exam Traps}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-0.6cm}
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\begin{keypoint}
+\textbf{How this sheet is built.} \textbf{Part I} is every formula the lectures actually stated, in syllabus order. \textbf{Part II} is the part that wins marks under time pressure: formulas that are \emph{implicit} in the slides but never written down (interval widths after $n$ iterations, iteration counts, eigenvalue shortcuts, accuracy laws), the constants worth memorizing, and the traps that make an easy question look hard. Start with the \emph{At a Glance} page.
+\end{keypoint}
+\end{minipage}
+\end{center}
+\vspace{4pt}
+
+\tableofcontents
+\newpage
+
+\IfFileExists{parts/formulas_00_ataglance.tex}{\input{parts/formulas_00_ataglance}}{}
+
+\parttitle{Part I --- Core Formulas by Topic}{Everything the lectures stated, in syllabus order}
+
+\IfFileExists{parts/formulas_01_errors.tex}{\input{parts/formulas_01_errors}}{}
+\IfFileExists{parts/formulas_02_rootfinding.tex}{\input{parts/formulas_02_rootfinding}}{}
+\IfFileExists{parts/formulas_03_systems.tex}{\input{parts/formulas_03_systems}}{}
+\IfFileExists{parts/formulas_04_eigen.tex}{\input{parts/formulas_04_eigen}}{}
+\IfFileExists{parts/formulas_05_optimization.tex}{\input{parts/formulas_05_optimization}}{}
+\IfFileExists{parts/formulas_06_regression.tex}{\input{parts/formulas_06_regression}}{}
+\IfFileExists{parts/formulas_07_interpolation.tex}{\input{parts/formulas_07_interpolation}}{}
+\IfFileExists{parts/formulas_08_simulation.tex}{\input{parts/formulas_08_simulation}}{}
+\IfFileExists{parts/formulas_09_rng_mc.tex}{\input{parts/formulas_09_rng_mc}}{}
+
+\parttitle{Part II --- Derived Formulas, Quick Numbers \& Traps}{The shortcuts the slides never wrote down}
+
+\section{Errors \& Root Finding --- Beyond the Slides}
+\IfFileExists{parts/extra/formulas_01_02_extra.tex}{\input{parts/extra/formulas_01_02_extra}}{}
+
+\section{Linear Systems \& Eigenvalues --- Beyond the Slides}
+\IfFileExists{parts/extra/formulas_03_04_extra.tex}{\input{parts/extra/formulas_03_04_extra}}{}
+
+\section{Optimization --- Beyond the Slides}
+\IfFileExists{parts/extra/formulas_05_extra.tex}{\input{parts/extra/formulas_05_extra}}{}
+
+\section{Regression \& Interpolation --- Beyond the Slides}
+\IfFileExists{parts/extra/formulas_06_07_extra.tex}{\input{parts/extra/formulas_06_07_extra}}{}
+
+\section{Simulation, RNG \& Monte Carlo --- Beyond the Slides}
+\IfFileExists{parts/extra/formulas_08_09_extra.tex}{\input{parts/extra/formulas_08_09_extra}}{}
+
+\parttitle{Part III --- Master Comparison Tables}{Every ``compare these two methods'' question, answered in one place}
+
+\IfFileExists{parts/formulas_zz_compare.tex}{\input{parts/formulas_zz_compare}}{}
+
+\end{document}

@@ -1,0 +1,75 @@
+% =====================================================================
+%  10. Line search and adaptive step sizes
+% =====================================================================
+\section{Letting the method choose its own step}
+
+\begin{frame}{Armijo backtracking: you do not need to know $L$}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      Accept a step only if it buys a fair share of the decrease the gradient promises.
+      That is the \textbf{Armijo condition}, with $c\in(0,1)$:
+      \[
+        f(\x_k-\alpha\g_k)\le f(\x_k)-c\,\alpha\norm{\g_k}^2 .
+      \]
+      \begin{thmbox}[Backtracking \normalfont\cite{armijo1966}]
+        \small
+        $\alpha\gets\alpha_0$\\
+        \textbf{while} Armijo fails: $\alpha\gets\beta\alpha$ \quad ($0<\beta<1$)\\
+        $\x_{k+1}\gets\x_k-\alpha\g_k$
+      \end{thmbox}
+      \footnotesize Common choices: $c = 10^{-4}$, $\beta = \frac12$, and $\alpha_0 = 1$ or the previous step.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{thmbox}[Theorem: backtracking always stops]
+        \small If $\nabla f$ is $L$-Lipschitz, Armijo holds for every $\alpha\le\frac{2(1-c)}{L}$, so the step you accept satisfies
+        \[ \alpha\ge\min\Bigl\{\alpha_0,\ \frac{2\beta(1-c)}{L}\Bigr\}. \]
+      \end{thmbox}
+      \small\textbf{Proof.}
+      \pause
+      The descent lemma gives $f(\x-\alpha\g)\le f(\x)-\alpha(1-\frac{\alpha L}{2})\norm{\g}^2$, and
+      $1-\frac{\alpha L}2\ge c\iff\alpha\le\frac{2(1-c)}{L}$.
+      \pause
+      Backtracking stops at the first $\alpha_0\beta^j$ below that threshold, so it is never smaller than $\beta\cdot\frac{2(1-c)}{L}$. $\blacksquare$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{What backtracking buys you}
+  \begin{itemize}\small
+    \item Every accepted step lowers $f$ by at least $c\,\alpha_{\min}\norm{\g_k}^2$, so \alert{all the rates from \S7 survive},
+          up to constants, without ever computing $L$~\cite{nocedal2006}.
+    \item The step \emph{adapts to the local curvature}. It shrinks where the curvature is high, which cures the $x^4$ blow-up from \S9,
+          and with a generous first trial $\alpha_0$ it stays long where $f$ is flat.
+    \item The price is a few extra evaluations of $f$ per iteration. No extra gradients are needed.
+  \end{itemize}
+  \vspace{2pt}
+  \begin{keybox}[The Wolfe conditions]
+    \small Add a curvature test, $\nabla f(\x_{k+1})\T\vd_k\ge c_2\nabla f(\x_k)\T\vd_k$ with $c<c_2<1$, and you also
+    rule out steps that are too short. This pair is the standard line search in quasi-Newton software~\cite{nocedal2006}.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Barzilai--Borwein: a step size learned from the last move}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      With $\mathbf s_k = \x_k-\x_{k-1}$ and $\y_k = \g_k-\g_{k-1}$, pick the scalar $\beta = \tfrac1\alpha$ that best imitates
+      the Hessian, $\beta\mathbf s_k\approx\y_k$:
+      \[
+        \min_{\beta}\norm{\beta\mathbf s_k-\y_k}^2 \;\Rightarrow\;
+        \ans{\alpha_k^{\text{BB}} = \frac{\mathbf s_k\T\mathbf s_k}{\mathbf s_k\T\y_k}}
+      \]
+      \begin{itemize}\footnotesize
+        \item On a quadratic, $1/\alpha_k$ is a Rayleigh quotient of $\bA$, between $\lmin$ and $\lmax$.
+        \item \alert{Nonmonotone}: $\alpha_k$ can exceed $2/\lmax$ and $f$ can briefly rise, yet it is often far faster~\cite{barzilai1988}.
+        \item For general $f$, add a nonmonotone line-search safeguard.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_linesearch}
+
+      \footnotesize A diagonal quadratic with $n = 50$ and $\kappa = 100$. Fixed $1/L$ against Armijo against BB.
+    \end{column}
+  \end{columns}
+\end{frame}

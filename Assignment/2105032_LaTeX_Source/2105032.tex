@@ -1,0 +1,100 @@
+% =====================================================================
+%  CSE 402 -- Numerical Methods Assignment
+%  Topic 3: Gradient Methods
+%  Roll: 2105032
+%  Build:  pdflatex 2105032 ; bibtex 2105032 ; pdflatex 2105032 ; pdflatex 2105032
+%          (or: latexmk -pdf 2105032.tex). No shell-escape needed.
+% =====================================================================
+\documentclass[aspectratio=169, 11pt]{beamer}
+\input{preamble}
+
+\title{Gradient Methods}
+\subtitle{From steepest descent to acceleration: theory, stability and practice}
+\author{Nawriz Ahmed Turjo \quad|\quad Roll: 2105032}
+\institute{CSE 402: Numerical Methods \quad|\quad Assignment Topic 3}
+\date{October 2026}
+
+\begin{document}
+
+% ---------------- Front matter ---------------------------------------
+\maketitle
+
+\begin{frame}{Assigned topic}
+  \centering
+  \vspace{6pt}
+  {\Large\textbf{Topic 3: Gradient Methods}}
+
+  \vspace{4pt}
+  {\small One idea, $\x\gets\x-\alpha\nabla f(\x)$, and everything it takes to make it work.}
+
+  \vspace{12pt}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \begin{keybox}[Part A: the ideas]
+        \small Where the method comes from and why it converges, how big a step can be, why it slows down,
+        how it fails, and how momentum, adaptive steps and SGD fix it.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{probbox}[Part B: the problems]
+        \small Five mathematical and five real-life problems, each followed straight away by a complete
+        step-by-step solution.
+      \end{probbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Where we are going}
+  \centering
+  \vspace{6pt}
+  \input{figures/tikz/roadmap.tikz}
+
+  \vspace{8pt}
+  \footnotesize
+  \textcolor{mDarkTeal}{\textbf{1--5}} how it works \qquad
+  \textcolor{mOrange}{\textbf{6--10}} why it struggles, and the fixes \qquad
+  \textcolor{mGreen}{\textbf{11--12}} putting it to use
+\end{frame}
+
+% ---------------- Part A: Concept presentation & theory -------------
+\statement{PART A}{The ideas}{Where gradient descent comes from, why it works, and why it sometimes does not.}
+
+\input{sections/01_motivation}
+\input{sections/02_gradient_geometry}
+\input{sections/03_derivation_gradient_flow}
+\input{sections/04_geometric_interpretation}
+\input{sections/05_step_size_stability}
+\input{sections/06_function_classes}
+\input{sections/07_convergence_analysis}
+\input{sections/08_conditioning_zigzag}
+\input{sections/09_failure_modes}
+\input{sections/10_adaptive_steps}
+\input{sections/11_acceleration}
+\input{sections/12_sgd}
+\input{sections/13_modern_perspective}
+\input{sections/14_summary}
+
+% ---------------- Part B: Problem set & solutions -------------------
+\input{sections/problems/intro}
+\input{sections/problems/M1}
+\input{sections/problems/M2}
+\input{sections/problems/M3}
+\input{sections/problems/M4}
+\input{sections/problems/M5}
+\input{sections/problems/A1}
+\input{sections/problems/A2}
+\input{sections/problems/A3}
+\input{sections/problems/A4}
+\input{sections/problems/A5}
+
+% ---------------- Back matter ---------------------------------------
+\setprob{}
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \scriptsize
+  \nocite{chapra,bubeck2015}
+  \bibliographystyle{plain}
+  \bibliography{bibliography/references}
+\end{frame}
+
+\end{document}

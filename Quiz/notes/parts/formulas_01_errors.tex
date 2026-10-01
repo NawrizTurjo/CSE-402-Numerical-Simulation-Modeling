@@ -1,0 +1,30 @@
+\section{Introduction, Approximations \& Errors}
+
+\begin{formulabox}
+True error and relative true error:
+\[
+E_t = \text{True} - \text{Approx.}, \qquad \epsilon_t = \frac{E_t}{\text{True value}}
+\]
+Approximate error and relative approximate error (present $-$ previous):
+\[
+E_a = \text{Present} - \text{Previous}, \qquad \epsilon_a = \frac{E_a}{\text{Present}}
+\]
+Stopping rules:
+\[
+|\epsilon_a| \le \epsilon_s \qquad \text{(tolerance)}
+\]
+\[
+|\epsilon_a| \le 0.5\times10^{\,2-m}\% \qquad \text{(certifies $m$ correct sig.\ digits)}
+\]
+Normalized scientific notation: $|x|=m\times10^n,\ 1\le m<10,\ n=\lfloor\log_{10}|x|\rfloor$. $M$-th significant digit sits at place $10^{\,n-M+1}$.
+
+``Correct to $M$ sig.\ digits'' (absolute-error form):
+\[
+|x-\hat x| \le \tfrac12\times10^{\,n-M+1}
+\]
+Maclaurin series:
+\[
+f(x) = \sum_{n=0}^{\infty}\frac{f^{(n)}(0)}{n!}x^n
+\]
+\textbf{Error sources:} modelling error, data/measurement error, programming mistakes (avoidable); \textbf{round-off error} (finite precision) and \textbf{truncation error} (cutting short an infinite/exact procedure) — inherent, unavoidable.
+\end{formulabox}

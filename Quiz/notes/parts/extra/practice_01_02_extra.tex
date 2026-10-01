@@ -1,0 +1,243 @@
+\subsection{Errors --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q1.} An iteration reports $|\epsilon_a| = 0.5\%$. The number of significant digits guaranteed correct is\\
+(a) 1 \quad (b) 2 \quad (c) 3 \quad (d) 4\\
+\textbf{Ans: (b)} --- $m=\lfloor 2-\log_{10}(2\times0.5)\rfloor = \lfloor 2-0\rfloor = 2$. Memorize the ladder $5\%,0.5\%,0.05\%,0.005\% \to 1,2,3,4$ digits.
+
+\textbf{Q2.} $0.00640$ has how many decimal places and significant figures respectively?\\
+(a) 5 and 5 \quad (b) 3 and 3 \quad (c) 5 and 3 \quad (d) 3 and 5\\
+\textbf{Ans: (c)} --- decimal places count everything after the point; significant figures start at the first non-zero digit (6, 4, 0).
+
+\textbf{Q3.} The central-difference derivative approximation has truncation error of order\\
+(a) $O(h)$ \quad (b) $O(h^2)$ \quad (c) $O(h^3)$ \quad (d) $O(1)$\\
+\textbf{Ans: (b)} --- the odd-order Taylor terms cancel. Forward difference is only $O(h)$.
+
+\textbf{Q4.} A forward-difference derivative of $\sin x$ is computed with $h = 10^{-1}, 10^{-2},\dots,10^{-16}$. The error is smallest at roughly\\
+(a) $h=10^{-16}$ \quad (b) $h=10^{-8}$ \quad (c) $h=10^{-2}$ \quad (d) it decreases all the way\\
+\textbf{Ans: (b)} --- total error is U-shaped with minimum near $h^\ast\sim\sqrt{\varepsilon_{\text{mach}}}\approx10^{-8}$. Beyond that, round-off in the subtraction takes over and the answer gets \emph{worse}.
+
+\textbf{Q5.} Two numbers each accurate to 6 significant digits are subtracted and are nearly equal. What happens?\\
+(a) absolute error grows \quad (b) relative error grows sharply \\
+(c) both errors shrink \quad (d) nothing changes\\
+\textbf{Ans: (b)} --- the absolute error is unchanged but the result is tiny, so the \emph{relative} error explodes. This is subtractive cancellation.
+
+\textbf{Q6.} Which is computable \emph{without} knowing the exact answer?\\
+(a) $E_t$ \quad (b) $\epsilon_t$ \quad (c) $\epsilon_a$ \quad (d) all three\\
+\textbf{Ans: (c)} --- $\epsilon_a$ compares the present iterate with the previous one, which is why it is the quantity actually monitored.
+
+\textbf{Q7.} In the trunnion case study the constant-$\alpha$ model predicted a contraction of $0.01504''$ against $0.015''$ required, yet the part jammed. This is an example of\\
+(a) round-off error \quad (b) truncation error \quad (c) modelling error \quad (d) a programming bug\\
+\textbf{Ans: (c)} --- the arithmetic was correct; the assumption that $\alpha$ is constant was not. No amount of extra precision fixes a wrong model.
+
+\textbf{Q8.} Which statement is \textbf{FALSE}?\\
+(a) $\epsilon_a$ is undefined at the first iteration \quad (b) $E_t$ can be negative\\
+(c) Round-off error can be eliminated by using more iterations \quad (d) Truncation error appears in numerical integration\\
+\textbf{Ans: (c)} --- round-off comes from finite precision, not from stopping early; more iterations can actually make it accumulate.
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P1.} A computation produces successive estimates $2.0122$ then $2.0136$. (i) Compute $|\epsilon_a|$. (ii) How many significant digits are guaranteed? (iii) What $|\epsilon_a|$ would be needed for 4 digits?
+
+\ans (i) $|\epsilon_a| = \left|\dfrac{2.0136-2.0122}{2.0136}\right|\times100\% = 0.069527\%$.
+
+(ii) $m = \lfloor 2-\log_{10}(2\times0.069527)\rfloor = \lfloor 2-\log_{10}(0.139054)\rfloor = \lfloor 2+0.8567\rfloor = \lfloor 2.8567\rfloor = \mathbf{2}$.
+Check against the criterion directly: $0.5\times10^{2-2}\% = 0.5\%$ and $0.069527 \le 0.5$ $\checkmark$; for $m=3$ we would need $\le 0.05\%$, which fails.
+
+(iii) For $m=4$: $|\epsilon_a| \le 0.5\times10^{2-4}\% = \mathbf{0.005\%}$.
+
+\PQ{P2.} Show that the relative-error criterion $\left|\frac{x-\hat x}{x}\right| \le \tfrac12\times10^{-M}$ implies the absolute window $|x-\hat x| \le \tfrac12\times10^{\,n-M+1}$, where $|x| = m\times10^n$ with $1\le m<10$.
+
+\ans Multiply the hypothesis through by $|x| = m\,10^n$:
+\[
+|x-\hat x| \;=\; \left|\frac{x-\hat x}{x}\right|\cdot m\,10^{n} \;\le\; \tfrac12\times10^{-M}\cdot m\,10^{n} \;=\; \frac{m}{2}\times10^{\,n-M}.
+\]
+Since normalization forces $m<10$,
+\[
+|x-\hat x| \;<\; \frac{10}{2}\times10^{\,n-M} \;=\; 5\times10^{\,n-M} \;=\; \tfrac12\times10^{\,n-M+1},
+\]
+which is exactly the absolute window --- half a unit in the place of the $M$-th significant digit. $\blacksquare$
+
+\PQ{P3.} $\pi = 3.14159265\dots$ is approximated by $\hat x = 3.14$. Verify that this is correct to 3 significant figures, and find the full band of values that would also qualify.
+
+\ans Here $|x| = 3.14159\ldots = m\times10^n$ with $m=3.14159$, $n=0$. For $M=3$ the window is
+\[
+|x-\hat x| \le \tfrac12\times10^{\,0-3+1} = \tfrac12\times10^{-2} = 0.005 .
+\]
+Actual error: $|3.14159265-3.14| = 0.00159265 \le 0.005$ $\checkmark$, so $3.14$ is correct to 3 significant figures.
+Band: $3.14159265 \pm 0.005 = [\mathbf{3.13659},\ \mathbf{3.14659}]$.
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{The dash in the first row.} Any iteration table you are asked to complete has $|\epsilon_a|$ undefined on iteration 1. Filling in a number there is an instant mark lost.
+\item \textbf{$0.5\times10^{2-m}\%$ already carries the percent sign.} Converting to a fraction \emph{and} keeping the \% divides by 100 twice.
+\item \textbf{``Accurate to 5 decimal places'' $\ne$ ``accurate to 5 significant figures.''} For a number like $0.00640$ these differ by two orders of magnitude.
+\item \textbf{Smaller $h$ is not always better.} Below $h^\ast\sim\sqrt{\varepsilon_{\text{mach}}}$ the forward-difference error rises again. An option saying ``error $\to 0$ as $h\to0$'' is a distractor on a real machine.
+\item \textbf{$E_t$ vs $E_a$.} If a question supplies only two successive iterates, it cannot be asking for true error --- there is no true value in play.
+\item \textbf{Sign of the error.} $E_t = \text{true} - \text{approx}$, so a negative $E_t$ means you \emph{overestimated}. Options often differ only in sign.
+\end{itemize}
+\end{trapbox}
+
+\subsection{Root Finding --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q9.} Bisection is applied on $[2,5]$. The minimum number of iterations guaranteeing an error below $10^{-4}$ is\\
+(a) 13 \quad (b) 14 \quad (c) 15 \quad (d) 18\\
+\textbf{Ans: (c)} --- $n \ge \log_2(3/10^{-4}) = 14.87 \Rightarrow 15$. (Resulting width $3/2^{15} = 9.16\times10^{-5}$.)
+
+\textbf{Q10.} For bisection, the number of iterations needed to reach a given tolerance depends on\\
+(a) the function only \quad (b) the initial bracket and the tolerance only\\
+(c) the function and the bracket \quad (d) the derivative of the function\\
+\textbf{Ans: (b)} --- $n \ge \log_2\frac{b-a}{\varepsilon}$ contains no reference to $f$ whatsoever.
+
+\textbf{Q11.} Starting from $[1,2]$, the bisection bracket width after 5 iterations is\\
+(a) $0.0625$ \quad (b) $0.03125$ \quad (c) $0.1$ \quad (d) $0.015625$\\
+\textbf{Ans: (b)} --- $1/2^5 = 0.03125$.
+
+\textbf{Q12.} $f(x) = 1/x$ on $[-2,3]$ satisfies $f(x_\ell)f(x_u)<0$. Bisection will\\
+(a) find the root $x=0$ \quad (b) converge to the singularity at $x=0$, which is not a root\\
+(c) fail to start \quad (d) diverge\\
+\textbf{Ans: (b)} --- the sign change is caused by a discontinuity, not a zero. Bisection converges anyway and reports a wrong answer confidently.
+
+\textbf{Q13.} $f(x)=x^2$ has a root at $x=0$. Bisection\\
+(a) converges quadratically \quad (b) needs one guess only\\
+(c) cannot be started, since no sign change exists \quad (d) converges in one step\\
+\textbf{Ans: (c)} --- the curve touches the axis without crossing, so no bracket with $f(x_\ell)f(x_u)<0$ exists anywhere.
+
+\textbf{Q14.} ``Newton--Raphson converges quadratically'' means\\
+(a) the error halves each step \quad (b) the error is squared each step, so correct digits roughly double\\
+(c) it needs two starting guesses \quad (d) it converges in two iterations\\
+\textbf{Ans: (b)} --- $e_{k+1}\approx\frac{f''}{2f'}e_k^2$.
+
+\textbf{Q15.} Newton--Raphson applied to $f(x)=x^2$ from $x_0=1$ produces\\
+(a) $0.5, 0.25, 0.125,\dots$ (linear) \quad (b) $0.5, 0.0625,\dots$ (quadratic)\\
+(c) $0$ immediately \quad (d) divergence\\
+\textbf{Ans: (a)} --- the step simplifies to $x_{k+1} = x_k - \frac{x_k^2}{2x_k} = \frac{x_k}{2}$. A double root destroys quadratic convergence.
+
+\textbf{Q16.} To restore quadratic convergence at a root of multiplicity $k$, the iteration is modified to\\
+(a) $x - \frac{f}{k f'}$ \quad (b) $x - k\frac{f}{f'}$ \quad (c) $x - \frac{f'}{f}$ \quad (d) $x - \frac{f}{f''}$\\
+\textbf{Ans: (b)}
+
+\textbf{Q17.} Newton's method applied to $f(x) = x^2 - a$ gives the iteration\\
+(a) $x_{k+1} = \frac{a}{x_k}$ \quad (b) $x_{k+1} = \frac12\left(x_k + \frac{a}{x_k}\right)$ \quad (c) $x_{k+1} = x_k(2-ax_k)$ \quad (d) $x_{k+1} = 2x_k - a$\\
+\textbf{Ans: (b)} --- the classical square-root (``Babylonian'') iteration.
+
+\textbf{Q18.} Which statement about false position is \textbf{FALSE}?\\
+(a) It is a bracketing method \quad (b) The bracket width always tends to zero\\
+(c) One endpoint may remain fixed for many iterations \quad (d) It uses a straight line through the two bracket endpoints\\
+\textbf{Ans: (b)} --- with a frozen endpoint the bracket width stalls, which is why $|\epsilon_a|$ rather than bracket width must be the stopping test.
+
+\textbf{Q19.} The Intermediate Value Theorem, applied with $f(x_\ell)f(x_u)<0$, guarantees\\
+(a) exactly one root \quad (b) at least one root \quad (c) at most one root \quad (d) an even number of roots\\
+\textbf{Ans: (b)}
+
+\textbf{Q20.} In the floating-ball problem $f'(x) = 3x(x-0.11)$. Which initial guess must be avoided for Newton--Raphson?\\
+(a) $x_0 = 0.05$ \quad (b) $x_0 = 0.06$ \quad (c) $x_0 = 0.11$ \quad (d) $x_0 = 0.07$\\
+\textbf{Ans: (c)} --- $f'(0.11) = 0$, giving a horizontal tangent and division by zero (as does $x_0=0$).
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P4.} Apply \textbf{bisection} to $f(x) = x^3-x-2$ on $[1,2]$ for 5 iterations. Tabulate $x_\ell, x_u, x_m, f(x_m)$ and $|\epsilon_a|$. State how many significant digits are certified at iteration 5, and confirm the width against the $L_n$ formula.
+
+\ans $f(1) = -2 < 0$, $f(2) = 4 > 0$, so a root is bracketed.
+\begin{center}\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Iter & $x_\ell$ & $x_u$ & $x_m$ & $f(x_m)$ & $|\epsilon_a|\%$\\
+\midrule
+1 & 1.000000 & 2.000000 & 1.500000 & $-0.125000$ & ---\\
+2 & 1.500000 & 2.000000 & 1.750000 & $+1.609375$ & 14.2857\\
+3 & 1.500000 & 1.750000 & 1.625000 & $+0.666016$ & 7.6923\\
+4 & 1.500000 & 1.625000 & 1.562500 & $+0.252197$ & 4.0000\\
+5 & 1.500000 & 1.562500 & 1.531250 & $+0.059113$ & 2.0408\\
+\bottomrule
+\end{tabular}
+\end{center}
+Digits at iteration 5: $m = \lfloor 2-\log_{10}(2\times2.0408)\rfloor = \lfloor 2-0.6107\rfloor = \lfloor1.389\rfloor = \mathbf{1}$ --- only one digit after five iterations, which is exactly bisection's reputation.
+
+Width check: $L_5 = (2-1)/2^5 = 0.03125$, and indeed $1.562500-1.531250 = 0.03125$ $\checkmark$. (True root $1.5213797$.)
+
+\PQ{P5.} Apply \textbf{false position} to the same $f(x)=x^3-x-2$ on $[1,2]$ for 4 iterations. Comment on which endpoint moves.
+
+\ans
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Iter & $x_L$ & $x_U$ & $x_r$ & $f(x_r)$\\
+\midrule
+1 & 1.000000 & 2.000000 & 1.333333 & $-9.630\times10^{-1}$\\
+2 & 1.333333 & 2.000000 & 1.462687 & $-3.333\times10^{-1}$\\
+3 & 1.462687 & 2.000000 & 1.504019 & $-1.018\times10^{-1}$\\
+4 & 1.504019 & 2.000000 & 1.516331 & $-2.989\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+$|\epsilon_a|$ at iteration 4 $= |(1.516331-1.504019)/1.516331|\times100\% = 0.8119\%$.
+
+\textbf{Observation:} $f(x_r)$ is negative every time, so $x_r$ always replaces $x_L$; the right endpoint stays \textbf{frozen at $x_U = 2$ forever}. The bracket width only falls from $1$ to $0.4837$ in four iterations even though $x_r$ is converging nicely --- the textbook illustration of why bracket width is a useless stopping test here.
+
+\PQ{P6.} Apply \textbf{Newton--Raphson} to $f(x)=x^3-x-2$ from $x_0 = 1.5$. Do 3 iterations, report $|\epsilon_a|$ and the certified digits each step, and comment on the convergence rate.
+
+\ans $f'(x) = 3x^2-1$.
+\[
+x_1 = 1.5 - \frac{1.5^3-1.5-2}{3(1.5)^2-1} = 1.5 - \frac{-0.125}{5.75} = 1.52173913
+\]
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$k$ & $x_k$ & $|\epsilon_a|\%$ & digits $m$\\
+\midrule
+1 & 1.52173913 & 1.428571 & 1\\
+2 & 1.52137981 & 0.023618 & 3\\
+3 & 1.52137971 & 0.000007 & 6\\
+\bottomrule
+\end{tabular}
+\end{center}
+Certified digits go $1 \to 3 \to 6$: roughly \textbf{doubling each step}, the signature of quadratic convergence. Compare with P4, where bisection bought a single digit in five iterations.
+
+\PQ{P7.} Prove that Newton--Raphson on $f(x)=x^2$ (double root at $0$) converges only linearly, and give the exact rate.
+
+\ans
+\[
+x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} = x_k - \frac{x_k^2}{2x_k} = x_k - \frac{x_k}{2} = \frac{x_k}{2}.
+\]
+Hence $e_{k+1} = \tfrac12 e_k$ exactly: convergence is \textbf{linear with rate $1/2$} --- identical to bisection, and nowhere near quadratic. From $x_0=1$ the iterates are $0.5, 0.25, 0.125, 0.0625, \dots$
+
+This matches the general rule $e_{k+1}\approx\left(1-\frac1k\right)e_k$ for multiplicity $k$: here $k=2$ gives rate $1-\frac12 = \frac12$ $\checkmark$. The modified step $x - 2\frac{f}{f'} = x_k - x_k = 0$ lands on the root in a single iteration.
+
+\PQ{P8.} Verify Newton's quadratic error law numerically for $f(x) = x^2-2$ from $x_0 = 1$.
+
+\ans The law predicts $e_{k+1}\approx C e_k^2$ with
+\[
+C = \left|\frac{f''(x^\ast)}{2f'(x^\ast)}\right| = \frac{2}{2\cdot 2\sqrt2} = \frac{1}{2\sqrt2} = 0.353553 .
+\]
+The iteration is the Babylonian one, $x_{k+1} = \tfrac12(x_k + 2/x_k)$:
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$k$ & $x_k$ & actual $e_k$ & predicted $C\,e_{k-1}^2$ & match?\\
+\midrule
+1 & 1.500000000 & $8.579\times10^{-2}$ & $6.066\times10^{-2}$ & rough (far from root)\\
+2 & 1.416666667 & $2.453\times10^{-3}$ & $2.602\times10^{-3}$ & good\\
+3 & 1.414215686 & $2.124\times10^{-6}$ & $2.128\times10^{-6}$ & excellent\\
+4 & 1.414213562 & $1.595\times10^{-12}$ & $1.595\times10^{-12}$ & exact to 4 s.f.\\
+\bottomrule
+\end{tabular}
+\end{center}
+The prediction becomes essentially exact once $x_k$ is close enough for the Taylor argument to hold. Note the error exponents: $10^{-2}\to10^{-3}\to10^{-6}\to10^{-12}$ --- \textbf{doubling the correct digits every step}.
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{``Which method is fastest?'' has no universal answer.} Newton is fastest \emph{when it converges}; on $\ln x$ over $[10^{-4},10^4]$ false position (126 iterations) lost badly to bisection (34).
+\item \textbf{Bisection iteration count ignores $f$.} Any option that involves the function is wrong by construction.
+\item \textbf{Sign change is sufficient, not necessary.} $x^2$ has a root with no sign change; $1/x$ has a sign change with no root. Both appear as MCQ stems.
+\item \textbf{Quadratic $\ne$ ``two iterations''} and $\ne$ ``error halves.'' It means the error is \emph{squared}.
+\item \textbf{A double root silently kills Newton's speed.} If the stem says ``multiplicity 2'' or gives $f = (x-r)^2 g(x)$, the answer is linear, rate $1/2$.
+\item \textbf{$f'(x_0)=0$ is fatal, and near-zero is almost as bad.} The floating-ball bracket ends $0$ and $0.11$ both have $f'=0$.
+\item \textbf{In false position, do not use bracket width to stop.} A frozen endpoint keeps it large forever; use $|\epsilon_a|$ on successive $x_r$.
+\item \textbf{The reported root must be checked against the interval.} Newton can jump entirely out of your region of interest (root jumping on $\sin x$, converging to $0$ instead of $2\pi$).
+\item \textbf{Counting iterations vs counting function evaluations.} Newton needs $f$ \emph{and} $f'$ each step; a question about ``work'' may not have the same answer as one about ``iterations.''
+\end{itemize}
+\end{trapbox}

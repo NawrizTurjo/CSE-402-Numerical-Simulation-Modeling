@@ -1,0 +1,264 @@
+\section{Simulation \& Modeling}
+
+\subsection{Introduction to Simulation and Modeling}
+
+\begin{defbox}
+\textbf{Simulation:} the imitation of the operation of a real-world process or system over time. We generate an artificial history of a system, observe it, and draw conclusions about the real system. \textbf{System:} a collection of entities that act and interact together toward some logical end. \textbf{System environment:} everything outside the system boundary — it can affect the system, but the system cannot control it.
+\end{defbox}
+
+\textbf{System boundary depends on the study's purpose} — e.g.\ studying bank waiting times $\Rightarrow$ system $=$ tellers $+$ customers in line; studying the whole bank operation $\Rightarrow$ system also includes loan officers, ATMs, etc.
+
+\textbf{Components of a system:} Entity (object of interest), Attribute (property of an entity), Activity (a time period of specified length), Event (an instantaneous occurrence that may change system state), State variable (describes the system at any time). \emph{State variables change only when events occur} — nothing changes between events.
+
+\textbf{Discrete system:} state changes at separated points in time (e.g.\ \# customers in a bank). \textbf{Continuous system:} state changes continuously (e.g.\ water level behind a dam). Most real systems mix both; classified by the predominant type.
+
+\begin{defbox}
+\textbf{Model:} a representation of a system for the purpose of studying it — always a simplification (analogy: a map of Dhaka shows roads and landmarks, not every brick).
+\end{defbox}
+
+\textbf{Three classification dimensions of simulation models:}
+\begin{enumerate}
+\item \textbf{Static vs.\ Dynamic} — a snapshot (e.g.\ Monte Carlo) vs.\ evolution over time (e.g.\ a bank from 9am–4pm).
+\item \textbf{Deterministic vs.\ Stochastic} — no randomness (same input $\to$ same output) vs.\ random variables (outputs are estimates).
+\item \textbf{Discrete vs.\ Continuous} — state changes at separated points vs.\ continuously.
+\end{enumerate}
+This course focuses on \textbf{Discrete-Event Simulation (DES)}: Dynamic $+$ Stochastic $+$ Discrete.
+
+\begin{keypoint}
+Because a stochastic model's inputs are random, its \emph{outputs are random too} — running the same model twice with different random numbers gives different results. Simulation outputs are \textbf{estimates}, not exact answers, and require statistical interpretation.
+\end{keypoint}
+
+\textbf{How to study a system (decision tree):} System $\to$ experiment with the actual system, or with a model. Model $\to$ physical model, or mathematical model. Mathematical model $\to$ analytical solution, or \textbf{simulation} (used when the mathematical model is too complex to solve analytically).
+
+\textbf{When simulation IS the right tool} (any of): system too complex mathematically; want to experiment without disrupting the real system; system doesn't exist yet; want extreme-condition tests; want to compress/expand time; want to train people safely; want to test designs before committing resources.
+
+\textbf{When simulation is NOT appropriate:} (1) common sense suffices (e.g.\ minimum servers $=$ arrival rate / service rate per server, no simulation needed); (2) the problem has a clean analytical/closed-form solution — ``math gives you answers, simulation gives you estimates''; (3) direct real-world experiments are cheaper; also: cost exceeds savings, no time/budget, no data available, or system behavior is too complex to even define.
+
+\begin{qabox}
+\textbf{Q1:} Give the formal definition of simulation. \\
+\textbf{A:} The imitation of the operation of a real-world process or system over time.
+
+\textbf{Q2:} What determines a system's boundary? \\
+\textbf{A:} The purpose of the study — the same real-world setup can have different boundaries depending on what's being investigated.
+
+\textbf{Q3:} Define entity, attribute, activity, event, and state variable. \\
+\textbf{A:} Entity = object of interest; attribute = a property of an entity; activity = a time period of specified length; event = an instantaneous occurrence that may change system state; state variable = a variable describing the system at any time.
+
+\textbf{Q4:} List the three dimensions used to classify simulation models, and which combination defines DES. \\
+\textbf{A:} Static/Dynamic, Deterministic/Stochastic, Discrete/Continuous; DES $=$ Dynamic $+$ Stochastic $+$ Discrete.
+
+\textbf{Q5:} Why must realistic simulation models be stochastic rather than deterministic? \\
+\textbf{A:} The real world is random (arrivals, service times, breakdowns vary); ignoring randomness produces a dangerously wrong model.
+
+\textbf{Q6:} State the three explicit ``don't simulate'' rules. \\
+\textbf{A:} (1) Don't simulate if common sense suffices; (2) don't simulate if the problem has a clean analytical solution; (3) don't simulate if direct experiments are cheaper.
+
+\textbf{Q7:} Give two of the seven reasons simulation is the right tool. \\
+\textbf{A:} Any two of: system too complex to solve mathematically; want to experiment without disrupting the real system; system doesn't exist yet; want extreme-condition tests; want to compress/expand time; want to train people safely; want to test designs before committing resources.
+\end{qabox}
+
+\subsection{Discrete-Event Simulation \& the Single-Server Queue}
+
+\begin{defbox}
+\textbf{Discrete-event simulation (DES):} the modeling of a system in which state variables change only at a discrete set of points in time, called events; nothing changes between events. \textbf{Simulation clock:} a variable recording current simulated time (simulated time $\neq$ real computer time).
+\end{defbox}
+
+\textbf{Next-Event Time Advance} (used throughout this course): jump the clock directly from one event to the next, skipping idle gaps — used by virtually all modern simulation software. \textbf{Fixed-Increment Time Advance:} advance by fixed $\Delta t$ and check for events each step — wasteful.
+
+\textbf{Ten components of a programmed DES model:} system state, simulation clock, event list (a.k.a.\ future event list — scheduled events with their times), statistical counters, initialization routine, timing routine (finds next event, advances clock), event routines (update state on an event; may call library routines for random variates), library routines, report generator, main program.
+
+\textbf{Five components of a queueing system:} calling population, arrival process, service mechanism, queue discipline (e.g.\ FIFO), system capacity.
+
+\begin{examplebox}
+\textbf{Flow of Control in a DES.} \textbf{Start:} main program invokes initialization (clock$=0$; init.\ state \& counters; init.\ event list). \textbf{Repeat:} (1) timing routine determines next event type $i$ and advances the clock; (2) event routine $i$ updates state, updates counters, schedules future events. \textbf{Check:} simulation over? No $\to$ repeat; Yes $\to$ report generator (compute estimates, write report) $\to$ stop.
+
+\textbf{Order of updates at each event (critical, exam-relevant):} (1) update area accumulators using the \emph{old} state values; (2) update state variables; (3) update time-of-last-event to the current clock; (4) update the event list. Getting this order wrong (e.g.\ updating state before computing areas) is one of the most common simulation bugs.
+\end{examplebox}
+
+\textbf{Notation.} $A_i$ = interarrival time between customers $i{-}1,i$; $S_i$ = service time of customer $i$; $D_i$ = delay (waiting time before service; $=0$ if server idle on arrival). Arrival time of customer $i=\sum_{j\le i}A_j$; total time in system $=D_i+S_i$. $Q(t)$ = \# in queue at time $t$ (step function); $B(t)=1$ if server busy at $t$, else $0$.
+
+\[
+\hat d(n) = \frac{1}{n}\sum_{i=1}^n D_i \quad\text{(discrete-time statistic — simple average)}
+\]
+\[
+\hat q(n) = \frac{\int_0^{T(n)}Q(t)\,dt}{T(n)}, \qquad \hat u(n) = \frac{\int_0^{T(n)}B(t)\,dt}{T(n)} \quad\text{(continuous-time — time-weighted)}
+\]
+\textbf{Why time-weighted?} A queue of length 5 lasting 10 minutes matters more than one lasting 0.1 seconds; naively averaging values sampled only at event times is biased. (E.g.\ queue empty 9 hrs, length 10 for 1 hr: naive average $(0+10)/2=5$ is wrong; correct time-weighted answer $\approx(0\cdot9+10\cdot1)/10=1.0$.)
+
+\textbf{Area accumulation rule:} new area $=$ (old value of $Q(t)$ or $B(t)$) $\times$ (clock $-$ time of last event) — always use the value that held \emph{during} the just-elapsed interval.
+
+\begin{examplebox}
+\textbf{Full worked example — single-server queue.} $A_1..A_9 = 0.4,1.2,0.5,1.7,0.2,1.6,0.2,1.4,1.9$; $S_1..S_6=2.0,0.7,0.2,1.1,3.7,0.6$. Simulate until $n=6$ delays observed.
+
+Event trace (clock jumps $0.4,1.6,2.1,2.4,3.1,3.3,3.8,4.0,4.9,5.6,5.8,7.2,8.6$ — 13 events):
+\begin{center}\small
+\begin{tabular}{@{}clccc@{}}
+\toprule
+$t$ & Event & $Q$ & Delay & \#Del\\
+\midrule
+0.4 & Arr.\ C1 (server idle) & 0 & $D_1{=}0$ & 1\\
+1.6 & Arr.\ C2 (server busy) & $0\to1$ & -- & 1\\
+2.1 & Arr.\ C3 & $1\to2$ & -- & 1\\
+2.4 & Dep.\ C1; C2 starts & $2\to1$ & $D_2{=}0.8$ & 2\\
+3.1 & Dep.\ C2; C3 starts & $1\to0$ & $D_3{=}1.0$ & 3\\
+3.3 & Dep.\ C3 (queue empty, dep.\ $\to\infty$) & 0 & -- & 3\\
+3.8 & Arr.\ C4 (server idle) & 0 & $D_4{=}0$ & 4\\
+4.0 & Arr.\ C5 & $0\to1$ & -- & 4\\
+4.9 & Dep.\ C4; C5 starts & $1\to0$ & $D_5{=}0.9$ & 5\\
+5.6 & Arr.\ C6 & $0\to1$ & -- & 5\\
+5.8 & Arr.\ C7 & $1\to2$ & -- & 5\\
+7.2 & Arr.\ C8 & $2\to3$ & -- & 5\\
+8.6 & Dep.\ C5; C6 starts & $3\to2$ & $D_6{=}3.0$ & 6\\
+\bottomrule
+\end{tabular}
+\end{center}
+Stop: 6 delays observed, $T(6)=8.6$. \textbf{Key rule:} when the queue empties, set the next departure time to $\infty$ so the timing routine can't process a ``phantom'' departure — this forces the next event to be an arrival.
+
+\textbf{Results:} $D_1..D_6=0,0.8,1.0,0,0.9,3.0$:
+\[
+\hat d(6)=\frac{5.7}{6}=0.95 \ (\text{avg.\ delay}), \qquad \hat q(6)=\frac{9.9}{8.6}=1.15 \ (\text{avg.\ \# in queue})
+\]
+\[
+\hat u(6)=\frac{7.7}{8.6}=0.90 \ (\text{server busy 90\% of the time})
+\]
+\textbf{Caveat:} these are estimates from a single run with only $n=6$ — real studies use $n=1000+$ with multiple independent replications.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What is the simulation clock, and how does it relate to real computer time? \\
+\textbf{A:} A variable recording current simulated time; it is unrelated to actual wall-clock computer time (24 simulated hours might run in 0.01s, or 1ns of network activity might take 10 minutes to simulate).
+
+\textbf{Q2:} Compare next-event and fixed-increment time advance. \\
+\textbf{A:} Next-event jumps directly to the next scheduled event, skipping idle periods (used by virtually all modern software); fixed-increment checks every $\Delta t$ step, wasting computation on steps where nothing happens.
+
+\textbf{Q3:} Why is delay $D_i$ the focus rather than total time in system? \\
+\textbf{A:} $D_i$ measures system inefficiency (pure waste); service time $S_i$ is inherent to the task itself.
+
+\textbf{Q4:} Why is $\hat q(n)$ a time-weighted average rather than a simple average of observed queue lengths? \\
+\textbf{A:} Because a queue length that persists longer should count more — sampling only at event times and averaging naively is biased; you must weight by the duration each value held.
+
+\textbf{Q5:} State the area-accumulation rule and explain why it uses the \emph{old} state value. \\
+\textbf{A:} new area $=$ (old $Q(t)$ or $B(t)$) $\times$ (clock $-$ time of last event); the old value is what actually held throughout the just-elapsed interval, so using the post-update (new) value would give the wrong rectangle height.
+
+\textbf{Q6:} What is the correct order of updates at each event, and what bug results from getting it wrong? \\
+\textbf{A:} (1) Area accumulators (old values); (2) state variables; (3) time-of-last-event; (4) event list. Reversing (1) and (2) gives wrong rectangle heights/widths — one of the most common simulation bugs.
+
+\textbf{Q7:} Why set the next departure time to $\infty$ when the queue becomes empty? \\
+\textbf{A:} To force the next event to be an arrival rather than a nonexistent (``phantom'') departure.
+\end{qabox}
+
+\subsection{Steps in a Simulation Study}
+
+\begin{keypoint}
+A simulation study is \textbf{not a simple sequential process} — validation failures send you back to earlier steps, most often all the way back to Step 2 (data \& model), since invalid output usually means the conceptual model or data is wrong, not just the code.
+\end{keypoint}
+
+\textbf{The 10 steps (condensed):}
+\begin{enumerate}
+\item \textbf{Formulate problem \& plan the study} — kickoff meeting(s) with manager, analysts, SMEs fix objectives, questions to answer (these determine required model detail), performance measures, scope, and resources.
+\item \textbf{Collect data \& define a model} — gather structure/procedure info and parameter data; write an \textbf{assumptions document}; start simple and embellish only as needed (no forced one-to-one correspondence between model and real-system elements).
+\item \textbf{Assumptions document valid?} — structured walk-through before managers/analysts/SMEs; \textbf{No} $\to$ back to Step 2.
+\item \textbf{Construct \& verify the program} — \textbf{Verification} = does the program match the model? (code review, tracing, output-reasonableness checks, simplifying-assumption runs with known answers).
+\item \textbf{Pilot runs} — preliminary, non-final runs for validation (``drive around the block before a 1000\,km road trip'').
+\item \textbf{Model valid?} — compare to existing-system data if available; sensitivity analysis on influential factors; \textbf{No} $\to$ back to Step 2 (not just to programming).
+\item \textbf{Design experiments} — specify run length, warmup period (if the ``empty and idle'' start is unrealistic), and number of independent replications.
+\item \textbf{Production runs} — the real, decision-driving runs using the Step 7 design.
+\item \textbf{Analyze output data} — (a) absolute performance of one configuration, (b) relative comparison of alternatives; requires confidence intervals / statistical tests, since output is random — treating a single run's number as deterministic is a serious error.
+\item \textbf{Document, present, use results} — document assumptions, code, and results; present with animation for credibility; use only if results are both \textbf{valid} (technical) and \textbf{credible} (social/trusted).
+\end{enumerate}
+
+\begin{examplebox}
+\textbf{The Two Validation Checkpoints.} Step 2 $\to$ ``Assumptions valid?'' $\to$ No: loop back to Step 2; Yes: Steps 4--5 $\to$ ``Model valid?'' $\to$ No: loop back to Step 2 (\emph{not} to Step 4); Yes: Steps 7--10. Both failure branches return all the way to Step 2 by design.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What determines the required level of model detail? \\
+\textbf{A:} The specific questions the study must answer (fixed at the Step 1 kickoff meeting) — not decided arbitrarily up front.
+
+\textbf{Q2:} If the Step 6 validity check fails, where does the process return, and why? \\
+\textbf{A:} All the way back to Step 2 — invalid output usually means the conceptual model or data is wrong, not merely the code.
+
+\textbf{Q3:} What must Step 7 specify for each configuration? \\
+\textbf{A:} Run length, warmup-period length (if needed), and the number of independent replications.
+
+\textbf{Q4:} How do production runs differ from pilot runs? \\
+\textbf{A:} Production runs use the full experimental design (proper lengths, warmup, replications) and drive real decisions; pilot runs are preliminary, used only to validate the model.
+
+\textbf{Q5:} Why is treating simulation output as deterministic a serious error? \\
+\textbf{A:} Outputs are random because inputs are random; a single run's number is unreliable without confidence intervals and significance tests.
+
+\textbf{Q6:} What two conditions must results satisfy to be used in decision-making? \\
+\textbf{A:} They must be \textbf{valid} (technically accurate) and \textbf{credible} (decision-makers trust them enough to act).
+\end{qabox}
+
+\subsection{Model Verification and Validation}
+
+\begin{defbox}
+\textbf{Verification:} ``Did we build the model right?'' — does the computer program correctly implement the conceptual model? \textbf{Validation:} ``Did we build the right model?'' — does the model's behavior match reality? \textbf{Calibration:} the iterative compare$\to$revise$\to$compare loop that drives validation.
+\end{defbox}
+
+\textbf{The V\&V triangle} (Real System, Conceptual Model, Operational Model at the corners): Real $\leftrightarrow$ Conceptual $=$ \emph{conceptual validation}; Real $\leftrightarrow$ Operational $=$ \emph{calibration \& validation}; Conceptual $\leftrightarrow$ Operational $=$ \emph{model verification}. Pursued iteratively, not once — a model can be verified yet still invalid (correct code, wrong assumptions), or vice versa.
+
+\begin{keypoint}
+Apparent realism does not equal validity: ``a wrong model, convincingly animated, gives you false confidence — like a GPS confidently driving you off a cliff.'' Validation is not binary either: no model is ever 100\% valid; the real question is whether it's accurate enough for the decisions at hand.
+\end{keypoint}
+
+\textbf{Naylor--Finger (1967) three-step validation approach:}
+\begin{enumerate}
+\item \textbf{Face validity} — does the model look reasonable to knowledgeable people? User involvement improves assumptions, data reliability, bug-catching, and credibility.
+\item \textbf{Validate model assumptions} — \emph{structural} (system organization: queues, servers, discipline — validated by observation/discussion) and \emph{data} assumptions (input distributions — validated via: identify distribution $\to$ estimate parameters $\to$ goodness-of-fit test, e.g.\ chi-square or K-S).
+\item \textbf{Validate input--output transformations} — view the model as $f(X,D)=Y$ ($X$=uncontrollable inputs, $D$=decision variables, $Y$=outputs); do model outputs match real outputs for the same inputs? Requires an existing (or comparable) system — a purely planned system can never be \emph{completely} validated this way.
+\end{enumerate}
+
+\textbf{Minor vs.\ major changes} (validating a model of a modified system): minor (single parameter, or distribution form) $\Rightarrow$ carry over confidence after careful verification; major (logical/structural change, or wholly new design) $\Rightarrow$ at best partial validation.
+
+\textbf{Eight verification techniques} (always do the first two + documentation): (1) independent code review, (2) flow diagrams, (3) examine output for reasonableness (forecast expected ranges \emph{before} running, to avoid rationalizing a bug away), (4) check input parameters weren't altered during execution, (5) self-documentation, (6) animation, (7) Interactive Run Controller/debugger, (8) graphical interfaces.
+
+\begin{examplebox}
+\textbf{Verification by trace — catching a bug.} A single-server queue run over 16 time units gave $\hat L_Q=0.4375$ — looked perfectly reasonable. Trace revealed:
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+CLOCK & Event & NCUST & STATUS\\
+\midrule
+0 & Start & 0 & Idle\\
+3 & Arrival & 1 & Idle $\leftarrow$ \textbf{Bug!}\\
+5 & Depart & 0 & Idle\\
+11 & Arrival & 1 & Idle\\
+12 & Arrival & 2 & Busy\\
+16 & Depart & 1 & Busy\\
+\bottomrule
+\end{tabular}
+\end{center}
+At CLOCK$=3$ there is 1 customer but STATUS shows idle — impossible (service should start immediately). Yet the statistic was \emph{computed correctly} from this wrong data:
+\[
+\hat L_Q = \frac{(1{-}0)(2)+(0{-}0)(6)+(1{-}0)(1)+(2{-}1)(4)}{16} = \frac{7}{16}=0.4375
+\]
+\textbf{Moral:} a reasonable-looking, correctly-computed summary statistic can still be wrong if the underlying state data is wrong — the trace caught an error the summary statistic completely hid.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} State the one-line definitions of verification and validation. \\
+\textbf{A:} Verification: does the program correctly implement the conceptual model? Validation: does the model's behavior match reality?
+
+\textbf{Q2:} What is calibration, and how does it relate to validation? \\
+\textbf{A:} The iterative compare$\to$revise$\to$compare loop between model and real system; it is the mechanism that usually \emph{achieves} validation.
+
+\textbf{Q3:} Describe the three edges of the V\&V triangle. \\
+\textbf{A:} Real$\leftrightarrow$Conceptual model $=$ conceptual validation; Real$\leftrightarrow$Operational model $=$ calibration \& validation; Conceptual$\leftrightarrow$Operational model $=$ model verification.
+
+\textbf{Q4:} Why can a model appear convincing yet still be invalid? \\
+\textbf{A:} Visual/behavioral detail (e.g.\ animation) can look realistic even when the underlying logic doesn't match reality — apparent realism is not validity.
+
+\textbf{Q5:} What are the three steps of the Naylor--Finger approach? \\
+\textbf{A:} (1) Face validity; (2) validate structural and data assumptions; (3) validate input-output transformations.
+
+\textbf{Q6:} Why can a model of a brand-new (nonexistent) system never be completely validated? \\
+\textbf{A:} Input-output validation requires comparing model outputs to real-system outputs for the same inputs, which requires an actual (or closely comparable) system to exist and produce data — a purely planned system has none.
+
+\textbf{Q7:} In the trace-bug example, what did the trace reveal that the summary statistic did not? \\
+\textbf{A:} The statistic $\hat L_Q=0.4375$ was computed correctly but from wrong underlying data (STATUS incorrectly showed the server idle while a customer was present) — the trace exposed a state-update bug the aggregate number completely concealed.
+
+\textbf{Q8:} Why split validation data into calibration and validation sets? \\
+\textbf{A:} To show the model generalizes to unseen data rather than being merely fitted/tuned to the one dataset used to build it.
+\end{qabox}

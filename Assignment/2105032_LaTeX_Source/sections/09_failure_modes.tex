@@ -1,0 +1,126 @@
+% =====================================================================
+%  9. Failure modes and pathological cases
+% =====================================================================
+\section{When gradient descent goes wrong}
+
+\begin{frame}{Blow-ups, and functions with no global $L$}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{1. Step too large} ($\alpha>2/L$): oscillating blow-up along the top eigenvector (M3(f), A3(d)).
+
+      \vspace{4pt}
+      \textbf{2. No global $L$.} For $f(x) = x^4$, $f'' = 12x^2$ keeps growing. With $\alpha = 0.1$,
+      \[
+        x_{k+1} = x_k\,(1 - 0.4x_k^2),
+      \]
+      which diverges exactly when $|x_0|>\sqrt5\approx2.236$:
+
+      \vspace{2pt}
+      \footnotesize
+      \begin{tabular}{@{}l l@{}}
+        $x_0 = 2.2$: & $-2.059,\ 1.434,\ 0.255,\ 0.249,\dots\to0$\\
+        $x_0 = 2.3$: & $-2.567,\ 4.198,\ -25.39,\ 6521,\dots$
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{3. A flat minimum.} At $x^\star = 0$ we have $f''(0) = 0$, so $f$ is not strongly convex and the rate
+      drops to \emph{sublinear}:
+      \[
+        x_{k+1}\approx x_k - 0.4x_k^3 \;\Rightarrow\; x_k\approx\frac{1}{\sqrt{0.8\,k}} .
+      \]
+      \footnotesize Check: at $k = 10^4$ the iteration gives $0.011176$ and the formula $0.011180$.
+
+      \vspace{4pt}
+      \begin{warnbox}[Lesson]
+        \small A safe step depends on \emph{where you are}. A fixed $\alpha$ is only safe with a global $L$;
+        otherwise let a line search pick the step (\S10).
+      \end{warnbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Saddle points: a trap with a trapdoor}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      $f = x^4+y^4-4xy$ has a saddle at $\mathbf 0$, with Hessian eigenvalues $-4$ along $(1,1)$ and $+4$ along $(1,-1)$.
+      \begin{itemize}\footnotesize
+        \item On the \textbf{stable manifold} $y=-x$, GD slides \emph{into the saddle} (M1).
+        \item Elsewhere the unstable part grows by $1+4\alpha$ per step: escaping from distance $\delta = 10^{-3}$ takes
+              about 21 steps ($\alpha = 0.1$).
+      \end{itemize}
+      \begin{thmbox}[Theorem \normalfont\cite{lee2016}]
+        \footnotesize For $C^2$ $f$ with $L$-Lipschitz gradient and $\alpha<1/L$, GD from a random start
+        converges to a strict saddle with probability zero.
+      \end{thmbox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=0.7\linewidth]{fig_landscape_surface}
+
+      \footnotesize\textcolor{mGrey}{GD almost never \emph{ends} at a saddle, but can idle near one: $\norm{\nabla f}$ is tiny there.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Plateaus and curved valleys}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      \small
+      \textbf{Plateau} (A4). For large $k$ the model $e^{-kt}$ is already close to zero, so it barely reacts to $k$
+      and $J'\approx 10^{-3}$. A thousand steps from $k_0 = 6$ only reach $k\approx4.65$: a \alert{vanishing gradient}.
+
+      \vspace{4pt}
+      \textbf{The banana valley} (Rosenbrock)
+      \[
+        f = (1-x)^2+100\,(y-x^2)^2
+      \]
+      has $\kappa\approx2508$ at the minimum, and the valley \emph{bends}, so no single fixed rescaling straightens it.
+      On the right: GD with Armijo against momentum over 2000 iterations.
+    \end{column}
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_rosenbrock}
+
+      \footnotesize\textcolor{mGrey}{The A4 plateau itself is plotted in Problem A4 (solution 3 of 4).}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nonsmooth objectives: a constant step never settles}
+  $f(x) = |x|$ has ``gradient'' $\operatorname{sign}(x)$, whose size never shrinks near the minimum:
+  $\;x_{k+1} = x_k - \alpha\operatorname{sign}(x_k)$.
+  \vspace{4pt}
+  \begin{itemize}\small
+    \item The iterates march into the band $|x|\le\alpha$, then \alert{bounce around in it forever}: the error stays about $\alpha$.
+    \item In the smooth case $\nabla f\to\mathbf 0$ shrinks the steps for free (\S4). Here it does not.
+    \item Remedy: shrink the steps yourself (the subgradient method), at the slower rate $O(1/\sqrt k)$~\cite{nesterov2018,boyd2004}.
+  \end{itemize}
+  \begin{keybox}[Where you meet this]
+    \small $\ell_1$ regularisation, hinge loss, ReLU networks, max-type objectives. Smoothness is what makes a constant step work.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Finite precision: gradients by finite differences}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      No gradient formula? Try $\;f'(x)\approx\frac{f(x+h)-f(x)}{h}$, with error
+      \[
+        E(h)\approx\underbrace{\tfrac h2|f''|}_{\text{truncation}}+\underbrace{\tfrac{2\epsilon_{\text{mach}}|f|}{h}}_{\text{round-off}},
+      \]
+      smallest at $h^\star\sim\sqrt{\epsilon_{\text{mach}}}\approx1.5\times10^{-8}$. Going smaller makes it \emph{worse}.
+      \begin{itemize}\footnotesize
+        \item Forward: about 8 digits at best. Central: $h^\star\sim\epsilon^{1/3}$, error $\sim\epsilon^{2/3}\approx4\times10^{-11}$.
+        \item Cost: $n$ extra $f$-evaluations per gradient (autodiff: a constant factor, \S13).
+        \item $\norm{\nabla f}$ has a noise floor: use relative stopping tests.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_fd_error}
+
+      \footnotesize The classic V: truncation error on the right, round-off on the left ($f = e^x$ at $x = 1$).
+    \end{column}
+  \end{columns}
+\end{frame}

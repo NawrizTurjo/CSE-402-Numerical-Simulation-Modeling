@@ -1,0 +1,227 @@
+\subsection{Regression --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q1.} A least-squares line with an intercept is fitted to any data set. It must pass through\\
+(a) the origin \quad (b) the first and last points \quad (c) $(\bar x,\bar y)$ \quad (d) none of these necessarily\\
+\textbf{Ans: (c)} --- immediate from $b = \bar y - m\bar x$. This single fact answers many ``find the missing value'' questions.
+
+\textbf{Q2.} For a least-squares fit with an intercept, the sum of the residuals $\sum(y_i-\hat y_i)$ equals\\
+(a) $SSE$ \quad (b) $0$ \quad (c) $n\bar y$ \quad (d) depends on the data\\
+\textbf{Ans: (b)} --- it \emph{is} the normal equation $\partial SSE/\partial b = 0$.
+
+\textbf{Q3.} If $r = -0.9$, the percentage of variance explained is\\
+(a) $-90\%$ \quad (b) $90\%$ \quad (c) $81\%$ \quad (d) $-81\%$\\
+\textbf{Ans: (c)} --- $r^2 = 0.81$; $r^2$ is never negative, and the sign of $r$ only gives direction.
+
+\textbf{Q4.} $SSE = 1.8$ and $SST = 18$. Then $r^2$ is\\
+(a) $0.1$ \quad (b) $0.9$ \quad (c) $10$ \quad (d) $0.18$\\
+\textbf{Ans: (b)} --- $r^2 = 1-SSE/SST = 1-0.1 = 0.9$.
+
+\textbf{Q5.} Every $x$ value in a data set is doubled (the $y$'s unchanged). Then\\
+(a) both $m$ and $r$ halve \quad (b) $m$ halves, $r$ is unchanged\\
+(c) $m$ is unchanged, $r$ halves \quad (d) both are unchanged\\
+\textbf{Ans: (b)} --- $r$ is dimensionless and invariant under linear rescaling; the slope carries units and must halve.
+
+\textbf{Q6.} A strong correlation $r = 0.95$ between ice-cream sales and drowning deaths implies\\
+(a) ice cream causes drowning \quad (b) drowning causes ice-cream sales\\
+(c) nothing causal; a hidden third factor may drive both \quad (d) the data are wrong\\
+\textbf{Ans: (c)} --- correlation is not causation; here the lurking variable is summer temperature.
+
+\textbf{Q7.} In multiple linear regression, the residuals are found to fan out as $\hat y$ increases. The violated assumption is\\
+(a) Linearity \quad (b) Independence \quad (c) Homoscedasticity \quad (d) Normality\\
+\textbf{Ans: (c)} --- homoscedasticity demands \emph{constant} error variance.
+
+\textbf{Q8.} Two input features of an MLR model are found to satisfy $x_3 = 2x_1+1$. The violated assumption is\\
+(a) Normality \quad (b) No multicollinearity \quad (c) Homoscedasticity \quad (d) Linearity\\
+\textbf{Ans: (b)} --- the features are exactly linearly dependent, so the weights are not identifiable.
+
+\textbf{Q9.} Replacing the MLR cost $J = \frac{1}{2m}\sum(\hat y_i-y_i)^2$ by $J = \sum(\hat y_i-y_i)^2$ would\\
+(a) change the optimal weights \quad (b) leave the optimal weights unchanged, but rescale the gradients\\
+(c) make the problem non-convex \quad (d) make it unsolvable\\
+\textbf{Ans: (b)} --- a positive constant factor cannot move the argmin; it only rescales $\alpha$'s effect.
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P1.} Fit a least-squares line to $(1,2),(2,5),(3,5),(4,8)$. Report $m$, $b$, $r$, $r^2$. Then verify \emph{four} structural properties: the centroid lies on the line, the residuals sum to zero, $r^2 = 1-SSE/SST$, and $m = r\,s_y/s_x$.
+
+\ans Sums with $n=4$: $\sum x = 10$, $\sum y = 20$, $\sum xy = 59$, $\sum x^2 = 30$, $\sum y^2 = 118$.
+\[
+m = \frac{4(59)-10(20)}{4(30)-10^2} = \frac{236-200}{120-100} = \frac{36}{20} = 1.8
+\]
+\[
+b = \frac{20-1.8(10)}{4} = \frac{2}{4} = 0.5 \qquad\Rightarrow\qquad \hat y = 1.8x+0.5
+\]
+\[
+r = \frac{36}{\sqrt{(20)\big(4(118)-20^2\big)}} = \frac{36}{\sqrt{20\times72}} = \frac{36}{37.947} = 0.948683,\qquad r^2 = 0.9
+\]
+\emph{Check 1 --- centroid:} $\bar x = 2.5$, $\bar y = 5$; $\hat y(2.5) = 1.8(2.5)+0.5 = 5 = \bar y$ $\checkmark$
+
+\emph{Check 2 --- residuals:} $\hat y = (2.3,\ 4.1,\ 5.9,\ 7.7)$, so $e = (-0.3,\ 0.9,\ -0.9,\ 0.3)$, summing to $0$ $\checkmark$
+
+\emph{Check 3 --- variance decomposition:} $SSE = 0.09+0.81+0.81+0.09 = 1.8$ and $SST = \sum(y_i-\bar y)^2 = 9+0+0+9 = 18$, so
+\[
+1 - \frac{SSE}{SST} = 1-\frac{1.8}{18} = 0.9 = r^2 \ \checkmark
+\]
+\emph{Check 4 --- slope/correlation link:} $s_x = 1.290994$, $s_y = 2.449490$, so
+\[
+r\,\frac{s_y}{s_x} = 0.948683\times\frac{2.449490}{1.290994} = 1.8 = m \ \checkmark
+\]
+
+\PQ{P2.} A regression line through 6 points has $\bar x = 4$ and $\bar y = 11$, and its slope is $m = 2.5$. Find the intercept without touching the raw data. Then find $\sum y_i$.
+
+\ans The line passes through the centroid, so
+\[
+b = \bar y - m\bar x = 11-2.5(4) = 1 \qquad\Rightarrow\qquad \hat y = 2.5x+1 .
+\]
+And $\sum y_i = n\bar y = 6(11) = 66$. Neither step needed a single data point --- exactly the shortcut MCQs are built on.
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{$r^2$ is never negative} and is not ``$r$ as a percentage.'' $r = -0.9$ gives $81\%$, not $-90\%$.
+\item \textbf{$r$ is scale-invariant, $m$ is not.} Rescaling $x$ or $y$ changes the slope but never the correlation.
+\item \textbf{Residuals summing to zero does not mean a good fit} --- it holds for \emph{every} least-squares line with an intercept, however bad.
+\item \textbf{A high $r^2$ does not validate the model.} All five MLR assumptions can be violated at $r^2 = 0.99$.
+\item \textbf{Correlation is not causation}, and the exam likes the ice-cream/drowning style stem.
+\item \textbf{Know which assumption each symptom breaks:} Poisson errors $\to$ Normality; fanning residuals $\to$ Homoscedasticity; dependent features $\to$ No multicollinearity; time-ordered carryover $\to$ Independence.
+\item \textbf{Regression does not pass through the data points} --- that is interpolation. It passes through the \emph{centroid}.
+\item \textbf{The $\frac{1}{2m}$ in the MLR cost is cosmetic.} It cannot change where the minimum is.
+\end{itemize}
+\end{trapbox}
+
+\subsection{Interpolation --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q10.} Given 7 data points, the interpolating polynomial has degree\\
+(a) exactly 7 \quad (b) exactly 6 \quad (c) at most 6 \quad (d) at most 7\\
+\textbf{Ans: (c)} --- $(n+1)$ points give \emph{at most} degree $n$; collinear or otherwise degenerate data drop the degree.
+
+\textbf{Q11.} Data are sampled from an exact quadratic. The 3rd divided difference of the table is\\
+(a) the leading coefficient \quad (b) $0$ \quad (c) $2$ \quad (d) undefined\\
+\textbf{Ans: (b)} --- since $f[x_0..x_n] = f^{(n)}(\xi)/n!$ and the 3rd derivative of a quadratic is zero.
+
+\textbf{Q12.} Data are sampled from $y = x^3-2x^2+3$. The 3rd divided difference equals\\
+(a) $0$ \quad (b) $1$ \quad (c) $3$ \quad (d) $6$\\
+\textbf{Ans: (b)} --- it equals the leading coefficient: $f'''/3! = 6/6 = 1$. (True even for unequally spaced nodes.)
+
+\textbf{Q13.} Lagrange and Newton divided-difference interpolation are applied to the same 4 points and both evaluated at $x=3$. The two results\\
+(a) differ slightly \quad (b) are identical \quad (c) differ by the error term \quad (d) agree only at the nodes\\
+\textbf{Ans: (b)} --- the interpolating polynomial through given points is \emph{unique}; only the algebraic form differs.
+
+\textbf{Q14.} The Lagrange basis polynomials satisfy $\sum_j L_j(x)$ equal to\\
+(a) $0$ \quad (b) $1$ for all $x$ \quad (c) $x$ \quad (d) $n$\\
+\textbf{Ans: (b)} --- interpolating the constant function $1$ reproduces it exactly.
+
+\textbf{Q15.} Newton's form is preferred over Lagrange's mainly because\\
+(a) it is more accurate \quad (b) adding a new point reuses all existing coefficients\\
+(c) it needs fewer points \quad (d) it avoids division\\
+\textbf{Ans: (b)} --- the recalculation-free property. Accuracy is identical (Q13).
+
+\textbf{Q16.} A cubic spline is constructed through 10 data points. The number of unknown coefficients is\\
+(a) 36 \quad (b) 40 \quad (c) 27 \quad (d) 30\\
+\textbf{Ans: (a)} --- 10 points give $n = 9$ intervals, so $4n = 36$.
+
+\textbf{Q17.} For that cubic spline, how many equations come from the second-derivative matching conditions?\\
+(a) 9 \quad (b) 8 \quad (c) 18 \quad (d) 2\\
+\textbf{Ans: (b)} --- $n-1 = 8$ interior knots.
+
+\textbf{Q18.} A linear spline through a data set is\\
+(a) continuous and differentiable everywhere \quad (b) continuous but generally not differentiable at the knots\\
+(c) discontinuous \quad (d) twice differentiable\\
+\textbf{Ans: (b)} --- the joints are corners.
+
+\textbf{Q19.} Runge's phenomenon says that as more \emph{equally spaced} nodes are added to a global polynomial interpolant, the error\\
+(a) always decreases \quad (b) grows, worst near the centre \quad (c) grows, worst near the edges \quad (d) stays constant\\
+\textbf{Ans: (c)}
+
+\textbf{Q20.} Which statement is \textbf{FALSE}?\\
+(a) A natural cubic spline sets $P''=0$ at both ends \quad (b) A clamped spline specifies end slopes\\
+(c) Interpolation passes through every data point \quad (d) Higher spline order always reduces total error\\
+\textbf{Ans: (d)} --- higher order buys smoothness at the cost of computation and greater error risk; that trade-off is explicit in the notes.
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P3.} The function $y = x^3-2x^2+3$ is sampled at the \textbf{unequally spaced} nodes $x = 1, 2, 4, 5$. (i) Build the full divided-difference table. (ii) Write $P_3(x)$ in Newton form. (iii) Evaluate at $x=3$ and compare with the exact value. (iv) Evaluate the same point by Lagrange interpolation and comment.
+
+\ans Values: $y(1) = 2$, $y(2) = 3$, $y(4) = 35$, $y(5) = 78$.
+
+\emph{(i)} First divided differences:
+\[
+\frac{3-2}{2-1} = 1, \qquad \frac{35-3}{4-2} = 16, \qquad \frac{78-35}{5-4} = 43
+\]
+Second:
+\[
+\frac{16-1}{4-1} = 5, \qquad \frac{43-16}{5-2} = 9
+\]
+Third:
+\[
+\frac{9-5}{5-1} = 1
+\]
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$x_i$ & $y_i$ & 1st & 2nd & 3rd\\
+\midrule
+1 & 2 & & & \\
+ & & 1 & & \\
+2 & 3 & & 5 & \\
+ & & 16 & & \textbf{1}\\
+4 & 35 & & 9 & \\
+ & & 43 & & \\
+5 & 78 & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+The 3rd divided difference is $\mathbf{1}$ --- exactly the leading coefficient of $x^3-2x^2+3$, confirming $f[x_0..x_3] = f'''(\xi)/3! = 6/6 = 1$ \textbf{even though the nodes are unequally spaced}. A 4th divided difference would be $0$.
+
+\emph{(ii)} Top diagonal gives the coefficients:
+\[
+P_3(x) = 2 + 1(x-1) + 5(x-1)(x-2) + 1(x-1)(x-2)(x-4)
+\]
+
+\emph{(iii)} At $x=3$:
+\[
+P_3(3) = 2 + 1(2) + 5(2)(1) + 1(2)(1)(-1) = 2+2+10-2 = \mathbf{12}
+\]
+Exact: $3^3-2(9)+3 = 27-18+3 = 12$ $\checkmark$ (as it must be --- a cubic interpolated at 4 points is reproduced exactly, so the error term $f^{(4)}(\xi)/4!\prod(x-x_i)$ vanishes identically).
+
+\emph{(iv)} Lagrange at $x=3$ gives $\mathbf{12}$ as well. The two forms are algebraically the same polynomial; Newton simply arranges it so that a fifth data point would append one term and leave $2, 1, 5, 1$ untouched, whereas Lagrange would rebuild all four basis polynomials.
+
+\PQ{P4.} A spline is to be built through \textbf{6} data points. Give the complete unknown/equation count for the quadratic and the cubic case, and show each balances.
+
+\ans With $k=6$ points there are $n = k-1 = \mathbf{5}$ intervals (this is the step everyone gets wrong).
+
+\emph{Quadratic:} $P_i = a_ix^2+b_ix+c_i$, so $3n = \mathbf{15}$ unknowns.
+\[
+\underbrace{2n = 10}_{\text{each piece through its 2 endpoints}} + \underbrace{(n-1) = 4}_{P'\text{ matched at 4 interior knots}} + \underbrace{1}_{\text{assumption } P_1''=0 \text{ at one end}} = 15 \ \checkmark
+\]
+
+\emph{Cubic:} $P_i = a_ix^3+b_ix^2+c_ix+d_i$, so $4n = \mathbf{20}$ unknowns.
+\[
+\underbrace{2n = 10}_{\text{through points}} + \underbrace{(n-1) = 4}_{P'\text{ matched}} + \underbrace{(n-1) = 4}_{P''\text{ matched}} + \underbrace{2}_{\text{boundary conditions}} = 20 \ \checkmark
+\]
+The 2 boundary conditions are $P''=0$ at both ends (natural) \emph{or} the two end slopes (clamped).
+
+\PQ{P5.} Use linear interpolation on the table $(10,100), (20,400)$ to estimate $y$ at $x=13$, and explain why you may not use the pair $(20,400),(30,900)$ instead.
+
+\ans Bracketing pair is $(10,100)$ and $(20,400)$ since $10 < 13 < 20$:
+\[
+\frac{400-100}{20-10} = \frac{y_m-100}{13-10} \;\Longrightarrow\; 30 = \frac{y_m-100}{3} \;\Longrightarrow\; y_m = \mathbf{190}.
+\]
+Using $(20,400),(30,900)$ would be \emph{extrapolation}, not interpolation: $x=13$ lies outside $[20,30]$, so the straight line there carries no information about the function's behaviour near $13$ and the estimate would be far off (it would give $y = 400+50(13-20) = 50$).
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{Points vs intervals.} $k$ points give $n = k-1$ splines. A ``cubic spline through 6 points'' has $4\times5 = 20$ unknowns, not 24.
+\item \textbf{Lagrange and Newton give the same polynomial.} Any option claiming different values is wrong --- the interpolant is unique.
+\item \textbf{``At most degree $n$'', never ``exactly''.} Collinear points collapse the degree.
+\item \textbf{The $n$-th divided difference of a degree-$n$ polynomial is the leading coefficient} (and the next one is exactly $0$) --- true for unequal spacing too.
+\item \textbf{More points can make a global interpolant worse} (Runge), and the damage is worst at the \emph{edges}, not the middle.
+\item \textbf{Interpolation is not regression.} If a question mentions noisy data and best fit, a high-order interpolant is the wrong tool.
+\item \textbf{Always use the \emph{bracketing} pair} for linear interpolation --- otherwise you are extrapolating.
+\item \textbf{A linear spline is continuous but has corners.} ``Smooth'' requires at least a quadratic (matching $P'$).
+\item \textbf{Natural vs clamped is about the 2 boundary equations only} --- both give $4n$ unknowns in total.
+\item \textbf{Higher spline order is not uniformly better}; the notes flag the smoothness-versus-cost-and-error trade-off explicitly.
+\end{itemize}
+\end{trapbox}

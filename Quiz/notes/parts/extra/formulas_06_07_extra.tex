@@ -1,0 +1,623 @@
+% ============================================================
+% EXTRA (derived / implicit) formula sheet -- Topics 6 & 7
+% Regression + Interpolation.  Fragment: no preamble, no \section.
+% ============================================================
+
+\subsection{Regression --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{Notation fixed once (read this first).} For data $(x_i,y_i)$, $i=1..n$, fit
+$\hat y = mx+b$. Write
+\[
+  \bar x=\tfrac{1}{n}\textstyle\sum x_i,\qquad \bar y=\tfrac{1}{n}\textstyle\sum y_i ,
+\]
+\[
+  S_{xx}=\textstyle\sum (x_i-\bar x)^2,\qquad
+  S_{yy}=\textstyle\sum (y_i-\bar y)^2,
+\]
+\[
+  S_{xy}=\textstyle\sum (x_i-\bar x)(y_i-\bar y),\qquad
+  e_i = y_i-\hat y_i .
+\]
+Three sums of squares --- \textbf{name them explicitly in the exam, books disagree}:
+\[
+  \mathrm{SST}=\textstyle\sum (y_i-\bar y)^2 = S_{yy}
+  \qquad\text{(total)}
+\]
+\[
+  \mathrm{SSE}=\textstyle\sum (y_i-\hat y_i)^2=\textstyle\sum e_i^2
+  \qquad\text{(residual / error)}
+\]
+\[
+  \mathrm{SSR}=\textstyle\sum (\hat y_i-\bar y)^2
+  \qquad\text{(regression / explained)}
+\]
+The deck writes $\mathrm{SSE}$ for the quantity least squares \emph{minimises}; that is
+the residual one above, and this sheet keeps that meaning everywhere. If a question
+writes ``SSR'' to mean ``sum of squared residuals'', it means our $\mathrm{SSE}$ ---
+read the words, not the letters.
+
+\medskip\hrule\medskip
+
+\textbf{(R1) The fitted line ALWAYS passes through the centroid $(\bar x,\bar y)$.}
+Straight from the intercept normal equation
+$b=\dfrac{\sum y-m\sum x}{n}=\bar y-m\bar x$:
+\[
+  \hat y(\bar x)=m\bar x+b=m\bar x+(\bar y-m\bar x)=\bar y .
+\]
+So $b=\bar y-m\bar x$ is a second, much faster route to the intercept, and
+$(\bar x,\bar y)$ is the one point you can name without computing anything.
+\emph{Instant MCQ solver.}
+
+\medskip
+\textbf{(R2) Residuals of a least-squares fit \emph{with} an intercept satisfy}
+\[
+  \sum_{i=1}^{n} e_i = 0
+  \qquad\text{and}\qquad
+  \sum_{i=1}^{n} x_i\,e_i = 0 .
+\]
+These two \emph{are} the normal equations:
+$\partial\,\mathrm{SSE}/\partial b=-2\sum e_i=0$ and
+$\partial\,\mathrm{SSE}/\partial m=-2\sum x_ie_i=0$.
+Consequences: $\bar e=0$, $\sum \hat y_i=\sum y_i$, and $\sum \hat y_i e_i=0$
+(residuals are ``orthogonal'' to the fit). (R1) is just the first identity divided
+by $n$. \emph{If a question hands you residuals that do not sum to zero, that line is
+not the least-squares line.}
+
+\medskip
+\textbf{(R3) Slope $\leftrightarrow$ correlation link (get $r$ without the big formula).}
+With sample standard deviations $s_x=\sqrt{S_{xx}/(n-1)}$ and $s_y=\sqrt{S_{yy}/(n-1)}$:
+\[
+  m=\frac{S_{xy}}{S_{xx}}=r\,\frac{s_y}{s_x}
+  \qquad\Longleftrightarrow\qquad
+  r=m\,\frac{s_x}{s_y}=\frac{S_{xy}}{\sqrt{S_{xx}S_{yy}}} .
+\]
+Since $s_x,s_y>0$, $\operatorname{sign}(r)=\operatorname{sign}(m)$ always.
+The $(n-1)$ factors cancel, so $r=S_{xy}/\sqrt{S_{xx}S_{yy}}$ works with raw centred sums.
+
+\medskip
+\textbf{(R4) Variance decomposition and what $r^2$ really is.}
+\[
+  \mathrm{SST}=\mathrm{SSR}+\mathrm{SSE}
+\]
+\[
+  r^2=\frac{\mathrm{SSR}}{\mathrm{SST}}=1-\frac{\mathrm{SSE}}{\mathrm{SST}}
+  = \text{fraction of variance in } y \text{ explained.}
+\]
+Hence $0\le r^2\le 1$ always, and $\mathrm{SSE}=(1-r^2)\,\mathrm{SST}$ --- a one-line
+route to $\mathrm{SSE}$ once you have $r$.
+
+\medskip
+\textbf{(R5) Shortcut values of SSR and SSE (no residual table needed).}
+\[
+  \mathrm{SSR}=m^2S_{xx}=m\,S_{xy}=\frac{S_{xy}^2}{S_{xx}},
+\]
+\[
+  \mathrm{SSE}=S_{yy}-m\,S_{xy}=S_{yy}-\frac{S_{xy}^2}{S_{xx}} .
+\]
+Usually the fastest hand route in an exam: build $S_{xx},S_{yy},S_{xy}$ once and
+everything ($m$, $r$, $r^2$, SSR, SSE, $s_{y/x}$) falls out.
+
+\medskip
+\textbf{(R6) Standard error of the estimate (spread of points about the line).}
+\[
+  s_{y/x}=\sqrt{\frac{\mathrm{SSE}}{n-2}}
+        =\sqrt{\frac{\sum(y_i-\hat y_i)^2}{n-2}} .
+\]
+\emph{Why $n-2$?} The residuals obey the two exact constraints of (R2), so only $n-2$
+of them are free; two degrees of freedom were spent estimating $m$ and $b$. Note that
+$n=2$ gives $0/0$: two points are fitted perfectly and carry no information about scatter.
+
+\medskip
+\textbf{(R7) What survives a change of units (rescaling law).} Replace
+$x\to px+q$ and $y\to uy+v$ with $p,u>0$. Then
+\[
+  m'=\frac{u}{p}\,m,\qquad b'=u\,b+v-\frac{u\,q}{p}\,m,
+\]
+\[
+  \boxed{\,r'=r\,},\qquad \boxed{\,r'^2=r^2\,}.
+\]
+So $r$ and $r^2$ are \emph{unitless and invariant} under any positive linear rescaling of
+either axis, while $m$ and $b$ are \emph{not}. (If exactly one of $p,u$ is negative, $r$
+flips sign; if both flip, $r$ is unchanged.) Also $s_{y/x}$ scales by $u$ --- it carries
+the units of $y$.
+
+\medskip
+\textbf{(R8) Degenerate cases worth memorising.}
+\begin{itemize}
+\item All points exactly collinear (non-horizontal) $\iff r=\pm1 \iff \mathrm{SSE}=0
+      \iff r^2=1 \iff s_{y/x}=0$.
+\item Best fit is a horizontal line ($m=0$) $\iff S_{xy}=0 \iff r=0 \iff r^2=0$;
+      then $\mathrm{SSR}=0$, $\mathrm{SSE}=\mathrm{SST}$ and $b=\bar y$.
+\item $S_{xx}=0$ (all $x_i$ equal): $m$ and $r$ are \emph{undefined} --- a vertical
+      cloud has no least-squares line of the form $y=mx+b$.
+\end{itemize}
+
+\medskip
+\textbf{(R9) Multiple linear regression --- the $\tfrac{1}{2m}$ is cosmetic.}
+For any constant $c>0$,
+\[
+  \arg\min_{\mathbf w}\; c\sum_i(\hat y_i-y_i)^2
+  \;=\;\arg\min_{\mathbf w}\; \sum_i(\hat y_i-y_i)^2 .
+\]
+So $J=\frac{1}{2m}\sum(\hat y_i-y_i)^2$ has \emph{exactly the same minimiser} as the plain
+$\mathrm{SSE}$. What $\tfrac{1}{2m}$ changes is the \emph{size} of the gradient, hence the
+useful range of $\alpha$: scaling $J$ by $c$ and $\alpha$ by $1/c$ gives an identical GD
+trajectory.
+
+\medskip
+\textbf{(R10) MLR gradient and update, all faces} (with $x_{i0}=1$):
+\[
+  \frac{\partial J}{\partial w_j}=\frac1m\sum_{i=1}^m(\hat y_i-y_i)\,x_{ij},
+\]
+\[
+  w_j \leftarrow w_j-\frac{\alpha}{m}\sum_{i=1}^m(\hat y_i-y_i)\,x_{ij}.
+\]
+Matrix form: $\nabla J=\frac1m X^{\!\top}(X\mathbf w-\mathbf y)$; the bias $w_0$ uses
+$x_{i0}=1$, so it moves by the plain mean residual.
+\emph{Extension (beyond the deck, but it explains assumption 5):} setting $\nabla J=0$
+gives the normal equation $X^{\!\top}\!X\,\mathbf w=X^{\!\top}\mathbf y$. Perfect
+multicollinearity makes $X^{\!\top}\!X$ singular, so $\mathbf w$ is not unique --- that
+is \emph{why} ``no multicollinearity'' is an assumption.
+
+\medskip
+\textbf{(R11) Assumption $\to$ symptom lookup table (scenario questions).}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Scenario in the question & Assumption broken & One-line justification \\
+\midrule
+Errors are Poisson / skewed / counts & Normality & errors not $\sim\mathcal N$ \\
+Residual spread fans out with $x$ & Homoscedasticity & error variance not constant \\
+A few points sit extremely far off & Homoscedasticity & non-constant spread \\
+Two inputs are nearly proportional & No multicollinearity & columns linearly dependent \\
+Today's error carries into tomorrow & Independence & samples not independent \\
+Repeated measures on one subject & Independence & correlated observations \\
+True law is $y=w_1x^2$, model is linear & Linearity & wrong functional form \\
+\bottomrule
+\end{tabular}
+\end{center}
+Memory hook: \textbf{L-I-H-N-M} --- Linearity, Independence, Homoscedasticity,
+Normality, Multicollinearity.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Two fully worked reference fits --- know these cold.}
+
+\smallskip
+\textbf{(A) Deck dataset} $(1,2),(2,4),(3,5),(4,4),(5,5)$, $n=5$.
+\[
+  \textstyle\sum x=15,\; \sum y=20,\; \sum x^2=55,\; \sum y^2=86,\; \sum xy=66
+\]
+\[
+  m=0.6,\qquad b=2.2,\qquad r=0.7746,\qquad r^2=0.60
+\]
+\[
+  (\bar x,\bar y)=(3,4)\ \text{lies on the line};\qquad
+  S_{xx}=10,\; S_{yy}=6,\; S_{xy}=6
+\]
+\[
+  \mathrm{SST}=6,\quad \mathrm{SSR}=3.6,\quad \mathrm{SSE}=2.4,
+\]
+\[
+  s_{y/x}=\sqrt{2.4/3}=0.8944
+\]
+Residuals $(-0.8,\,0.6,\,1.0,\,-0.6,\,-0.2)$: sum $=0$ and $\sum x_ie_i=0$. $\checkmark$
+
+\smallskip\hrule\smallskip
+\textbf{(B) Clean-number dataset} $(1,2),(2,4),(3,6),(4,8),(5,15)$, $n=5$.
+\[
+  \textstyle\sum x=15,\; \sum y=35,\; \sum x^2=55,\; \sum y^2=345,\; \sum xy=135
+\]
+\[
+  m=3,\qquad b=-2,\qquad \hat y=3x-2,\qquad (\bar x,\bar y)=(3,7)
+\]
+\[
+  S_{xx}=10,\qquad S_{yy}=100,\qquad S_{xy}=30
+\]
+\[
+  \mathrm{SST}=100,\quad \mathrm{SSR}=90,\quad \mathrm{SSE}=10,
+\]
+\[
+  r^2=0.9,\qquad r=0.9487
+\]
+\[
+  s_x=1.5811,\quad s_y=5,\quad r=m\frac{s_x}{s_y}=3\cdot\frac{1.5811}{5}=0.9487\ \checkmark
+\]
+\[
+  s_{y/x}=\sqrt{10/3}=1.8257
+\]
+Residuals $(1,0,-1,-2,2)$: sum $=0$ and $\sum x_ie_i=1+0-3-8+10=0$. $\checkmark$
+
+\smallskip\hrule\smallskip
+\textbf{Rescaling check on (A):} $x\to10x$ gives $m=0.06$; $y\to10y$ gives $m=6$;
+$x\to2x+1$ gives $m=0.3$. In all three cases $r=0.7746$, unchanged.
+
+\smallskip
+\textbf{Reference roots (for going $r^2\to r$):}
+$\sqrt{0.5}=0.7071$, $\sqrt{0.6}=0.7746$, $\sqrt{0.64}=0.8$,
+$\sqrt{2/3}=0.8165$, $\sqrt{0.8}=0.8944$, $\sqrt{0.9}=0.9487$.
+\end{numbox}
+
+\begin{trapbox}
+\begin{enumerate}
+\item \Tr{``$r=0.8$ means the model explains 80\% of the variance.''}
+      No --- $r^2=0.64$ does, i.e.\ 64\%. Always square first.
+\item \Tr{``$r=0$ means $x$ and $y$ are unrelated.''}
+      $r$ measures only the \emph{linear} relation. Points on a perfect parabola
+      symmetric about $\bar x$ have $r=0$ yet are perfectly related.
+\item \Tr{``A high $r$ proves $x$ causes $y$.''}
+      Correlation is not causation --- coincidence, or a hidden third factor driving both.
+\item \Tr{``Change the units of $x$ (m to cm) and $r$ changes.''}
+      $r$ and $r^2$ are invariant; only $m$, $b$ and $s_{y/x}$ move (R7).
+\item \Tr{``Residuals always sum to zero.''}
+      Only for a least-squares fit that \emph{contains an intercept}. Force the line
+      through the origin ($\hat y=mx$) and $\sum e_i$ is generally nonzero: on dataset
+      (B), $m=\sum xy/\sum x^2=27/11$ and $\sum e_i=-20/11\ne0$ (though
+      $\sum x_ie_i=0$ still holds).
+\item \Tr{``$s_{y/x}=\sqrt{\mathrm{SSE}/n}$.''}
+      It is $\sqrt{\mathrm{SSE}/(n-2)}$ --- two degrees of freedom are consumed by
+      $m$ and $b$.
+\item \Tr{``$\mathrm{SSE}$ sits in the numerator of $r^2$.''}
+      $r^2=\mathrm{SSR}/\mathrm{SST}=1-\mathrm{SSE}/\mathrm{SST}$. Mixing the two
+      inverts the answer: $0.9$ becomes $0.1$.
+\item \Tr{``Dropping the $\tfrac{1}{2m}$ from $J$ changes the best weights.''}
+      No --- a positive constant cannot move an $\arg\min$ (R9). It only rescales the
+      gradient, so you need a different $\alpha$.
+\item \Tr{``MLR requires $y$ to be normally distributed.''}
+      The Normality assumption is about the \emph{errors}, not about $y$ and not about
+      the features.
+\item \Tr{``Adding a feature that is a copy of another is harmless.''}
+      That is exact multicollinearity: $X^{\!\top}\!X$ becomes singular and the individual
+      weights are not identifiable, even though the fitted values may look fine.
+\item \Tr{``Least squares minimises the perpendicular distance to the line.''}
+      It minimises \emph{vertical} distance, $\sum(y_i-\hat y_i)^2$, only.
+\item \Tr{``$m=r\,s_y/s_x$ can be flipped to regress $x$ on $y$.''}
+      Regressing $x$ on $y$ gives a \emph{different} line (slope $r\,s_x/s_y$); the two
+      lines coincide only when $r=\pm1$. They always cross at the centroid.
+\end{enumerate}
+\end{trapbox}
+
+\bigskip
+
+\subsection{Interpolation --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+Throughout: $k$ data points $(x_0,y_0),\dots,(x_n,y_n)$ with $k=n+1$, so the
+interpolating polynomial has degree \emph{at most} $n$.
+
+\medskip
+\textbf{(I1) Uniqueness --- the single most useful fact.}
+Through $k=n+1$ distinct nodes there is \textbf{exactly one} polynomial of degree
+$\le n$. Therefore
+\[
+  P_n^{\text{Lagrange}}(x)\;\equiv\;P_n^{\text{Newton}}(x)
+  \qquad\text{for every } x .
+\]
+They are the \emph{same polynomial in two different spellings}. Expand either and the
+coefficients agree. So an MCQ asking ``do Lagrange and Newton give different values at
+$x=2.5$?'' answers itself: \textbf{no}.
+(Proof sketch: if $P$ and $Q$ both interpolate, $P-Q$ has degree $\le n$ but $n+1$ roots,
+so $P-Q\equiv0$.)
+
+\medskip
+\textbf{(I2) Lagrange basis identities (pure MCQ fodder).}
+\[
+  L_j(x)=\prod_{\substack{k=0\\k\neq j}}^{n}\frac{x-x_k}{x_j-x_k},
+  \qquad
+  P_n(x)=\sum_{j=0}^{n} y_j L_j(x).
+\]
+\begin{itemize}
+\item Number of basis polynomials $=k=n+1$ --- one per \emph{point}, not per interval.
+\item Each $L_j$ has degree exactly $n$: $n$ factors on top, a constant
+      $\prod_{k\ne j}(x_j-x_k)$ underneath.
+\item $L_j(x_i)=\delta_{ij}$: equal to $1$ at its own node, $0$ at every other node.
+\item \textbf{Partition of unity:} $\displaystyle\sum_{j=0}^{n}L_j(x)=1$ for \emph{all}
+      $x$. (Why: interpolating the constant function $y\equiv1$ must return $1$, and
+      uniqueness forces it.) Corollary: if every $y_j$ equals $c$, then $P_n\equiv c$.
+\item Same argument with $f(x)=x$: $\sum_j x_j L_j(x)=x$. Handy arithmetic check.
+\end{itemize}
+
+\medskip
+\textbf{(I3) Divided differences $\leftrightarrow$ derivatives}
+\emph{(extension beyond the deck, but it turns whole MCQs into one-liners).}
+For smooth $f$ there is a $\xi$ in the spanned interval with
+\[
+  f[x_0,x_1,\dots,x_n]=\frac{f^{(n)}(\xi)}{n!} .
+\]
+\textbf{Consequences to use directly:}
+\begin{itemize}
+\item If $f$ is a polynomial of degree exactly $n$ with leading coefficient $a_n$, then
+      $f^{(n)}\equiv n!\,a_n$, so
+      \[
+        f[x_0,\dots,x_n]=a_n \qquad\text{(CONSTANT, whatever the nodes).}
+      \]
+      The whole $n$-th divided-difference column is that same number.
+\item The $(n{+}1)$-th divided difference of a degree-$n$ polynomial is
+      \textbf{exactly $0$}, since $f^{(n+1)}\equiv0$. The next column is a row of zeros
+      and the Newton coefficient $a_{n+1}=0$: one more sample point adds \emph{nothing}.
+\item Read backwards: the \textbf{leading coefficient of the Newton interpolating
+      polynomial equals the top divided difference}, $a_n=f[x_0,\dots,x_n]$.
+\end{itemize}
+
+\medskip
+\textbf{(I4) Equally spaced nodes: divided $\to$ forward differences.}
+If $x_i=x_0+ih$ with constant spacing $h$, then
+\[
+  f[x_0,x_1,\dots,x_n]=\frac{\Delta^n f_0}{n!\,h^{n}},
+\]
+where $\Delta f_i=f_{i+1}-f_i$ and $\Delta^n$ is the $n$-th forward difference.
+Special case $n=1$: $f[x_0,x_1]=\Delta f_0/h$, the plain slope.
+Combined with (I3), for a degree-$n$ polynomial $\Delta^n f_0=n!\,h^{n}a_n$ is constant
+and $\Delta^{n+1}f_0=0$. Note the divided difference does \emph{not} depend on $h$, but
+$\Delta^n f_0$ does.
+
+\medskip
+\textbf{(I5) Interpolation error term} \emph{(extension: not on the slides, but it is the
+formal statement behind ``the fit is exact'' and behind Runge).} For $f\in C^{n+1}$ and
+any $x$ there is a $\xi$ in the interval spanned by $x,x_0,\dots,x_n$ with
+\[
+  f(x)-P_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}\prod_{i=0}^{n}(x-x_i).
+\]
+\begin{itemize}
+\item If $f$ is itself a polynomial of degree $\le n$, then $f^{(n+1)}\equiv0$ and the
+      error is \textbf{exactly zero everywhere}: $P_n\equiv f$. That is why 3 points from
+      $y=x^2$ reproduce $x^2$ and 4 points from $y=x^3$ reproduce $x^3$.
+\item The product $\prod(x-x_i)$ vanishes at every node --- the interpolant is exact
+      \emph{at} the data, as it must be.
+\item The product grows fast \emph{outside} the node range, so \textbf{extrapolation} is
+      far worse than interpolation.
+\end{itemize}
+
+\medskip
+\textbf{(I6) Cost and the recalculation-free property.}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & Build $P_n$ from scratch & Add one new point \\
+\midrule
+Lagrange & $O(n^2)$ & rebuild \emph{every} $L_j$: $O(n^2)$ again \\
+Newton   & $O(n^2)$ (the table) & one new bottom row $+$ one term: $O(n)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The old Newton coefficients $a_0,\dots,a_n$ are \emph{untouched} when
+$(x_{n+1},y_{n+1})$ arrives; only $a_{n+1}$ is new. Evaluating either form at one $x$ is
+$O(n)$ (Horner-style nesting for Newton).
+
+\medskip
+\textbf{(I7) Spline counting, fully general.} For \textbf{$k$ data points},
+\[
+  \boxed{\;n=k-1 \text{ intervals} = \text{number of spline pieces}\;}
+\]
+and there are $k-2$ \emph{interior} knots. Per piece: linear 2 unknowns, quadratic 3,
+cubic 4.
+\[
+  \text{Linear: } 2n=\underbrace{2n}_{\text{through pts}}
+  \quad\text{(no extra conditions needed)}
+\]
+\[
+  \text{Quadratic: } 3n=\underbrace{2n}_{\text{through pts}}
+  +\underbrace{(n-1)}_{P'\text{ match}}+\underbrace{1}_{P''=0 \text{ at one end}}
+\]
+\[
+  \text{Cubic: } 4n=\underbrace{2n}_{\text{through pts}}
+  +\underbrace{(n-1)}_{P'\text{ match}}+\underbrace{(n-1)}_{P''\text{ match}}
+  +\underbrace{2}_{\text{boundary}}
+\]
+``Through points'' is $2n$, \emph{not} $k$: each piece is pinned at both of its own ends,
+so every interior point is used twice --- once by the piece on its left, once by the piece
+on its right. Derivative conditions are counted at the $n-1$ interior knots.
+
+\medskip
+\textbf{(I8) Smoothness ladder --- what each order actually guarantees.}
+\begin{center}\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Spline & Continuous & $P'$ matches at knots & $P''$ matches at knots \\
+\midrule
+Linear    & yes & \textbf{no} (kinks / corners) & no \\
+Quadratic & yes & yes & no (curvature jumps) \\
+Cubic     & yes & yes & yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+A linear spline is continuous but \emph{not differentiable} at the knots. Higher order
+means smoother, but more unknowns, more computation and more chance of error.
+
+\medskip
+\textbf{(I9) Cubic-spline boundary choices --- the count is $4n$ either way.}
+\[
+  \text{Natural: } P_1''(x_{\text{first}})=0 \ \text{ AND }\
+  P_n''(x_{\text{last}})=0 \qquad (2\text{ equations})
+\]
+\[
+  \text{Clamped: } P_1'(x_{\text{first}})=f'_{\text{start}} \ \text{ AND }\
+  P_n'(x_{\text{last}})=f'_{\text{end}} \qquad (2\text{ equations})
+\]
+Natural means zero curvature (straight) at both ends; clamped needs \emph{extra data},
+the two end slopes, which must be given to you.
+For a \emph{quadratic} spline only \textbf{one} extra condition fits
+($3n$ versus $2n+(n-1)$), which is why the deck sets $P''=0$ at \emph{one} end only ---
+a quadratic spline is inherently lopsided.
+
+\medskip
+\textbf{(I10) Linear interpolation is the $n=1$ case of everything.}
+\[
+  y_m=y_2+\frac{y_3-y_2}{x_3-x_2}(x_m-x_2)
+     =y_2\frac{x_m-x_3}{x_2-x_3}+y_3\frac{x_m-x_2}{x_3-x_2},
+\]
+i.e.\ Lagrange with two nodes $=$ Newton with $a_0=y_2,\ a_1=f[x_2,x_3]$
+$=$ the linear-spline piece on $[x_2,x_3]$. All four names, one formula.
+Writing $t=\dfrac{x_m-x_2}{x_3-x_2}\in[0,1]$ gives the weighted-average face
+\[
+  y_m=(1-t)\,y_2+t\,y_3 ,
+\]
+so $y_m$ always lies \emph{between} $y_2$ and $y_3$ when you interpolate (and outside
+them when you extrapolate).
+
+\medskip
+\textbf{(I11) Runge's phenomenon, stated precisely enough to beat the traps.}
+For \emph{equally spaced} nodes on a fixed interval, raising the degree $n$ can make the
+global interpolant \emph{worse}: the oscillation is largest near the \textbf{edges} of the
+interval, while the middle keeps improving. Classic example
+$f(x)=\frac{1}{1+x^2}$ on $[-5,5]$, where the fit wiggles and even goes negative although
+$f>0$ everywhere. More points does \emph{not} mean more accuracy for one global
+polynomial. The course fix: drop the single global polynomial and use \emph{local},
+low-order pieces --- splines.
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Spline unknowns / equations for $k$ data points} ($n=k-1$ pieces):
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$k$ pts & $n$ pieces & Linear ($2n$) & Quadratic ($3n$) & Cubic ($4n$) \\
+\midrule
+$3$  & $2$  & $4$  & $6=4+1+1$   & $8=4+1+1+2$ \\
+$4$  & $3$  & $6$  & $9=6+2+1$   & $12=6+2+2+2$ \\
+$5$  & $4$  & $8$  & $12=8+3+1$  & $16=8+3+3+2$ \\
+$10$ & $9$  & $18$ & $27=18+8+1$ & $36=18+8+8+2$ \\
+$11$ & $10$ & $20$ & $30=20+9+1$ & $40=20+9+9+2$ \\
+\midrule
+$k$ & $k-1$ & $2(k-1)$ & $3(k-1)$ & $4(k-1)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+In terms of $k$ the cubic split reads
+$4(k-1)=2(k-1)+(k-2)+(k-2)+2$.
+
+\medskip\hrule\medskip
+\textbf{Divided-difference tables to know by heart.}
+
+$y=x^3$ at $x=1,2,3,4,5$ (so $h=1$ and the leading coefficient is $a_3=1$):
+\begin{center}\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+$x$ & $y$ & 1st & 2nd & 3rd & 4th \\
+\midrule
+1 & 1   & 7  & 6  & 1 & 0 \\
+2 & 8   & 19 & 9  & 1 &   \\
+3 & 27  & 37 & 12 &   &   \\
+4 & 64  & 61 &    &   &   \\
+5 & 125 &    &    &   &   \\
+\bottomrule
+\end{tabular}
+\end{center}
+The 3rd column is constant $=1=$ leading coefficient; the 4th column is exactly $0$.
+Newton form from the top diagonal:
+\[
+  P_3(x)=1+7(x-1)+6(x-1)(x-2)+1(x-1)(x-2)(x-3),
+\]
+and $P_3(2.5)=15.625=2.5^3$. $\checkmark$
+
+\medskip
+Forward-difference cross-check (I4) on the same data, $h=1$, $n=3$:
+$\Delta^3 f_0=6$ and $n!\,h^n=6$, so $f[x_0..x_3]=6/6=1$. $\checkmark$
+With $h=2$ ($y=x^3$ at $x=0,2,4,6$): $\Delta^3 f_0=48$ and $n!\,h^n=6\cdot8=48$,
+ratio $=1$ again.
+
+\medskip
+$f(x)=2x^2-3x+1$ at $x=0,1,2,3$ gives $y=1,0,3,10$; the 2nd column is constant $2=$
+leading coefficient and the 3rd column is $0$. Top diagonal $(1,-1,2,0)$.
+
+\medskip\hrule\medskip
+\textbf{Lagrange $=$ Newton, one worked check.}
+Points $(0,1),(1,3),(2,2),(4,5)$. Divided differences
+$a_0=1,\ a_1=2,\ a_2=-\tfrac32,\ a_3=\tfrac{7}{12}$:
+\[
+  P_3(x)=1+2x-\tfrac32 x(x-1)+\tfrac{7}{12}x(x-1)(x-2)
+\]
+\[
+  \phantom{P_3(x)}=\tfrac{7}{12}x^3-\tfrac{13}{4}x^2+\tfrac{14}{3}x+1 .
+\]
+Both forms give $P_3(3)=\tfrac32$ and $P_3(2.5)=\tfrac{47}{32}=1.46875$.
+Lagrange weights at $x=3$: $L_0=\tfrac14,\ L_1=-1,\ L_2=\tfrac32,\ L_3=\tfrac14$ ---
+they sum to $1$ $\checkmark$, and
+$\tfrac14(1)-1(3)+\tfrac32(2)+\tfrac14(5)=\tfrac32$ $\checkmark$.
+Note $L_1<0$: basis weights need \emph{not} be positive.
+
+\medskip\hrule\medskip
+\textbf{Error term, an exact demo.} $f(x)=x^4$ at nodes $0,1,2,3$ gives
+$P_3(x)=6x^3-11x^2+6x$. Here $f^{(4)}/4!=24/24=1$, so the error is exactly
+$\prod(x-x_i)$:
+\[
+  x=1.5:\; f=5.0625,\; P_3=4.5,\; \text{err}=0.5625=(1.5)(0.5)(-0.5)(-1.5)\ \checkmark
+\]
+\[
+  x=4 \text{ (extrapolation)}:\; f=256,\; P_3=232,\; \text{err}=24=(4)(3)(2)(1)\ \checkmark
+\]
+
+\medskip\hrule\medskip
+\textbf{Runge numbers} for $f(x)=\frac{1}{1+x^2}$ on $[-5,5]$, equally spaced nodes,
+degree $n$ (all computed):
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$n$ & $\max|f-P_n|$ & $P_n(4.8)$ vs $f=0.0416$ & $P_n(0.1)$ vs $f=0.99010$ \\
+\midrule
+$4$  & $0.44$ & $-0.126$   & $0.99829$ \\
+$8$  & $1.05$ & $-0.794$   & $0.99473$ \\
+$10$ & $1.92$ & $+1.804$   & $0.99328$ \\
+$16$ & $14.4$ & $-14.010$  & $0.99095$ \\
+$20$ & $59.8$ & $-50.864$  & $0.99042$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Read it twice: the \emph{edge} error explodes as $n$ grows while the \emph{centre}
+steadily improves. That contrast is Runge's phenomenon.
+\end{numbox}
+
+\begin{trapbox}
+\begin{enumerate}
+\item \Tr{``Lagrange and Newton give different answers.''}
+      They produce the \emph{identical} polynomial, hence identical values at every $x$
+      (I1). Only the arithmetic route and the update cost differ.
+\item \Tr{``$k$ points force a degree-$(k-1)$ polynomial.''}
+      \emph{At most} $k-1$. Collinear points collapse to a line; 4 points sampled from
+      $y=x^2$ give back $x^2$ (degree 2) and the 3rd divided difference is $0$.
+\item \Tr{``$k$ data points give $k$ splines.''}
+      $k$ points give $n=k-1$ pieces. This single off-by-one wrecks every counting MCQ:
+      10 points means 9 cubic pieces and 36 unknowns, not 40.
+\item \Tr{``A cubic spline through $k$ points needs $4k$ equations.''}
+      It needs $4n=4(k-1)$.
+\item \Tr{``The `through points' count is $k$.''}
+      It is $2n$: each piece is pinned at both of its own endpoints, so interior points
+      are used twice.
+\item \Tr{``Natural and clamped cubic splines need different numbers of equations.''}
+      Both supply exactly 2 boundary equations and the total is $4n$ either way. Only
+      \emph{which} two conditions differ.
+\item \Tr{``A linear spline is smooth because it is continuous.''}
+      Continuous is not smooth. Linear splines have corners: $P'$ jumps at every interior
+      knot.
+\item \Tr{``Quadratic splines match second derivatives too.''}
+      Only cubic splines do. Quadratic matches values and first derivatives, then needs
+      one $P''=0$ end condition to close the count.
+\item \Tr{``More interpolation points always means more accuracy.''}
+      False for one \emph{global} polynomial on equally spaced nodes --- Runge. The error
+      grows at the \emph{edges} as $n$ rises, even while the centre improves.
+\item \Tr{``Runge's oscillation is worst in the middle.''}
+      It is worst at the \emph{edges} of the equally spaced grid.
+\item \Tr{``One zero entry in the 2nd divided-difference column means the data is
+      linear.''}
+      You need the \emph{whole} column to vanish. Example: $f=2x^3-x+5$ at
+      $x=-1,0,1,2$ has $f[x_0,x_1,x_2]=0$ but $f[x_1,x_2,x_3]=6$, and the top divided
+      difference is $2$ --- a genuine cubic.
+\item \Tr{``The last Newton coefficient is $y_n$.''}
+      It is the \emph{top} divided difference $f[x_0,\dots,x_n]$, which also equals the
+      leading coefficient of the polynomial. Only $a_0=y_0$.
+\item \Tr{``Adding a point to a Lagrange fit is cheap, like Newton.''}
+      Every $L_j$ gains a factor and every denominator changes: a full $O(n^2)$ rebuild.
+      Newton appends one row and one term.
+\item \Tr{``Interpolation is just regression with more points.''}
+      Interpolation passes through \emph{every} point exactly (all residuals zero);
+      regression deliberately does not, so it can absorb noise. Forcing a high-degree
+      interpolant onto noisy data over-fits the noise.
+\item \Tr{``$\sum_j L_j(x)=1$, so each $L_j(x)$ lies in $[0,1]$.''}
+      They sum to 1, but individual weights can be negative or exceed 1 --- e.g.\
+      $L_1(3)=-1$ and $L_2(3)=1.5$ in the worked check above.
+\item \Tr{``Splines beat global polynomials because they are higher order.''}
+      The opposite: splines win by being \emph{lower} order and \emph{local}. Order is
+      capped at 3 no matter how many points arrive.
+\end{enumerate}
+\end{trapbox}

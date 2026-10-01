@@ -1,0 +1,143 @@
+\section{Eigenvalue Decomposition (Power Method)}
+
+\begin{defbox}
+A matrix is a machine that eats a vector and returns another vector (a linear transformation). An \textbf{eigenvector} $\mathbf v$ of $A$ is a nonzero vector whose \emph{direction} is unchanged by $A$ — only stretched/shrunk/flipped: $A\mathbf v=\lambda\mathbf v$. $\lambda>1$: stretches; $0<\lambda<1$: shrinks; $\lambda<0$: flips; $\lambda=0$: crushes to zero.
+\end{defbox}
+
+\textbf{Characteristic equation.} $A\mathbf v=\lambda\mathbf v \Rightarrow (A-\lambda I)\mathbf v=0$; for a nonzero $\mathbf v$, $\det(A-\lambda I)=0$.
+
+\begin{examplebox}
+\textbf{Worked example.} $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$: $\det\begin{bmatrix}2-\lambda&1\\1&2-\lambda\end{bmatrix}=(2-\lambda)^2-1=0 \Rightarrow \lambda^2-4\lambda+3=0\Rightarrow(\lambda-3)(\lambda-1)=0$. So $\lambda_1=3,\lambda_2=1$. Eigenvectors: $\lambda_1=3\Rightarrow \mathbf v_1=[1,1]^\top$; $\lambda_2=1\Rightarrow\mathbf v_2=[1,-1]^\top$. Check: $A\mathbf v_1=[3,3]^\top=3\mathbf v_1$ $\checkmark$; $A\mathbf v_2=[1,-1]^\top=1\mathbf v_2$ $\checkmark$.
+\end{examplebox}
+
+\subsection{Eigen Decomposition $A=V\Lambda V^{-1}$}
+
+\begin{examplebox}
+\textbf{Derivation.} Writing $A\mathbf v_i=\lambda_i\mathbf v_i$ for every eigenvector as one matrix equation: $AV=V\Lambda$ where $V=[\mathbf v_1\ \mathbf v_2\ \cdots]$, $\Lambda=\mathrm{diag}(\lambda_i)$. Right-multiplying by $V^{-1}$:
+\[
+A = V\Lambda V^{-1}. \qquad\blacksquare
+\]
+$\Lambda$ is diagonal because in eigen-coordinates each direction is scaled independently, with no mixing — exactly what a diagonal matrix does. Reading $Ax=V(\Lambda(V^{-1}x))$ right-to-left: $V^{-1}x$ rewrites $x$ in eigenvector language; $\Lambda(\cdot)$ scales each eigen-direction; $V(\cdot)$ translates back to standard coordinates.
+
+\textbf{Why this matters for powers:} $A^k=V\Lambda^kV^{-1}$ — the middle $V^{-1}V$ pairs telescope away, so $k$ matrix multiplications collapse into raising each diagonal entry of $\Lambda$ to the $k$-th power.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Numeric walk-through.} $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$, $\mathbf x=[3,1]^\top=2\mathbf v_1+\mathbf v_2$, $V=\begin{bmatrix}1&1\\1&-1\end{bmatrix}$, $V^{-1}=\begin{bmatrix}1/2&1/2\\1/2&-1/2\end{bmatrix}$, $\Lambda=\begin{bmatrix}3&0\\0&1\end{bmatrix}$.
+\[
+V^{-1}\mathbf x = [2,1]^\top \ \xrightarrow{\Lambda} \ [6,1]^\top \ \xrightarrow{V} \ 6[1,1]^\top+1[1,-1]^\top = [7,5]^\top
+\]
+Direct check: $A[3,1]^\top=[7,5]^\top$ $\checkmark$. Also $\Lambda^{100}=\mathrm{diag}(3^{100},1)$ — trivial via the diagonal, versus 100 explicit matrix multiplications.
+\end{examplebox}
+
+\subsection{The Power Method}
+
+\begin{defbox}
+Any vector is a mix of eigenvectors: $\mathbf x=c_1\mathbf v_1+\cdots+c_n\mathbf v_n$. Repeated multiplication by $A$ makes the term with the largest-magnitude eigenvalue grow fastest and eventually dominate — this finds the dominant eigenvalue \emph{without expanding determinants}.
+\end{defbox}
+
+\begin{examplebox}
+\textbf{Derivation.}
+\[
+A^k\mathbf x = c_1\lambda_1^k\mathbf v_1+\cdots+c_n\lambda_n^k\mathbf v_n = \lambda_1^k\left[c_1\mathbf v_1+\sum_{i\ge2}c_i\left(\frac{\lambda_i}{\lambda_1}\right)^k\mathbf v_i\right]
+\]
+If $|\lambda_1|>|\lambda_i|$ for all $i\ge2$, then $(\lambda_i/\lambda_1)^k\to0$ as $k\to\infty$, so $A^k\mathbf x \to \lambda_1^kc_1\mathbf v_1$. $\blacksquare$
+\end{examplebox}
+
+\textbf{Algorithm.} (1) Start with any nonzero $\mathbf x_0$. (2) $\mathbf y_{k+1}=A\mathbf x_k$. (3) Normalize: divide by the largest-magnitude entry to get $\mathbf x_{k+1}$; that entry is the eigenvalue estimate (once $\mathbf x_k\approx\mathbf v_1$ with largest entry 1, $A\mathbf x_k\approx\lambda_1\mathbf x_k$, so its largest entry $\approx\lambda_1$). (4) Repeat until convergence.
+
+\textbf{Requires} a strict dominance gap $|\lambda_1|>|\lambda_2|\ge\cdots$; convergence rate is governed by $|\lambda_2/\lambda_1|$ (closer to 1 $\Rightarrow$ slower).
+
+\begin{examplebox}
+\textbf{Worked example ($2\times2$).} $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$ ($\lambda_1=3,\mathbf v_1=[1,1]^\top$), $\mathbf x_0=[1,0]^\top$.
+\begin{center}\small
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Iter & $\mathbf x_k$ & $\lambda_k$ ($|\epsilon_a|\%$)\\
+\midrule
+1 & $[1,0.500]^\top$ & 2.000 (--)\\
+2 & $[1,0.800]^\top$ & 2.500 (20.0)\\
+3 & $[1,0.929]^\top$ & 2.800 (10.7)\\
+4 & $[1,0.976]^\top$ & 2.929 (4.40)\\
+$\infty$ & $[1,1]^\top$ & 3.000 (exact)\\
+\bottomrule
+\end{tabular}
+\end{center}
+The $\mathbf v_2$-component shrinks each iteration by $\lambda_2/\lambda_1=1/3$.
+\end{examplebox}
+
+\begin{keypoint}
+\textbf{Sign-flip pitfall.} In a $3\times3$ example, the normalizing factor changes sign between iterations 2--4 (e.g.\ $\lambda_3\approx-7.112$), inflating the reported $|\varepsilon_a|$ to 150\%+ even though the sequence is converging normally toward the true $\lambda_{\max}\approx6.070$ — a sign flip just distorts the simple relative-error formula; it does \emph{not} mean the method is failing.
+\end{keypoint}
+
+\subsection{Inverse Power Method (Smallest Eigenvalue)}
+
+\begin{examplebox}
+\textbf{Derivation.} $A\mathbf v=\lambda\mathbf v \Rightarrow \mathbf v = \lambda A^{-1}\mathbf v \Rightarrow A^{-1}\mathbf v = \tfrac1\lambda \mathbf v$ — so $1/\lambda$ is an eigenvalue of $A^{-1}$. This \emph{flips the ranking}: the smallest $|\lambda|$ of $A$ becomes the largest (dominant) eigenvalue of $A^{-1}$. Run the ordinary power method on $A^{-1}$ (practically: solve $A\mathbf y_{k+1}=\mathbf x_k$ via one LU factorization, reused every iteration) and take the reciprocal of the normalizing factor for $\lambda_{\min}$.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked example.} $A=\begin{bmatrix}8&2&0&0\\2&8&0&0\\0&0&3&1\\0&0&1&3\end{bmatrix}$, eigenvalues $10,6,4,2$; $\mathbf x_0=[1,0,1,0]^\top$. Iterating $A^{-1}\mathbf x_k$ and normalizing:
+\begin{center}\small
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Iter & Normalizing factor & $\lambda_{\min}\approx1/\text{factor}$\\
+\midrule
+1 & 0.37500 & 2.66667\\
+2 & 0.41667 & 2.40000\\
+4 & 0.47222 & 2.11765\\
+6 & 0.49242 & 2.03077\\
+\bottomrule
+\end{tabular}
+\end{center}
+Converges to $\lambda_{\min}=2$ (the dominant eigenvalue of $A^{-1}$ is $1/2=0.5$).
+\end{examplebox}
+
+\subsection{Deflation (Intermediate Eigenvalues)}
+
+\begin{defbox}
+The power method always finds the ``loudest'' eigenvalue. To find $\lambda_2$, mute $\lambda_1$'s contribution: form $A_2=A-\lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^\top$ (Hotelling's deflation), where $\hat{\mathbf v}_1=\mathbf v_1/\sqrt{\mathbf v_1^\top\mathbf v_1}$; then run the power method on $A_2$.
+\end{defbox}
+
+\begin{examplebox}
+\textbf{Worked example.} $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$, $\lambda_1=3,\hat{\mathbf v}_1=\tfrac1{\sqrt2}[1,1]^\top$.
+\[
+\lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^\top = 3\times\tfrac12\begin{bmatrix}1&1\\1&1\end{bmatrix}=\begin{bmatrix}1.5&1.5\\1.5&1.5\end{bmatrix} \Rightarrow A_2 = \begin{bmatrix}0.5&-0.5\\-0.5&0.5\end{bmatrix}
+\]
+Check: $A_2\mathbf v_1=[0,0]^\top$ ($\lambda_1$ muted to 0); $A_2\mathbf v_2=[1,-1]^\top=1\times\mathbf v_2$ (unchanged). $A_2$ has eigenvalues $\{0,1\}$ — power method on $A_2$ finds $\lambda_2=1$. Orthogonality $\hat{\mathbf v}_1^\top\hat{\mathbf v}_2=0$ is exactly why $\mathbf v_2$ is left untouched (requires $A$ symmetric).
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What is an eigenvector and eigenvalue, in one sentence? \\
+\textbf{A:} An eigenvector's direction is unchanged by $A$; $A$ only scales it by the eigenvalue $\lambda$: $A\mathbf v=\lambda\mathbf v$.
+
+\textbf{Q2:} Derive $A=V\Lambda V^{-1}$. \\
+\textbf{A:} Stack $A\mathbf v_i=\lambda_i\mathbf v_i$ for every eigenvector into $AV=V\Lambda$; right-multiply by $V^{-1}$ to get $A=V\Lambda V^{-1}$.
+
+\textbf{Q3:} Why is eigen decomposition useful for computing $A^k$? \\
+\textbf{A:} $A^k=V\Lambda^kV^{-1}$ — raising a diagonal matrix to a power is trivial (per-entry), avoiding $k$ explicit matrix multiplications.
+
+\textbf{Q4:} What is the key insight behind the power method? \\
+\textbf{A:} Any vector decomposes as $\mathbf x=\sum c_i\mathbf v_i$; under repeated multiplication by $A$, the dominant-eigenvalue term grows fastest and eventually swamps the rest, so $A^k\mathbf x$ aligns with $\mathbf v_1$.
+
+\textbf{Q5:} Why does the normalizing factor approximate $\lambda_1$? \\
+\textbf{A:} Once $\mathbf x_k\approx\mathbf v_1$ (normalized to largest entry 1), $A\mathbf x_k\approx\lambda_1\mathbf x_k$, so the largest entry of $A\mathbf x_k$ is $\approx\lambda_1$.
+
+\textbf{Q6:} What condition is required for the power method to converge? \\
+\textbf{A:} A strict dominance gap $|\lambda_1|>|\lambda_2|\ge\cdots\ge|\lambda_n|$; convergence rate depends on $|\lambda_2/\lambda_1|$.
+
+\textbf{Q7:} How do you find the smallest eigenvalue using the power method? \\
+\textbf{A:} Apply the power method to $A^{-1}$ (inverse power method) — eigenvalues of $A^{-1}$ are $1/\lambda$, flipping the ranking so $\lambda_{\min}$ of $A$ becomes dominant in $A^{-1}$; solve $A\mathbf y=\mathbf x$ via LU rather than forming $A^{-1}$ explicitly.
+
+\textbf{Q8:} How do you find an intermediate eigenvalue $\lambda_2$? \\
+\textbf{A:} Deflation: form $A_2=A-\lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^\top$ to mute $\lambda_1$ to zero while leaving other eigenpairs unchanged, then run the power method on $A_2$.
+
+\textbf{Q9:} Why does deflation leave $\mathbf v_2$ untouched? \\
+\textbf{A:} Because $\hat{\mathbf v}_1\perp\hat{\mathbf v}_2$ (true for symmetric matrices), so the projection of $\mathbf v_2$ onto $\hat{\mathbf v}_1$ is zero — nothing is subtracted from the $\mathbf v_2$ direction.
+
+\textbf{Q10:} What is a limitation of deflation? \\
+\textbf{A:} Each stage uses a numerically approximate eigenvector, so errors compound through successive deflated matrices — reliable for the first few eigenvalues, degrading for later ones.
+
+\textbf{Q11:} Why can the reported percentage error spike during power-method iterations even while it converges normally? \\
+\textbf{A:} If the normalizing factor changes sign between iterations, the relative-error formula $|\varepsilon_a|=|(\lambda_k-\lambda_{k-1})/\lambda_k|\times100\%$ spikes artificially — it does not mean the method is diverging.
+\end{qabox}

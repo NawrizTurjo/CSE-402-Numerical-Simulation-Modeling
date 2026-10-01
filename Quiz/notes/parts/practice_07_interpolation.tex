@@ -1,0 +1,189 @@
+\section{Interpolation}
+
+\begin{keypoint}
+Regression finds a best fit / explanation and need not pass through every point (tolerates noise/outliers). Interpolation instead builds a curve that passes through \emph{all} given points exactly. Degree rule: $(n+1)$ points $\Rightarrow$ \emph{at most} an $n$-th order polynomial (``at most'' because collinear points collapse to a lower-degree curve). Forcing too high an order through noisy data over-fits the noise.
+\end{keypoint}
+
+\subsection{Lagrange Interpolation}
+
+\begin{examplebox}
+\textbf{Proof.} Assume an $n$-th degree polynomial written as
+\[
+f(x) = A_0(x-x_1)(x-x_2)\cdots(x-x_n) + A_1(x-x_0)(x-x_2)\cdots(x-x_n) + \dots + A_n(x-x_0)\cdots(x-x_{n-1}). \tag{1}
+\]
+Put $x=x_0$: every term except the first has a factor $(x-x_0)$ and vanishes,
+\[
+f(x_0) = A_0(x_0-x_1)(x_0-x_2)\cdots(x_0-x_n),
+\]
+and since $f(x_0)=y_0$,
+\[
+A_0 = \frac{y_0}{(x_0-x_1)(x_0-x_2)\cdots(x_0-x_n)}.
+\]
+Putting $x=x_1,\dots,x_n$ similarly yields $A_1,\dots,A_n$. Substituting all $A_k$ back into (1) gives
+\[
+f(x) = \sum_{j=0}^n y_j \prod_{\substack{k=0\\k\neq j}}^n \frac{x-x_k}{x_j-x_k}. \qquad\blacksquare
+\]
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation.} Points $(1,1),(3,9),(4,16)$ (sampled from $y=x^2$). Estimate $f(2)$.
+\[
+L_0(2)=\frac{(2-3)(2-4)}{(1-3)(1-4)}=\frac{(-1)(-2)}{(-2)(-3)}=\frac{2}{6}=0.3333
+\]
+\[
+L_1(2)=\frac{(2-1)(2-4)}{(3-1)(3-4)}=\frac{(1)(-2)}{(2)(-1)}=\frac{-2}{-2}=1
+\]
+\[
+L_2(2)=\frac{(2-1)(2-3)}{(4-1)(4-3)}=\frac{(1)(-1)}{(3)(1)}=-0.3333
+\]
+\[
+f(2) = 1(0.3333)+9(1)+16(-0.3333) = 0.3333+9-5.3333 = 4
+\]
+Exact value $2^2=4$ — matches (three points exactly determine the underlying quadratic).
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} Given $(n+1)$ points, what is the interpolating polynomial's degree, and why ``at most''? \\
+\textbf{A:} Degree $=$ (\#points $-1$), i.e.\ at most $n$-th order; ``at most'' because if the points happen to be collinear the interpolant reduces to a lower-degree curve (e.g.\ a straight line).
+
+\textbf{Q2:} Why not just use a very high-order polynomial to fit data? \\
+\textbf{A:} It over-fits — chases noise and outliers, producing a wildly oscillating curve. Interpolation is for passing exactly through known points, not for modelling noisy data.
+\end{qabox}
+
+\subsection{Linear Interpolation}
+
+\begin{examplebox}
+\textbf{Derivation.} Line through bracketing points $(x_2,y_2),(x_3,y_3)$: $y_2=mx_2+b$, $y_3=mx_3+b \Rightarrow m=\dfrac{y_3-y_2}{x_3-x_2}$.
+
+For query point $(x_m,y_m)$ on the same line, $y_m-y_2 = m(x_m-x_2) \Rightarrow m = \dfrac{y_m-y_2}{x_m-x_2}$.
+
+Equating the two slope expressions:
+\[
+\frac{y_3-y_2}{x_3-x_2} = \frac{y_m-y_2}{x_m-x_2}. \qquad\blacksquare
+\]
+Rule: always use the two tabulated points that bracket the query $x$.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation.} Table $(x_2,y_2)=(10,100)$, $(x_3,y_3)=(20,400)$. Find $y$ at $x_m=13$.
+\[
+\frac{400-100}{20-10} = \frac{y_m-100}{13-10} \;\Longrightarrow\; 30 = \frac{y_m-100}{3} \;\Longrightarrow\; y_m-100=90 \;\Longrightarrow\; y_m=190.
+\]
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} How do you choose which two points to use for a query $x$? \\
+\textbf{A:} Always use the two tabulated points that surround (bracket) the query — e.g.\ for $x_m$ between $x_2,x_3$, use $(x_2,y_2),(x_3,y_3)$.
+\end{qabox}
+
+\subsection{Newton's Divided-Difference Interpolation}
+
+\begin{examplebox}
+\textbf{Derivation of the first two coefficients.} $P_0(x)=a_0$; at $x=x_0$: $P_0(x_0)=a_0=y_0$.
+
+$P_1(x)=a_0+a_1(x-x_0)$; at $x=x_1$: $y_1=y_0+a_1(x_1-x_0) \Rightarrow a_1=\dfrac{y_1-y_0}{x_1-x_0}=f[x_1,x_0]$.
+
+$P_2(x)=a_0+a_1(x-x_0)+a_2(x-x_0)(x-x_1)$; at $x=x_2$:
+\[
+y_2 = y_0+f[x_1,x_0](x_2-x_0)+a_2(x_2-x_0)(x_2-x_1).
+\]
+Rearranging, $\dfrac{y_2-y_0}{x_2-x_0} = f[x_1,x_0]+a_2(x_2-x_1)$, hence
+\[
+a_2 = \frac{f[x_2,x_0]-f[x_1,x_0]}{x_2-x_1} = \frac{f[x_2,x_1]-f[x_0,x_1]}{x_2-x_0} = f[x_2,x_1,x_0]. \qquad\blacksquare
+\]
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Proof of the recurrence relation (sketch).} Let $P_n(x)$ interpolate $x_0..x_n$ and $L_n(x)$ interpolate $x_1..x_{n+1}$ (both order $n$). Define
+\[
+P_{n+1}(x) = \frac{(x-x_0)L_n(x) + (x_{n+1}-x)P_n(x)}{x_{n+1}-x_0}.
+\]
+At $x=x_0$: first term vanishes, $P_{n+1}(x_0) = \dfrac{(x_{n+1}-x_0)P_n(x_0)}{x_{n+1}-x_0} = P_n(x_0)=y_0$.
+
+At $x=x_{n+1}$: second term vanishes, $P_{n+1}(x_{n+1})=L_n(x_{n+1})=y_{n+1}$.
+
+At an interior $x=x_k$: both $L_n(x_k)=P_n(x_k)=y_k$, so $P_{n+1}(x_k) = \dfrac{(x_k-x_0)y_k+(x_{n+1}-x_k)y_k}{x_{n+1}-x_0} = y_k$.
+
+Thus $P_{n+1}$ interpolates all $n+2$ points. Writing both $P_n,L_n$ in Newton form and equating the coefficient of the top power $x^{n+1}$ on each side gives
+\[
+f[x_0,\dots,x_{n+1}] = \frac{f[x_1,\dots,x_{n+1}]-f[x_0,\dots,x_n]}{x_{n+1}-x_0}. \qquad\blacksquare
+\]
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked simulation.} Points $(1,1),(2,8),(3,27),(4,64)$ (from $y=x^3$), $\Delta x=1$.
+
+1st divided differences: $f[x_0,x_1]=\dfrac{8-1}{2-1}=7$, $f[x_1,x_2]=\dfrac{27-8}{3-2}=19$, $f[x_2,x_3]=\dfrac{64-27}{4-3}=37$.
+
+2nd: $f[x_0,x_1,x_2]=\dfrac{19-7}{3-1}=6$, $f[x_1,x_2,x_3]=\dfrac{37-19}{4-2}=9$.
+
+3rd: $f[x_0,x_1,x_2,x_3]=\dfrac{9-6}{4-1}=1$.
+
+Top diagonal: $a_0=1,\ a_1=7,\ a_2=6,\ a_3=1$:
+\[
+P_3(x) = 1+7(x-1)+6(x-1)(x-2)+1(x-1)(x-2)(x-3).
+\]
+Check at $x=2.5$: $1+7(1.5)+6(1.5)(0.5)+1(1.5)(0.5)(-0.5) = 1+10.5+4.5-0.375=15.625 = 2.5^3$. $\checkmark$
+
+Adding a new point $(5,125)$ only appends one bottom row and one new coefficient $a_4$; $a_0..a_3$ untouched.
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} Why prefer Newton's divided-difference form over Lagrange? \\
+\textbf{A:} The recalculation-free property: adding a new point only appends one new term/row; the existing coefficients $a_0,a_1,\dots$ don't change. Lagrange forces you to rebuild every basis polynomial from scratch.
+
+\textbf{Q2:} What happens when the nodes are equally spaced? \\
+\textbf{A:} The divided differences simplify, and you can switch to the simpler forward/backward difference formulas.
+\end{qabox}
+
+\subsection{Spline Interpolation}
+
+\begin{defbox}
+\textbf{Global vs.\ local.} Newton and Lagrange are \emph{global}: all points feed one big polynomial, so $(n+1)$ points force an $n$-th order polynomial. Splines are \emph{local}: fit short, low-order pieces between consecutive points.
+\end{defbox}
+
+\textbf{Runge's Phenomenon.} As more data points are added, a single global polynomial's order rises, and high-order polynomials oscillate wildly — worst near the edges of equally-spaced nodes (classic example: interpolating $\frac{1}{1+x^2}$, the fit wiggles and can even go negative). Fix: use many small local pieces (splines) instead of one big curve.
+
+\textbf{Linear spline.} Connect consecutive points with straight lines. Weakness: no curvature — sharp corners at joints (not smooth).
+
+\begin{examplebox}
+\textbf{Quadratic spline — equation-count bookkeeping and worked example.} Each piece $P_i=a_ix^2+b_ix+c_i$: 3 unknowns/piece $\Rightarrow 3n$ unknowns for $n$ pieces.
+\[
+3n = \underbrace{2n}_{\text{through points}} + \underbrace{(n-1)}_{\text{smoothness: }P_i'\text{ match}} + \underbrace{1}_{\text{assumption } P_1''(x_1)=0}
+\]
+\emph{Worked example:} points $(0,0),(1,1),(2,4)$, $n=2$ splines: $P_1=a_1x^2+b_1x+c_1$ on $[0,1]$, $P_2=a_2x^2+b_2x+c_2$ on $[1,2]$ ($3n=6$ unknowns).
+
+(1) Through points: $P_1(0)=0\Rightarrow c_1=0$; $P_1(1)=1\Rightarrow a_1+b_1+c_1=1$; $P_2(1)=1\Rightarrow a_2+b_2+c_2=1$; $P_2(2)=4\Rightarrow 4a_2+2b_2+c_2=4$.
+
+(2) Smoothness at $x=1$: $P_1'(1)=P_2'(1) \Rightarrow 2a_1+b_1=2a_2+b_2$.
+
+(3) Assumption $P_1''(0)=0 \Rightarrow 2a_1=0 \Rightarrow a_1=0$.
+
+Solve: $a_1=0\Rightarrow b_1=1$ (from $a_1+b_1=1$), $c_1=0$, so $P_1(x)=x$.
+
+Smoothness: $2(0)+1 = 2a_2+b_2 \Rightarrow 2a_2+b_2=1$. Subtract $(a_2+b_2+c_2=1)$ from $(4a_2+2b_2+c_2=4)$: $3a_2+b_2=3$. With $2a_2+b_2=1$: $a_2=2$, $b_2=-3$, $c_2=1-a_2-b_2=1-2+3=2$.
+\[
+P_1(x)=x \text{ on } [0,1], \qquad P_2(x)=2x^2-3x+2 \text{ on } [1,2].
+\]
+Check: $P_2(2)=8-6+2=4$. $\checkmark$
+\end{examplebox}
+
+\textbf{Cubic spline (the important one).} Each piece $P_i=a_ix^3+b_ix^2+c_ix+d_i$: 4 unknowns/piece $\Rightarrow 4n$ unknowns.
+\[
+4n = \underbrace{2n}_{\text{through pts}} + \underbrace{(n-1)}_{P'\text{ match}} + \underbrace{(n-1)}_{P''\text{ match}} + \underbrace{2}_{\text{boundary}}
+\]
+Ensures continuity \emph{and} smoothness (matching curvature). Benefits: good function fit, reduces oscillation, smooth and continuous. \textbf{Natural cubic:} $P_1''(x_{first})=0$, $P_n''(x_{last})=0$ (zero curvature at ends). \textbf{Clamped cubic:} given end slopes $dy/dx$ instead.
+
+\begin{qabox}
+\textbf{Q1:} What is Runge's Phenomenon and why does it motivate splines? \\
+\textbf{A:} High-order global polynomial interpolants oscillate badly, especially near the edges of equally-spaced nodes, as more points are added. Splines avoid this by fitting many small, low-order local pieces instead of one large polynomial.
+
+\textbf{Q2:} What does ``smoothness'' mean at a spline joint? \\
+\textbf{A:} Both curves meeting at the joint share the same tangent (first derivative match); if the tangents differ, there is a visible kink.
+
+\textbf{Q3:} Contrast natural vs.\ clamped cubic-spline boundary conditions. \\
+\textbf{A:} Natural: second derivative (curvature) is zero at both end nodes. Clamped: the first-derivative (slope) values at the two end nodes are given instead. Either supplies the 2 extra equations needed to pin down all $4n$ unknowns.
+
+\textbf{Q4:} What is the trade-off in choosing spline order? \\
+\textbf{A:} Higher order gives more smoothness but costs more computation and carries more chance of error; linear is cheapest but has corner kinks, cubic is smooth/continuous but costlier.
+\end{qabox}

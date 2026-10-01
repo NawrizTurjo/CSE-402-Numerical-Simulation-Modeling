@@ -1,0 +1,133 @@
+% =====================================================================
+%  7. Convergence analysis
+% =====================================================================
+\section{How fast does it converge?}
+
+\begin{frame}{One inequality drives every proof}
+  \begin{thmbox}[Descent lemma (proved in full in Problem M2)]
+    If $\nabla f$ is $L$-Lipschitz: $\;f(\y)\le f(\x)+\nabla f(\x)\T(\y-\x)+\tfrac L2\norm{\y-\x}^2$.
+  \end{thmbox}
+  \small
+  \textbf{Proof idea.}
+  \pause
+  $f(\y)-f(\x)-\nabla f(\x)\T(\y-\x) = \int_0^1[\nabla f(\x+t(\y-\x))-\nabla f(\x)]\T(\y-\x)\,dt$,
+  \pause
+  and Cauchy--Schwarz with the Lipschitz bound turns this into $\le\int_0^1 Lt\norm{\y-\x}^2dt = \tfrac L2\norm{\y-\x}^2$. $\blacksquare$
+
+  \pause
+  \vspace{4pt}
+  \normalsize Plug in $\y = \x_k - \alpha\g_k$:
+  \[
+    f(\x_{k+1}) \le f(\x_k) - \alpha\Bigl(1 - \frac{\alpha L}2\Bigr)\norm{\g_k}^2
+    \;\overset{\alpha = 1/L}{=}\; f(\x_k) - \frac{1}{2L}\norm{\g_k}^2 .
+  \]
+  \small Each step buys a guaranteed drop of $\norm{\g_k}^2/(2L)$. Every rate that follows comes from linking
+  $\norm{\g_k}$ to how far we still are from the optimum.
+\end{frame}
+
+\begin{frame}{No convexity: we can only promise a small gradient}
+  \begin{thmbox}[Theorem ($L$-smooth, bounded below, $\alpha = 1/L$)]
+    \[
+      \min_{0\le k<K}\norm{\nabla f(\x_k)} \le \sqrt{\frac{2L\,(f(\x_0)-f^\star)}{K}} = O\!\bigl(1/\sqrt K\bigr).
+    \]
+  \end{thmbox}
+  \small\textbf{Proof.} Add up the per-step drops for $k = 0,\dots,K-1$. The total cannot exceed
+  $f(\x_0) - f(\x_K)\le f(\x_0)-f^\star$ (details in Problem M2). $\blacksquare$
+  \begin{itemize}\small
+    \item All we get is a point with a \emph{small gradient}. It could be a saddle or a poor local minimum.
+    \item Reaching $\norm{\nabla f}\le\varepsilon$ takes $O(L(f_0-f^\star)/\varepsilon^2)$ iterations, which is slow.
+          That is what you pay for assuming nothing.
+    \item Deep learning lives here. The faster rates on the next slides all need extra structure.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Convex functions: error $O(1/k)$}
+  \begin{thmbox}[Theorem ($L$-smooth, convex, $\alpha = 1/L$)]
+    \[ f(\x_k) - f^\star \le \frac{L\norm{\x_0-\x^\star}^2}{2k}. \]
+  \end{thmbox}
+  \small\textbf{Proof.}
+  \pause
+  Convexity gives $f(\x_k)\le f^\star + \g_k\T(\x_k-\x^\star)$. Combine that with the guaranteed drop:
+  \[
+    f(\x_{k+1}) - f^\star \le \g_k\T(\x_k-\x^\star) - \tfrac{1}{2L}\norm{\g_k}^2
+    = \tfrac L2\Bigl(\norm{\x_k-\x^\star}^2 - \norm{\x_{k+1}-\x^\star}^2\Bigr).
+  \]
+  \pause
+  (The equality is just $\norm{\x_k - \x^\star - \g_k/L}^2$ expanded.) Summing over $k = 0,\dots,K-1$, the right side
+  telescopes:
+  \[
+    \textstyle\sum_{k=1}^{K}\bigl(f(\x_k)-f^\star\bigr)\le\tfrac L2\norm{\x_0-\x^\star}^2 .
+  \]
+  \pause
+  The values $f(\x_k)$ never increase, so the left side is at least $K\bigl(f(\x_K)-f^\star\bigr)$. $\blacksquare$
+\end{frame}
+
+\begin{frame}{Strongly convex functions: the error shrinks geometrically}
+  \begin{thmbox}[Theorem ($L$-smooth, $\mu$-strongly convex, $\alpha = 1/L$)]
+    \[ \norm{\x_{k}-\x^\star}^2 \le \Bigl(1-\frac{\mu}{L}\Bigr)^{k}\norm{\x_0-\x^\star}^2 = \Bigl(1-\frac1\kappa\Bigr)^k\norm{\x_0-\x^\star}^2. \]
+  \end{thmbox}
+  \small\textbf{Proof.} Write $\e = \x_k-\x^\star$, $\Delta = f(\x_k)-f^\star$, and expand
+  $\norm{\x_{k+1}-\x^\star}^2 = \norm{\e}^2 - \tfrac2L\g_k\T\e + \tfrac1{L^2}\norm{\g_k}^2$. Two facts bound the middle and last terms:
+  \pause
+  \begin{itemize}\footnotesize
+    \item strong convexity at $\y=\x^\star$: $\;\g_k\T\e\ge\Delta+\tfrac\mu2\norm{\e}^2$;
+    \item the descent lemma at $\x_k-\g_k/L$: $\;f^\star\le f(\x_k)-\tfrac1{2L}\norm{\g_k}^2$, i.e. $\norm{\g_k}^2\le2L\Delta$.
+  \end{itemize}
+  \pause
+  \[
+    \norm{\x_{k+1}-\x^\star}^2\le\norm{\e}^2-\tfrac2L\Delta-\tfrac\mu L\norm{\e}^2+\tfrac2L\Delta
+    =\Bigl(1-\tfrac\mu L\Bigr)\norm{\e}^2. \quad\blacksquare
+  \]
+  \pause
+  \footnotesize With $\alpha = \frac{2}{\mu+L}$ the factor improves to $\norm{\e_{k+1}}\le\frac{\kappa-1}{\kappa+1}\norm{\e_k}$,
+  the same number the quadratic analysis gave in \S5~\cite{nesterov2018}.
+\end{frame}
+
+\begin{frame}{Linear rates without convexity: the Polyak--{\L}ojasiewicz condition}
+  \begin{thmbox}[PL inequality \normalfont\cite{karimi2016}]
+    $\tfrac12\norm{\nabla f(\x)}^2\ge\mu\,(f(\x)-f^\star)$ for all $\x$. Then GD with $\alpha = 1/L$ satisfies
+    \[ f(\x_k)-f^\star\le\Bigl(1-\frac\mu L\Bigr)^k\bigl(f(\x_0)-f^\star\bigr). \]
+  \end{thmbox}
+  \small\textbf{Proof (two lines).}
+  $f(\x_{k+1})-f^\star\le f(\x_k)-f^\star-\tfrac1{2L}\norm{\g_k}^2\le\bigl(1-\tfrac\mu L\bigr)(f(\x_k)-f^\star)$. $\blacksquare$
+  \begin{itemize}\small
+    \item PL does \emph{not} need convexity. $f(x) = x^2+3\sin^2x$ has $f''$ dipping to $-4$,
+          yet it satisfies PL (numerically $\mu\approx0.175$).
+    \item Strong convexity implies PL (from the \S6 sandwich), so PL is the more general route to a linear rate.
+    \item Least squares $\tfrac12\norm{\mathbf M\x-\vb}^2$ with a rank-deficient $\mathbf M$ is convex but not strongly convex.
+          It still satisfies PL, so GD still converges linearly in $f$~\cite{karimi2016}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Order of convergence, and the scorecard so far}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \small
+      A sequence $\{\e_k\}$ has \textbf{order $p$} if $\norm{\e_{k+1}}\approx r\norm{\e_k}^p$.
+      \begin{itemize}\footnotesize
+        \item GD has $p = 1$, \alert{linear} order, with $r\le\rho$. It gains the \emph{same} number of correct digits,
+              $-\log_{10}\rho$, every step.
+        \item In the plot, $\log e_{k+1}$ against $\log e_k$ is a line of slope 1. The dashed slope-2 line
+              (quadratic order, as in Newton-type methods) is there for comparison.
+      \end{itemize}
+      \vspace{2pt}
+      \footnotesize
+      \begin{tabular}{@{}l l l@{}}
+        \toprule
+        Setting & Guarantee ($\alpha = \frac1L$) & Iterations \\
+        \midrule
+        nonconvex & $\min\norm{\g}^2\le\frac{2L\Delta_0}{K}$ & $O(\varepsilon^{-2})$ \\
+        convex & $f-f^\star\le\frac{LR^2}{2k}$ & $O(\varepsilon^{-1})$ \\
+        strongly convex & $\norm{\e_k}^2\le(1-\frac1\kappa)^k R^2$ & $O(\kappa\log\frac1\varepsilon)$ \\
+        PL & $f-f^\star\le(1-\frac1\kappa)^k\Delta_0$ & $O(\kappa\log\frac1\varepsilon)$ \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_order}
+
+      \footnotesize\textcolor{mGrey}{$R = \norm{\x_0-\x^\star}$ and $\Delta_0 = f(\x_0)-f^\star$.}
+    \end{column}
+  \end{columns}
+\end{frame}

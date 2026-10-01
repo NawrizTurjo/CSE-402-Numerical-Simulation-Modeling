@@ -1,0 +1,159 @@
+\section{Introduction, Approximations \& Errors}
+
+\begin{defbox}
+Engineering problems become mathematical models; many models have no closed-form (pencil-and-paper) solution, so they are solved \emph{approximately} — that approximation process is numerical methods. Pipeline: physical problem $\to$ mathematical model $\to$ numerical method $\to$ approximate solution + error estimate.
+\end{defbox}
+
+\subsection{Error Definitions}
+
+\textbf{True error} (needs the exact value, rarely available):
+\[
+E_t = \text{True value} - \text{Approximate value}, \qquad \epsilon_t = \frac{E_t}{\text{True value}}
+\]
+\textbf{Approximate error} (computed from successive iterates — this is what's actually monitored):
+\[
+E_a = \text{Present approx.} - \text{Previous approx.}, \qquad \epsilon_a = \frac{E_a}{\text{Present approx.}}
+\]
+On the very first iteration there is no previous estimate, so $\epsilon_a$ is undefined.
+
+\textbf{Why relative error, not absolute?} Rescaling a problem by a constant factor changes the raw error's apparent size without changing real accuracy — only relative error meaningfully reflects accuracy.
+
+\textbf{Stopping an iteration:} either $|\epsilon_a|\le\epsilon_s$ (a chosen tolerance), or $|\epsilon_a|\le 0.5\times10^{2-m}\%$ (guarantees at least $m$ correct significant digits).
+
+\begin{examplebox}
+\textbf{Example — forward-difference derivative.} $f(x)=7e^{0.5x}$, forward difference with $h=0.3$ at $x=2$:
+\[
+f'(2)\approx\frac{7e^{0.5(2.3)}-7e^{0.5(2)}}{0.3} = \frac{22.107-19.028}{0.3}=10.265
+\]
+Exact: $f'(x)=3.5e^{0.5x}\Rightarrow f'(2)=3.5e^1=9.5140$.
+\[
+E_t = 9.5140-10.265=-0.75061, \qquad \epsilon_t = \frac{-0.75061}{9.5140}=-7.8895\%
+\]
+(If $f(x)=7\times10^{-6}e^{0.5x}$ instead, every value shrinks by $10^{-6}$ so $E_t$ looks $10^6\times$ smaller though the problem is identical — this is exactly why relative error is preferred.)
+
+With $h=0.15$: $f'(2)\approx9.8799 \Rightarrow E_a = 9.8799-10.265=-0.38474$, $\epsilon_a=\dfrac{-0.38474}{9.8799}=-3.8942\%$.
+\end{examplebox}
+
+\subsection{Significant Digits}
+
+\begin{defbox}
+Significant figures report how much you trust a number (``population $=1$ million'' has 1 s.f.; the exact count 1{,}079{,}587 has 7 s.f.). Decimal places $\ne$ significant figures: $0.00640$ has 5 decimal places but only 3 significant figures (6,4,0).
+\end{defbox}
+
+Normalized scientific notation pins one non-zero digit before the decimal: $|x|=m\times10^n$, $1\le m<10$, $n=\lfloor\log_{10}|x|\rfloor$. The $M$-th significant digit then sits at place $10^{\,n-M+1}$.
+
+\begin{examplebox}
+\textbf{Proof — equivalence of the relative-error and absolute-error criteria for ``correct to $M$ sig.\ digits''.}
+
+\emph{Claim:} $\left|\dfrac{x-\hat x}{x}\right|\le 0.5\times10^{2-M}\%$ $\Rightarrow$ $\hat x$ correct to at least $M$ sig.\ digits. Since ``\%'' means $\times10^{-2}$:
+\[
+0.5\times10^{2-M}\% = 0.5\times10^{2-M}\times10^{-2} = \tfrac12\times10^{-M}
+\]
+Target (absolute-error) form: $|x-\hat x|\le \tfrac12\times10^{\,n-M+1}$.
+
+Starting from $\left|\frac{x-\hat x}{x}\right|\le \tfrac12\times10^{-M}$ and $|x|=m\cdot10^n$:
+\[
+|x-\hat x| = \left|\frac{x-\hat x}{x}\right|\cdot m\,10^n \le \tfrac12\times10^{-M}\cdot m\,10^n = \frac{m}{2}\times10^{\,n-M}
+\]
+Since $m<10$:
+\[
+|x-\hat x| < \frac{10}{2}\times10^{\,n-M} = 5\times10^{\,n-M} = \tfrac12\times10^{\,n-M+1}
+\]
+which is exactly the target window — so $\hat x$ is correct to at least $M$ significant digits. $\blacksquare$
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Worked examples.}
+
+$3725.6 = 3.7256\times10^3$: leading digit sits at $10^3$; the 3rd sig.\ digit (``2'') sits at $10^{3-3+1}=10^1$.
+
+For $\pi=3.14159\ldots$ ($m=3.14159,n=0$), correct to $M=3$ figures means $|x-\hat x|\le\tfrac12\times10^{0-3+1}=0.005$. Rounding $\hat x=3.14$: $|\pi-3.14|=0.00159\le0.005$ $\Rightarrow$ \textbf{3.14 is correct to 3 sig.\ figures.}
+
+\textbf{Maclaurin series for $e^{0.7}$:} with 6 terms $e^{0.7}\approx2.0136$, with 5 terms $\approx2.0122$.
+\[
+|\epsilon_a| = \left|\frac{2.0136-2.0122}{2.0136}\right|\times100\%=0.069527\%
+\]
+For $m=2$: threshold $=0.5\times10^0\%=0.5\%$. Since $0.069527\%\le0.5\%$, \textbf{at least 2 sig.\ digits correct using 6 terms.}
+\end{examplebox}
+
+\subsection{Round-off and Truncation Error}
+
+\textbf{Round-off error:} finite-precision storage. On a machine keeping 6 digits, $\tfrac13\to0.333333$:
+\[
+\text{round-off} = \tfrac13-0.333333 = 3.3333\ldots\times10^{-7}
+\]
+\textbf{Truncation error:} cutting short an infinite/exact procedure — appears in (a) truncated series, (b) finite-difference derivatives, (c) numerical integration; refining the discretization always shrinks it.
+
+\begin{examplebox}
+\textbf{Truncation via a series — full table.} Compute $e^{1.2}=\sum \tfrac{1.2^k}{k!}$, stopping once $\ge2$ sig.\ digits trusted:
+\begin{center}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$n$ & $S_n$ & $E_a$ & $|\epsilon_a|\%$ & \#s.d.\\
+\midrule
+1&1.0000&--&--&--\\
+2&2.2000&1.2&54.546&0\\
+3&2.9200&0.72&24.658&0\\
+4&3.2080&0.288&8.9776&0\\
+5&3.2944&0.0864&2.6226&1\\
+6&3.3151&0.020736&0.62550&1\\
+7&3.3193&0.0041472&0.12494&2\\
+\bottomrule
+\end{tabular}
+\end{center}
+At $n=7$: $|\epsilon_a|=0.12494\%\le0.5\%$ $\Rightarrow$ \textbf{stop with $\ge2$ sig.\ digits.}
+
+\textbf{Truncation via a derivative.} $f(x)=x^2$, exact $f'(3)=6$. With $\Delta x=0.2$:
+\[
+f'(3)\approx\frac{3.2^2-3^2}{0.2}=\frac{10.24-9}{0.2}=6.2, \qquad \text{trunc.\ error} = 6-6.2=-0.2
+\]
+
+\textbf{Truncation via integration.} Exact: $\int_3^9 x^2\,dx = \left[\tfrac{x^3}{3}\right]_3^9=\tfrac{729-27}{3}=234$.
+\begin{itemize}
+\item 2 rectangles (width 3, heights 9, 36): $9(3)+36(3)=135$; error $=234-135=99$.
+\item 4 rectangles (width 1.5, heights 9,20.25,36,56.25): $1.5(9+20.25+36+56.25)=182.25$; error $=234-182.25=51.75$.
+\end{itemize}
+More rectangles $\Rightarrow$ smaller gap $\Rightarrow$ less error.
+\end{examplebox}
+
+\begin{examplebox}
+\textbf{Case study — the bascule-bridge trunnion (why models matter, not just arithmetic).} Trunnion OD $=12.363''$, hub ID $=12.358''$, required clearance $=0.01''$ $\Rightarrow$ required contraction $=0.015''$. Cooling bath at $-108^\circ$F, room $80^\circ$F $\Rightarrow \Delta T=-188^\circ$F.
+
+\emph{Wrong model} (constant $\alpha=6.47\times10^{-6}$, room-temp.\ value):
+\[
+\Delta D = (12.363)(6.47\times10^{-6})(-188) = -0.01504''
+\]
+$0.01504'' > 0.015''$ required $\Rightarrow$ looks fine on paper.
+
+\emph{Correct model} — $\alpha$ actually varies with $T$; fit $\alpha(T)=a_0+a_1T+a_2T^2$ to measured data and integrate:
+\[
+\Delta D = D\int_{T_{room}}^{T_{fluid}}\alpha(T)\,dT = -0.013689''
+\]
+$0.013689'' < 0.015''$ required $\Rightarrow$ the trunnion did \emph{not} shrink enough — it got stuck. \textbf{This was a modelling error, not a calculation error.}
+\end{examplebox}
+
+\begin{qabox}
+\textbf{Q1:} What is the difference between true error and approximate error? \\
+\textbf{A:} $E_t=\text{true}-\text{approx.}$ needs the exact answer (rarely known). $E_a=\text{present}-\text{previous}$ approximation uses only successive iterates — hence it is what's actually monitored in practice.
+
+\textbf{Q2:} Why is relative error preferred over absolute error? \\
+\textbf{A:} Absolute error magnitude is misleading — rescaling the same problem changes the raw error's apparent size without changing real accuracy. Relative error normalizes by the answer's size.
+
+\textbf{Q3:} State the two stopping rules for an iterative computation. \\
+\textbf{A:} (i) $|\epsilon_a|\le\epsilon_s$, a chosen tolerance; (ii) $|\epsilon_a|\le0.5\times10^{2-m}\%$, guaranteeing $\ge m$ correct significant digits.
+
+\textbf{Q4:} What does ``correct to $M$ significant digits'' mean precisely? \\
+\textbf{A:} $|x-\hat x|\le\tfrac12\times10^{\,n-M+1}$ where $n=\lfloor\log_{10}|x|\rfloor$ — the error is at most half a unit in the place of the $M$-th significant digit; equivalent to the relative-error bound $0.5\times10^{2-M}\%$.
+
+\textbf{Q5:} What two error types are inherent to numerical methods even with a perfect model and program? \\
+\textbf{A:} Round-off error (finite-precision storage) and truncation error (cutting short an infinite/exact mathematical procedure).
+
+\textbf{Q6:} Why did the trunnion example fail even though the arithmetic was correct? \\
+\textbf{A:} The thermal-expansion coefficient $\alpha$ actually varies with temperature; using a single room-temperature value overestimated the contraction. Integrating the true $\alpha(T)$ gives a smaller contraction than required — a modelling error, not a computational one.
+
+\textbf{Q7:} Why does truncation error in rectangle-based integration shrink with more rectangles? \\
+\textbf{A:} More, narrower rectangles trace the curve more closely, shrinking the gap between the curve and the rectangle tops (e.g.\ $\int_3^9x^2dx=234$: error $99$ with 2 rectangles vs.\ $51.75$ with 4).
+
+\textbf{Q8:} What three steps does the course prescribe for handling unavoidable error? \\
+\textbf{A:} (1) Identify the source; (2) quantify it with computable error measures; (3) minimise it to the accuracy actually needed.
+\end{qabox}

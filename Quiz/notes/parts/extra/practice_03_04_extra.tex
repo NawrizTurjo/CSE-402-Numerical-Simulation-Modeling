@@ -1,0 +1,228 @@
+\subsection{Systems of Equations --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q1.} In naive Gauss elimination on a $5\times5$ system, how many multipliers $m_{ik}$ are computed in total?\\
+(a) 5 \quad (b) 10 \quad (c) 20 \quad (d) 25\\
+\textbf{Ans: (b)} --- $n(n-1)/2 = 5\cdot4/2 = 10$. (Equivalently: the count of strictly-lower entries of $L$.)
+
+\textbf{Q2.} After forward elimination with \textbf{three} row swaps, the diagonal of $U$ multiplies to $60$. Then $\det A$ is\\
+(a) $60$ \quad (b) $-60$ \quad (c) $180$ \quad (d) $20$\\
+\textbf{Ans: (b)} --- $(-1)^3(60) = -60$. An odd swap count flips the sign.
+
+\textbf{Q3.} For a single right-hand side, the clock-cycle cost of LU decomposition compared with Gauss elimination is\\
+(a) half \quad (b) exactly equal \quad (c) twice \quad (d) $n/4$ times smaller\\
+\textbf{Ans: (b)} --- both equal $\left(\frac83n^3+12n^2+\frac43n\right)T$. LU's advantage appears only with multiple right-hand sides.
+
+\textbf{Q4.} Computing $A^{-1}$ for large $n$, Gauss elimination costs roughly how many times more than LU?\\
+(a) $4/n$ \quad (b) $n/4$ \quad (c) $n^2$ \quad (d) the same\\
+\textbf{Ans: (b)} --- $\dfrac{\frac83n^4}{\frac{32}{3}n^3} = \dfrac{n}{4}$; at $n = 10^4$ the measured ratio is $2501$.
+
+\textbf{Q5.} Forward substitution is cheaper than back substitution mainly because\\
+(a) it has fewer rows \quad (b) $L$ has unit diagonal, so it needs \textbf{no divisions}\\
+(c) it runs top to bottom \quad (d) $L$ is sparser\\
+\textbf{Ans: (b)} --- and in the course's cost model a division costs $16$ cycles against $4$ for a multiply.
+
+\textbf{Q6.} Partial pivoting selects the pivot by scanning\\
+(a) the whole remaining submatrix \quad (b) the current column, rows $k$ to $n$\\
+(c) the current row \quad (d) the diagonal only\\
+\textbf{Ans: (b)} --- scanning the whole submatrix would be \emph{complete} pivoting.
+
+\textbf{Q7.} Naive Gauss elimination on the round-off benchmark produced a $50\%$ error at 5 significant digits. The cure was\\
+(a) more significant digits \quad (b) a single row swap \quad (c) scaling the RHS \quad (d) switching to Gauss--Jordan\\
+\textbf{Ans: (b)} --- pivoting replaced the multiplier $-2750$ with $-0.00036$ and returned the exact answer at the \emph{same} 5 digits.
+
+\textbf{Q8.} Which statement is \textbf{FALSE}?\\
+(a) $\det L = 1$ for the unit-lower-triangular $L$ of an LU factorization\\
+(b) Gauss--Jordan requires no back substitution\\
+(c) Gauss--Jordan performs less arithmetic than Gauss elimination\\
+(d) A zero pivot can appear after an elimination step even if none existed initially\\
+\textbf{Ans: (c)} --- Gauss--Jordan does \emph{more} work ($\sim n^3$ vs $\sim\frac23n^3$); eliminating above the pivot as well is not free.
+
+\textbf{Q9.} Increasing the working precision from 5 to 6 significant digits will fix\\
+(a) a structurally zero pivot \quad (b) round-off amplification only \quad (c) both \quad (d) neither\\
+\textbf{Ans: (b)} --- only a row swap fixes a zero pivot; division by zero is not a precision issue.
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P1.} Solve by Gauss elimination \textbf{with partial pivoting}, showing every swap and multiplier, and report $\det A$ from the elimination:
+\[
+\begin{bmatrix}1&3&2\\4&1&-1\\2&-2&5\end{bmatrix}
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}=
+\begin{bmatrix}13\\3\\13\end{bmatrix}
+\]
+
+\ans \emph{Column 1:} candidates $|1|, |4|, |2|$ --- pivot is $4$, so \textbf{swap $R_1\leftrightarrow R_2$}:
+\[
+\begin{bmatrix}4&1&-1&3\\1&3&2&13\\2&-2&5&13\end{bmatrix}
+\]
+Multipliers $m_{21} = 1/4 = 0.25$, $m_{31} = 2/4 = 0.5$:
+\[
+\begin{bmatrix}4&1&-1&3\\0&2.75&2.25&12.25\\0&-2.5&5.5&11.5\end{bmatrix}
+\]
+\emph{Column 2:} candidates $|2.75|, |-2.5|$ --- $2.75$ already the largest, \textbf{no swap}. $m_{32} = -2.5/2.75 = -0.909091$:
+\[
+\begin{bmatrix}4&1&-1&3\\0&2.75&2.25&12.25\\0&0&7.545455&22.636364\end{bmatrix}
+\]
+\emph{Back substitution:}
+\[
+x_3 = \frac{22.636364}{7.545455} = 3, \qquad
+x_2 = \frac{12.25-2.25(3)}{2.75} = \frac{5.5}{2.75} = 2, \qquad
+x_1 = \frac{3-1(2)+1(3)}{4} = \frac{4}{4} = 1
+\]
+\[
+(x_1,x_2,x_3) = (\mathbf{1},\ \mathbf{2},\ \mathbf{3})
+\]
+\emph{Determinant:} one swap (odd), so
+\[
+\det A = (-1)^1\,(4)(2.75)(7.545455) = -83 .
+\]
+
+\PQ{P2.} For $A = \begin{bmatrix}4&3\\6&3\end{bmatrix}$, find $L$ and $U$, then solve for the \emph{two} right-hand sides $C_1 = (10,12)^\top$ and $C_2 = (7,9)^\top$. Comment on what was reused.
+
+\ans $m_{21} = 6/4 = 1.5$, and $3 - 1.5(3) = -1.5$, so
+\[
+L = \begin{bmatrix}1&0\\1.5&1\end{bmatrix},\qquad
+U = \begin{bmatrix}4&3\\0&-1.5\end{bmatrix}
+\qquad (LU = A\ \checkmark)
+\]
+\emph{RHS 1:} forward $z_1 = 10$, $z_2 = 12-1.5(10) = -3$. Back: $x_2 = -3/-1.5 = 2$, $x_1 = (10-3(2))/4 = 1$. So $X_1 = (1,2)^\top$.
+
+\emph{RHS 2:} forward $z_1 = 7$, $z_2 = 9-1.5(7) = -1.5$. Back: $x_2 = -1.5/-1.5 = 1$, $x_1 = (7-3(1))/4 = 1$. So $X_2 = (1,1)^\top$.
+
+\textbf{What was reused:} the entire factorization. $L$ and $U$ never depend on the right-hand side, so the second solve costs only one forward and one back substitution ($O(n^2)$) instead of a fresh $O(n^3)$ elimination. That is the whole argument for LU.
+
+\PQ{P3.} Using the course's clock-cycle model, compare LU and Gauss elimination for $n=5$ with (i) one right-hand side and (ii) five right-hand sides.
+
+\ans Building blocks at $n=5$:
+\[
+C_T|_{DE} = \tfrac83(125)+4(25)-\tfrac{20}{3}(5) = 400T, \qquad C_T|_{FS} = 4(25)-4(5) = 80T
+\]
+\[
+C_T|_{BS} = 4(25)+12(5) = 160T, \qquad C_T|_{FE} = \tfrac83(125)+8(25)-\tfrac{32}{3}(5) = 480T
+\]
+\emph{(i) One RHS:}
+\[
+C_T|_{LU} = 400+80+160 = \mathbf{640T}, \qquad C_T|_{GE} = 480+160 = \mathbf{640T}
+\]
+Identical, exactly as the theory says.
+
+\emph{(ii) Five RHS:}
+\[
+C_T|_{LU} = 400 + 5(80+160) = 400+1200 = \mathbf{1600T}
+\]
+\[
+C_T|_{GE} = 5(480+160) = \mathbf{3200T}
+\]
+LU is exactly \textbf{twice} as fast here. The asymptotic estimate $n/4 = 1.25$ understates it because $n=5$ is far from the large-$n$ regime.
+\end{probbox}
+
+\subsection{Eigenvalues --- MCQs, Problems \& Traps}
+
+\begin{mcqbox}
+\textbf{Q10.} A $2\times2$ matrix has $\operatorname{tr}A = 9$ and $\det A = 14$. Its eigenvalues are\\
+(a) $2, 7$ \quad (b) $3, 6$ \quad (c) $1, 14$ \quad (d) $4, 5$\\
+\textbf{Ans: (a)} --- $\lambda^2-9\lambda+14 = 0 \Rightarrow (\lambda-7)(\lambda-2)$.
+
+\textbf{Q11.} If $\lambda = 3$ is an eigenvalue of $A$, an eigenvalue of $A^2 + 2A - I$ is\\
+(a) $9$ \quad (b) $14$ \quad (c) $8$ \quad (d) $5$\\
+\textbf{Ans: (b)} --- for any polynomial, $p(\lambda) = 9+6-1 = 14$.
+
+\textbf{Q12.} If $A$ has eigenvalue $\lambda$ with eigenvector $\mathbf v$, then $A + 5I$ has\\
+(a) eigenvalue $5\lambda$, eigenvector $\mathbf v$ \quad (b) eigenvalue $\lambda+5$, eigenvector $\mathbf v$\\
+(c) eigenvalue $\lambda+5$, eigenvector $\mathbf v+5$ \quad (d) eigenvalue $\lambda$, eigenvector $5\mathbf v$\\
+\textbf{Ans: (b)} --- shifting moves every eigenvalue and leaves every eigenvector alone.
+
+\textbf{Q13.} A matrix has eigenvalues $-7$ and $5$. The power method converges to\\
+(a) $5$ \quad (b) $-7$ \quad (c) $7$ \quad (d) it fails\\
+\textbf{Ans: (b)} --- it finds the largest \emph{magnitude}, sign included.
+
+\textbf{Q14.} The power method is applied to a matrix with eigenvalues $8$ and $-8$. It will\\
+(a) converge to $8$ \quad (b) converge to $-8$ \quad (c) fail to settle on one direction \quad (d) converge to $0$\\
+\textbf{Ans: (c)} --- $|\lambda_2/\lambda_1| = 1$, so nothing decays; the iterate oscillates.
+
+\textbf{Q15.} For eigenvalues $10$ and $4$, roughly how many power-method iterations buy one extra decimal digit?\\
+(a) $1.0$ \quad (b) $2.5$ \quad (c) $5.0$ \quad (d) $10$\\
+\textbf{Ans: (b)} --- $1/\log_{10}(10/4) = 1/0.39794 = 2.51$.
+
+\textbf{Q16.} The inverse power method applied to $A$ converges to a normalizing factor $0.25$. Then $\lambda_{\min}(A)$ is\\
+(a) $0.25$ \quad (b) $4$ \quad (c) $-4$ \quad (d) $0.5$\\
+\textbf{Ans: (b)} --- the method returns $1/\lambda_{\min}$, so invert: $\lambda_{\min} = 4$.
+
+\textbf{Q17.} Hotelling deflation $A_2 = A-\lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^\top$ leaves $\mathbf v_2$ untouched because\\
+(a) $\lambda_2$ is small \quad (b) $\hat{\mathbf v}_1$ and $\hat{\mathbf v}_2$ are orthogonal (symmetric $A$)\\
+(c) $A_2$ is diagonal \quad (d) $\hat{\mathbf v}_1$ is a unit vector\\
+\textbf{Ans: (b)} --- the projection $\hat{\mathbf v}_1(\hat{\mathbf v}_1^\top\mathbf v_2)$ vanishes.
+
+\textbf{Q18.} In the $3\times3$ power-method example the reported $|\epsilon_a|$ jumped to $214\%$ at iteration 4. This indicates\\
+(a) divergence \quad (b) a coding error \quad (c) a sign change in the normalizing factor \quad (d) $|\lambda_1| = |\lambda_2|$\\
+\textbf{Ans: (c)} --- the sequence was converging normally toward $6.07048$; the sign flip merely distorts the relative-error formula.
+
+\textbf{Q19.} Which statement is \textbf{FALSE}?\\
+(a) $\operatorname{tr}A = \sum\lambda_i$ \quad (b) $\det A = \prod\lambda_i$\\
+(c) $\det(A+cI) = \det A + c$ \quad (d) $A$ and $A^\top$ have the same eigenvalues\\
+\textbf{Ans: (c)} --- you must shift each eigenvalue and re-multiply: $\det(A+cI) = \prod(\lambda_i+c)$.
+\end{mcqbox}
+
+\begin{probbox}
+\PQ{P4.} For $A = \begin{bmatrix}6&2\\2&3\end{bmatrix}$: (i) find both eigenvalues using only trace and determinant; (ii) run 4 power-method iterations from $\mathbf x_0 = [1,0]^\top$, reporting $|\epsilon_a|$; (iii) state the theoretical convergence ratio and check it against the observed error decay.
+
+\ans \emph{(i)} $\operatorname{tr}A = 9$, $\det A = 6(3)-2(2) = 14$, so
+\[
+\lambda^2 - 9\lambda + 14 = 0 \;\Longrightarrow\; \lambda = 7,\ 2 .
+\]
+No characteristic-polynomial expansion needed.
+
+\emph{(ii)} Normalizing by the largest-magnitude entry each step:
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Iter & $A\mathbf x_k$ & $\lambda$ estimate & $\mathbf x_{k+1}$ & $|\epsilon_a|\%$\\
+\midrule
+1 & $[6,\ 2]^\top$ & $6.000000$ & $[1,\ 0.333333]^\top$ & ---\\
+2 & $[6.666667,\ 3]^\top$ & $6.666667$ & $[1,\ 0.45]^\top$ & 10.0000\\
+3 & $[6.9,\ 3.35]^\top$ & $6.900000$ & $[1,\ 0.485507]^\top$ & 3.3816\\
+4 & $[6.971014,\ 3.456522]^\top$ & $6.971014$ & $[1,\ 0.495842]^\top$ & 1.0187\\
+\bottomrule
+\end{tabular}
+\end{center}
+Converging to $\lambda_1 = 7$, with the eigenvector tending to $[1, 0.5]^\top$.
+
+\emph{(iii)} Ratio $=|\lambda_2/\lambda_1| = 2/7 = 0.2857$. Check the actual errors: $7-6 = 1$, $7-6.666667 = 0.333333$, $7-6.9 = 0.1$, $7-6.971014 = 0.028986$. Successive ratios: $0.3333, 0.30, 0.2899$ --- converging neatly onto the predicted $0.2857$. $\checkmark$
+
+\PQ{P5.} Continue P4: deflate $A$ to find the second eigenvalue.
+
+\ans The dominant eigenvector is $\mathbf v_1 = [2,1]^\top$ (equivalently $[1,0.5]^\top$). Normalize:
+\[
+\hat{\mathbf v}_1 = \frac{1}{\sqrt5}\begin{bmatrix}2\\1\end{bmatrix} = \begin{bmatrix}0.894427\\0.447214\end{bmatrix},
+\qquad
+\hat{\mathbf v}_1\hat{\mathbf v}_1^\top = \frac15\begin{bmatrix}4&2\\2&1\end{bmatrix}
+\]
+\[
+A_2 = A - 7\cdot\frac15\begin{bmatrix}4&2\\2&1\end{bmatrix}
+= \begin{bmatrix}6&2\\2&3\end{bmatrix} - \begin{bmatrix}5.6&2.8\\2.8&1.4\end{bmatrix}
+= \begin{bmatrix}0.4&-0.8\\-0.8&1.6\end{bmatrix}
+\]
+Check via trace/determinant: $\operatorname{tr}A_2 = 2.0$, $\det A_2 = 0.4(1.6)-(-0.8)^2 = 0.64-0.64 = 0$. So the eigenvalues satisfy $\lambda^2-2\lambda = 0$, giving $\{\mathbf{0},\ \mathbf{2}\}$ --- $\lambda_1 = 7$ has been muted to zero and $\lambda_2 = 2$ survives untouched, exactly as intended. Running the power method on $A_2$ now returns $2$.
+
+\PQ{P6.} $A$ is a $4\times4$ matrix with eigenvalues $10, 6, 4, 2$. (i) What does the power method return? (ii) What does the inverse power method return, and what normalizing factor does it converge to? (iii) If you wanted the eigenvalue nearest to $5$, what would you do?
+
+\ans \emph{(i)} The power method returns the dominant eigenvalue $\lambda_1 = \mathbf{10}$.
+
+\emph{(ii)} $A^{-1}$ has eigenvalues $1/10 = 0.1$, $1/6 = 0.1667$, $1/4 = 0.25$, $1/2 = 0.5$. The dominant one is $0.5$, so the normalizing factor converges to $\mathbf{0.5}$ and $\lambda_{\min} = 1/0.5 = \mathbf{2}$. Note the ranking is fully reversed: what was largest in $A$ is smallest in $A^{-1}$.
+
+\emph{(iii)} Use a \textbf{shift}. $A - 5I$ has eigenvalues $5, 1, -1, -3$. The one nearest $5$ in the original problem ($\lambda = 6$) has become the smallest in magnitude ($1$), so apply the \emph{inverse} power method to $A-5I$: it converges to $1/1 = 1$, and adding the shift back gives $\lambda = 1+5 = \mathbf{6}$. (Applying the plain power method to $A-5I$ would instead find the eigenvalue \emph{farthest} from 5, namely $\lambda-5 = 5$, i.e.\ $\lambda = 10$.)
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{``Largest eigenvalue'' means largest \emph{magnitude}.} With $-7$ and $5$ the power method returns $-7$, not $5$.
+\item \textbf{$\det(A+cI) \ne \det A + c$} and $\operatorname{tr}(AB) \ne \operatorname{tr}A\operatorname{tr}B$. Only the eigenvalue \emph{map} is simple.
+\item \textbf{Shifting and powering never change eigenvectors.} Any option modifying $\mathbf v$ under $A+cI$, $A^k$, or $cA$ is wrong.
+\item \textbf{Inverse power returns the reciprocal.} Forgetting the final inversion turns $\lambda_{\min}=4$ into the answer $0.25$ --- which will be one of the distractors.
+\item \textbf{A spiking $|\epsilon_a|$ may be a sign flip,} not divergence.
+\item \textbf{The normalizing factor is $\lambda$;} the normalized vector's largest entry is always $1$ and carries no information.
+\item \textbf{Deflation assumes symmetry.} Without orthogonal eigenvectors the subtraction contaminates the other eigenpairs.
+\item \textbf{A ``bad'' start vector ($c_1=0$) is not a failure of the matrix.} The method finds $\lambda_2$ instead --- in exact arithmetic it can never recover.
+\item \textbf{Even $\det L = 1$ has a trap:} it means $\det A = \det U$, so do \emph{not} also multiply by the product of the multipliers.
+\end{itemize}
+\end{trapbox}

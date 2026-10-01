@@ -1,0 +1,244 @@
+\subsection{Simulation \& Modeling --- MCQs}
+
+\begin{mcqbox}
+\textbf{Q1.} A queue holds 0 customers for 45 minutes and 6 customers for 15 minutes. The time-average queue length is\\
+(a) $3$ \quad (b) $1.5$ \quad (c) $6$ \quad (d) $0.75$\\
+\textbf{Ans: (b)} --- $(0\times45 + 6\times15)/60 = 1.5$. Averaging the two \emph{values} to get 3 ignores how long each lasted.
+
+\textbf{Q2.} Customers arrive at a rate of $12$/hour and a single server handles $15$/hour. The utilization is\\
+(a) $1.25$ \quad (b) $0.8$ \quad (c) $0.2$ \quad (d) $180$\\
+\textbf{Ans: (b)} --- $\rho = \lambda/\mu = 12/15 = 0.8$, comfortably inside the healthy $70$--$85\%$ band.
+
+\textbf{Q3.} If $\lambda > \mu$ in a single-server queue, then as time grows\\
+(a) $\hat u$ exceeds 1 \quad (b) the queue length grows without bound \quad (c) the system reaches steady state \quad (d) the delay approaches zero\\
+\textbf{Ans: (b)} --- utilization saturates at 1 (it is a fraction of time); it is $Q(t)$ that explodes.
+
+\textbf{Q4.} In a discrete-event simulation, state variables change\\
+(a) continuously \quad (b) at fixed time steps \quad (c) only at events \quad (d) at every clock tick\\
+\textbf{Ans: (c)}
+
+\textbf{Q5.} Which of these is a \emph{continuous-time} (time-weighted) statistic?\\
+(a) $\hat d(n)$, the average delay \quad (b) $\hat q(n)$, the time-average queue length\\
+(c) the number of customers served \quad (d) the total delay\\
+\textbf{Ans: (b)} --- $\hat q$ and $\hat u$ are areas over time; $\hat d$ is a plain mean over customers.
+
+\textbf{Q6.} The area accumulator at an event must use\\
+(a) the new state value \quad (b) the old state value \quad (c) the average of the two \quad (d) either, it does not matter\\
+\textbf{Ans: (b)} --- the old value is what actually held during the interval just elapsed. Getting this wrong is named in the notes as the most common simulation bug.
+
+\textbf{Q7.} When the queue empties and the server goes idle, the next departure time is set to $\infty$ in order to\\
+(a) end the simulation \quad (b) prevent a ``phantom departure'' being scheduled for a non-existent customer\\
+(c) save memory \quad (d) force the clock to advance by one unit\\
+\textbf{Ans: (b)}
+
+\textbf{Q8.} A simulation model passes all verification checks but its predictions disagree with the real system. What failed?\\
+(a) verification \quad (b) validation \quad (c) calibration only \quad (d) nothing; models always disagree\\
+\textbf{Ans: (b)} --- the code correctly implements a model whose assumptions are wrong.
+
+\textbf{Q9.} In the 10-step simulation study, a failed validity check at Step 6 sends you back to\\
+(a) Step 5 \quad (b) Step 4 \quad (c) Step 2 \quad (d) Step 1\\
+\textbf{Ans: (c)} --- invalid output usually means the conceptual model or the data is wrong, not just the code.
+
+\textbf{Q10.} Which statement is \textbf{FALSE}?\\
+(a) Next-event time advance skips idle periods \quad (b) Simulated time equals real computer time\\
+(c) The event list holds future events and their times \quad (d) Stochastic models produce random outputs\\
+\textbf{Ans: (b)} --- 24 simulated hours may take 0.01 s, and 1 ns of a network may take 10 minutes.
+\end{mcqbox}
+
+\subsection{RNG \& Monte Carlo --- MCQs}
+
+\begin{mcqbox}
+\textbf{Q11.} For $R \sim U(0,1)$, $\operatorname{Var}(R)$ equals\\
+(a) $1/2$ \quad (b) $1/3$ \quad (c) $1/12$ \quad (d) $1/4$\\
+\textbf{Ans: (c)} --- $E[R^2]-E[R]^2 = \frac13-\frac14 = \frac1{12} \approx 0.0833$.
+
+\textbf{Q12.} An LCG has $X_{i+1} = (5X_i+3)\bmod 16$ with $X_0 = 1$. Then $X_2$ is\\
+(a) 8 \quad (b) 11 \quad (c) 10 \quad (d) 5\\
+\textbf{Ans: (b)} --- $X_1 = 8$, $X_2 = (40+3)\bmod16 = 43\bmod16 = 11$.
+
+\textbf{Q13.} Does that generator achieve the full period $m = 16$?\\
+(a) no, because $m$ is not prime \quad (b) yes: $\gcd(3,16) = 1$ and $5 = 1+4(1)$\\
+(c) no, because $c \neq 0$ \quad (d) only for even seeds\\
+\textbf{Ans: (b)} --- both mixed-generator conditions hold, and the period really is 16.
+
+\textbf{Q14.} For the multiplicative generator $X_{i+1} = 13X_i \bmod 64$, the maximum achievable period is\\
+(a) 64 \quad (b) 63 \quad (c) 16 \quad (d) 32\\
+\textbf{Ans: (c)} --- with $c=0$ and $m=2^b$ the ceiling is $m/4 = 16$, attained only for \emph{odd} seeds.
+
+\textbf{Q15.} The values an LCG can produce after scaling are spaced\\
+(a) $1/m$ apart \quad (b) $1/a$ apart \quad (c) continuously \quad (d) $1/c$ apart\\
+\textbf{Ans: (a)} --- $R_i \in \{0, 1/m, \dots, (m-1)/m\}$, which is why a large $m$ matters.
+
+\textbf{Q16.} A sequence gives $0.01, 0.02, 0.03, \dots, 0.99$. Which test will flag it?\\
+(a) chi-square \quad (b) Kolmogorov--Smirnov \quad (c) autocorrelation \quad (d) none; it is a good generator\\
+\textbf{Ans: (c)} --- it is perfectly uniform (so both uniformity tests pass) but utterly predictable. Only an independence test catches it.
+
+\textbf{Q17.} In the autocorrelation test with $i=2$, $\ell=4$, $N=30$, the value of $M$ is\\
+(a) 5 \quad (b) 6 \quad (c) 7 \quad (d) 4\\
+\textbf{Ans: (b)} --- largest $M$ with $i+(M+1)\ell \le N$: $2+7(4) = 30 \le 30$ $\checkmark$, while $2+8(4) = 34 > 30$.
+
+\textbf{Q18.} The $0.25$ subtracted in $\hat\rho_{i\ell}$ arises because\\
+(a) it is an arbitrary correction \quad (b) $E[R]E[R'] = \frac12\cdot\frac12$ for independent uniforms\\
+(c) $\operatorname{Var}(R) = 1/12$ \quad (d) there are 4 quadrants\\
+\textbf{Ans: (b)} --- it centres the estimator at zero under independence.
+
+\textbf{Q19.} An RNG is subjected to 20 independent tests at $\alpha = 0.05$ and fails 1. You should\\
+(a) reject it immediately \quad (b) accept it: about $64\%$ of good generators fail at least one of 20 tests\\
+(c) conclude the tests are broken \quad (d) rerun with $\alpha = 0.5$\\
+\textbf{Ans: (b)} --- $1-0.95^{20} = 0.6415$, and the expected number of chance failures is $20(0.05) = 1$.
+
+\textbf{Q20.} A Monte Carlo estimate must be made 4 times more accurate. The sample size must grow by a factor of\\
+(a) 4 \quad (b) 8 \quad (c) 16 \quad (d) 2\\
+\textbf{Ans: (c)} --- error $\propto 1/\sqrt n$, so $n$ scales as $4^2$.
+
+\textbf{Q21.} In estimating $\pi$ by hit-or-miss, $\hat\pi = 4h/n$ because\\
+(a) the circle has radius 4 \quad (b) $P(\text{hit}) = (\pi/4)/1$ for a quarter circle in the unit square\\
+(c) there are 4 quadrants to sum \quad (d) $4$ normalizes the variance\\
+\textbf{Ans: (b)}
+
+\textbf{Q22.} Which statement is \textbf{FALSE}?\\
+(a) Passing all tests does not prove a generator is random \quad (b) K-S works for small samples; chi-square needs large $N$\\
+(c) A longer period guarantees independence \quad (d) The seed determines the entire sequence\\
+\textbf{Ans: (c)} --- period length says nothing about correlation structure within the cycle.
+\end{mcqbox}
+
+\subsection{Simulation, RNG \& Monte Carlo --- Problems}
+
+\begin{probbox}
+\PQ{P1.} A single-server queue receives 4 customers with interarrival times $0.3,\ 0.9,\ 0.6,\ 1.2$ and service times $1.2,\ 0.8,\ 1.5,\ 0.5$. Build the trace and compute $\hat d(4)$, $\hat q(4)$, $\hat u(4)$ over the run ending when customer 4 departs. Then test Little's Law, and comment on stability.
+
+\ans Arrival times are the cumulative sums: $0.3,\ 1.2,\ 1.8,\ 3.0$.
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Cust. & Arrives & Starts service & Departs & Delay $D_i$\\
+\midrule
+1 & 0.3 & 0.3 & 1.5 & 0.0\\
+2 & 1.2 & 1.5 & 2.3 & 0.3\\
+3 & 1.8 & 2.3 & 3.8 & 0.5\\
+4 & 3.0 & 3.8 & 4.3 & 0.8\\
+\bottomrule
+\end{tabular}
+\end{center}
+(Each customer starts at $\max(\text{own arrival},\ \text{previous departure})$.) Run length $T = 4.3$.
+\[
+\hat d(4) = \frac{0+0.3+0.5+0.8}{4} = \frac{1.6}{4} = \mathbf{0.4}
+\]
+\emph{Queue area:} customer $i$ waits over $[\text{arrival},\text{start})$, contributing that length to $\int Q\,dt$:
+\[
+\int_0^{4.3}Q(t)\,dt = 0 + 0.3+0.5+0.8 = 1.6
+\qquad\Rightarrow\qquad
+\hat q(4) = \frac{1.6}{4.3} = \mathbf{0.372093}
+\]
+\emph{Busy area:} the server runs continuously from $0.3$ to $4.3$:
+\[
+\int_0^{4.3}B(t)\,dt = 4.0 \qquad\Rightarrow\qquad \hat u(4) = \frac{4.0}{4.3} = \mathbf{0.930233}
+\]
+\emph{Little's Law:} $\lambda = 4/4.3 = 0.930233$, $W_q = \hat d(4) = 0.4$, so
+\[
+\lambda W_q = 0.930233\times0.4 = 0.372093 = \hat q(4) \ \checkmark
+\]
+It holds \emph{exactly} here because every customer's queueing time was completed inside the window --- nobody was left waiting at $T$.
+
+\emph{Stability:} $E[A] = 3.0/4 = 0.75$ so $\lambda = 1.333$; $E[S] = 4.0/4 = 1.0$ so $\mu = 1.0$; $\rho = 1.333 > 1$. The system is \textbf{unstable} --- work arrives faster than it clears, which is why each successive delay ($0, 0.3, 0.5, 0.8$) is larger than the last.
+
+\PQ{P2.} For the LCG $X_{i+1} = (5X_i+3)\bmod16$ with $X_0 = 1$: generate 6 values and their $R_i$, and determine whether the full period $m=16$ is achieved.
+
+\ans
+\[
+X_1 = (5+3)\bmod16 = 8,\quad
+X_2 = (40+3)\bmod16 = 11,\quad
+X_3 = (55+3)\bmod16 = 10
+\]
+\[
+X_4 = (50+3)\bmod16 = 5,\quad
+X_5 = (25+3)\bmod16 = 12,\quad
+X_6 = (60+3)\bmod16 = 15
+\]
+\begin{center}\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+$X_i$ & 8 & 11 & 10 & 5 & 12 & 15\\
+$R_i = X_i/16$ & 0.5000 & 0.6875 & 0.6250 & 0.3125 & 0.7500 & 0.9375\\
+\bottomrule
+\end{tabular}
+\end{center}
+\emph{Max-period test} (mixed generator, $c\neq0$, $m = 2^4$): need (i) $\gcd(c,m) = 1$ and (ii) $a = 1+4k$.
+\[
+\gcd(3,16) = 1 \ \checkmark, \qquad a = 5 = 1+4(1) \ \checkmark
+\]
+Both hold, so the period is the full $\mathbf{16}$: every integer $0..15$ appears exactly once before repeating.
+
+\emph{Contrast:} the generator $X_{i+1} = (3X_i+7)\bmod16$ has $\gcd(7,16)=1$ but $a = 3$ is \emph{not} of the form $1+4k$, and its period is only \textbf{8}.
+
+\PQ{P3.} 120 random numbers are binned into 6 equal intervals with observed counts $18, 22, 25, 17, 20, 18$. Perform a chi-square uniformity test at $\alpha = 0.05$ (critical value $\chi^2_{0.05,5} = 11.07$).
+
+\ans $E_i = N/n = 120/6 = 20$ for every bin.
+\begin{center}\small
+\begin{tabular}{@{}lcccccc|c@{}}
+\toprule
+$O_i$ & 18 & 22 & 25 & 17 & 20 & 18 & 120\\
+$(O_i-E_i)^2$ & 4 & 4 & 25 & 9 & 0 & 4 & ---\\
+$(O_i-E_i)^2/E_i$ & 0.2 & 0.2 & 1.25 & 0.45 & 0.0 & 0.2 & \textbf{2.30}\\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\chi_0^2 = 2.30, \qquad \text{df} = n-1 = 5, \qquad \chi^2_{0.05,5} = 11.07
+\]
+Since $2.30 < 11.07$, \textbf{do not reject $H_0$} --- no evidence against uniformity. Note this says nothing about \emph{independence}.
+
+\PQ{P4.} A Monte Carlo estimator has $\sigma = 0.25$. (i) How many samples give a 95\% confidence half-width of at most $0.01$? (ii) How many for $0.0025$? (iii) State the general scaling law.
+
+\ans \emph{(i)} Half-width $= 1.96\sigma/\sqrt n \le 0.01$:
+\[
+\sqrt n \ge \frac{1.96(0.25)}{0.01} = 49 \qquad\Rightarrow\qquad n \ge \mathbf{2401}
+\]
+\emph{(ii)} The target is $4\times$ tighter, so $\sqrt n$ must grow $4\times$ and $n$ by $4^2 = 16$:
+\[
+n \ge 16(2401) = \mathbf{38{,}416}
+\]
+(Direct check: $(1.96\times0.25/0.0025)^2 = 196^2 = 38416$ $\checkmark$.)
+
+\emph{(iii)} Error $\propto \sigma/\sqrt n$, so \textbf{to improve accuracy by a factor $f$ you need $f^2$ times as many samples}. Ten times the accuracy costs a hundred times the work --- the fundamental limitation of Monte Carlo.
+
+\PQ{P5.} A correct random-number generator is subjected to (i) 10 independent tests, (ii) 100 independent tests, all at $\alpha = 0.05$. In each case give the probability of at least one false rejection and the expected number of rejections. Then state the practical rule.
+
+\ans Using $P(\ge1\text{ false reject}) = 1-(1-\alpha)^k$ and expected count $= k\alpha$:
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+$k$ & $1-0.95^k$ & expected rejections\\
+\midrule
+1 & 0.0500 & 0.05\\
+5 & 0.2262 & 0.25\\
+10 & \textbf{0.4013} & 0.50\\
+20 & 0.6415 & 1.00\\
+50 & 0.9231 & 2.50\\
+100 & \textbf{0.9941} & 5.00\\
+\bottomrule
+\end{tabular}
+\end{center}
+\emph{(i)} 10 tests: about a \textbf{40\%} chance of at least one failure, expected $0.5$ failures.
+\emph{(ii)} 100 tests: a \textbf{99.4\%} chance of at least one failure, expected \textbf{5} failures.
+
+\emph{Practical rule:} a handful of failures among many tests is exactly what a \emph{good} generator produces. Worry only when the failure count is well above $k\alpha$, when the \emph{same} test fails repeatedly, or when several \emph{different} tests fail together.
+\end{probbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{Time-average $\ne$ average of the values.} Weight every value by how long it lasted (0 for 45 min and 6 for 15 min gives $1.5$, not $3$).
+\item \textbf{$\hat u$ can never exceed 1.} An overloaded system shows $\hat u \to 1$ and a diverging $Q(t)$, not $\hat u > 1$.
+\item \textbf{$\rho = \lambda/\mu$ uses \emph{rates}.} If the problem gives mean times, invert first: $\lambda = 1/E[A]$, $\mu = 1/E[S]$.
+\item \textbf{Areas use the old state value} and width $(\text{clock}-\text{time of last event})$, in that order.
+\item \textbf{$\hat q$ counts only those \emph{waiting}}, excluding the customer in service; $\hat u$ counts the server, not the queue.
+\item \textbf{Little's Law is asymptotic.} It matches exactly only when the customers counted and the area measured cover the same population --- leftover waiters at time $T$ break it.
+\item \textbf{Verification $\ne$ validation}, and both validation failures return to Step 2.
+\item \textbf{Uniformity does not imply independence.} $0.01, 0.02, 0.03,\dots$ passes K-S and chi-square and is completely deterministic.
+\item \textbf{$M$ in the autocorrelation test is the largest integer with $i+(M+1)\ell \le N$} --- off-by-one here wrecks both $\hat\rho$ and $\sigma$.
+\item \textbf{Chi-square df is (bins $-1$)}, not the sample size and not the number of bins.
+\item \textbf{A single test failure does not condemn a generator} --- with 10 tests a good one fails at least once about 40\% of the time.
+\item \textbf{Monte Carlo accuracy costs quadratically.} ``Twice as accurate'' means four times the samples, not twice.
+\item \textbf{The multiplicative case ($c=0$, $m=2^b$) caps out at $m/4$}, and only for odd seeds --- it can never reach the full $m$.
+\end{itemize}
+\end{trapbox}

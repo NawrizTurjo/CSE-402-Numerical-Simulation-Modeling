@@ -1,0 +1,123 @@
+\begin{thebibliography}{10}
+
+\bibitem{armijo1966}
+Larry Armijo.
+\newblock Minimization of functions having {L}ipschitz continuous first partial
+  derivatives.
+\newblock {\em Pacific Journal of Mathematics}, 16(1):1--3, 1966.
+
+\bibitem{barzilai1988}
+Jonathan Barzilai and Jonathan~M. Borwein.
+\newblock Two-point step size gradient methods.
+\newblock {\em IMA Journal of Numerical Analysis}, 8(1):141--148, 1988.
+
+\bibitem{bottou2018}
+L{\'e}on Bottou, Frank~E. Curtis, and Jorge Nocedal.
+\newblock Optimization methods for large-scale machine learning.
+\newblock {\em SIAM Review}, 60(2):223--311, 2018.
+
+\bibitem{boyd2004}
+Stephen Boyd and Lieven Vandenberghe.
+\newblock {\em Convex Optimization}.
+\newblock Cambridge University Press, 2004.
+
+\bibitem{bubeck2015}
+S{\'e}bastien Bubeck.
+\newblock Convex optimization: Algorithms and complexity.
+\newblock {\em Foundations and Trends in Machine Learning}, 8(3--4):231--357,
+  2015.
+
+\bibitem{cauchy1847}
+Augustin-Louis Cauchy.
+\newblock M{\'e}thode g{\'e}n{\'e}rale pour la r{\'e}solution des syst{\`e}mes
+  d'{\'e}quations simultan{\'e}es.
+\newblock {\em Comptes Rendus Hebdomadaires des S{\'e}ances de l'Acad{\'e}mie
+  des Sciences}, 25:536--538, 1847.
+
+\bibitem{chapra}
+Steven~C. Chapra and Raymond~P. Canale.
+\newblock {\em Numerical Methods for Engineers}.
+\newblock McGraw-Hill Education, 8th edition, 2020.
+
+\bibitem{cohen2021}
+Jeremy~M. Cohen, Simran Kaur, Yuanzhi Li, J.~Zico Kolter, and Ameet Talwalkar.
+\newblock Gradient descent on neural networks typically occurs at the edge of
+  stability.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2021.
+\newblock arXiv:2103.00065.
+
+\bibitem{goh2017}
+Gabriel Goh.
+\newblock Why momentum really works.
+\newblock Distill, 2017.
+
+\bibitem{griewank2008}
+Andreas Griewank and Andrea Walther.
+\newblock {\em Evaluating Derivatives: Principles and Techniques of Algorithmic
+  Differentiation}.
+\newblock SIAM, 2nd edition, 2008.
+
+\bibitem{karimi2016}
+Hamed Karimi, Julie Nutini, and Mark Schmidt.
+\newblock Linear convergence of gradient and proximal-gradient methods under
+  the {P}olyak--{{\L}ojasiewicz} condition.
+\newblock In {\em Machine Learning and Knowledge Discovery in Databases (ECML
+  PKDD 2016)}, volume 9851 of {\em Lecture Notes in Computer Science}, pages
+  795--811. Springer, 2016.
+
+\bibitem{kingma2015}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock In {\em 3rd International Conference on Learning Representations
+  (ICLR)}, 2015.
+\newblock arXiv:1412.6980.
+
+\bibitem{lee2016}
+Jason~D. Lee, Max Simchowitz, Michael~I. Jordan, and Benjamin Recht.
+\newblock Gradient descent only converges to minimizers.
+\newblock In {\em Proceedings of the 29th Conference on Learning Theory
+  (COLT)}, volume~49 of {\em Proceedings of Machine Learning Research}, pages
+  1246--1257, 2016.
+
+\bibitem{lessard2016}
+Laurent Lessard, Benjamin Recht, and Andrew Packard.
+\newblock Analysis and design of optimization algorithms via integral quadratic
+  constraints.
+\newblock {\em SIAM Journal on Optimization}, 26(1):57--95, 2016.
+
+\bibitem{nesterov2018}
+Yurii Nesterov.
+\newblock {\em Lectures on Convex Optimization}.
+\newblock Springer, 2nd edition, 2018.
+
+\bibitem{nesterov1983}
+Yurii~E. Nesterov.
+\newblock A method for solving the convex programming problem with convergence
+  rate {$O(1/k^2)$}.
+\newblock {\em Soviet Mathematics Doklady}, 27(2):372--376, 1983.
+
+\bibitem{nocedal2006}
+Jorge Nocedal and Stephen~J. Wright.
+\newblock {\em Numerical Optimization}.
+\newblock Springer Series in Operations Research and Financial Engineering.
+  Springer, 2nd edition, 2006.
+
+\bibitem{polyak1964}
+Boris~T. Polyak.
+\newblock Some methods of speeding up the convergence of iteration methods.
+\newblock {\em USSR Computational Mathematics and Mathematical Physics},
+  4(5):1--17, 1964.
+
+\bibitem{robbins1951}
+Herbert Robbins and Sutton Monro.
+\newblock A stochastic approximation method.
+\newblock {\em The Annals of Mathematical Statistics}, 22(3):400--407, 1951.
+
+\bibitem{su2016}
+Weijie Su, Stephen Boyd, and Emmanuel~J. Cand{\`e}s.
+\newblock A differential equation for modeling {N}esterov's accelerated
+  gradient method: Theory and insights.
+\newblock {\em Journal of Machine Learning Research}, 17(153):1--43, 2016.
+
+\end{thebibliography}

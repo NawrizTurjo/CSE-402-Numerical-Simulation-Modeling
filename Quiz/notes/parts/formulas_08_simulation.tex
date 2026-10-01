@@ -1,0 +1,37 @@
+\section{Simulation \& Modeling}
+
+\begin{formulabox}
+\textbf{System components:} Entity, Attribute, Activity, Event, State variable. \textbf{Model classification:} Static/Dynamic; Deterministic/Stochastic; Discrete/Continuous. DES $=$ Dynamic + Stochastic + Discrete.
+
+\textbf{Queueing notation:} $A_i=$ interarrival time, $S_i=$ service time, $D_i=$ delay in queue.
+\[
+\text{Arrival time of customer } i = \sum_{j=1}^i A_j
+\]
+\[
+\text{Total time in system} = D_i+S_i
+\]
+\textbf{Average delay (discrete-time statistic):}
+\[
+\hat d(n) = \frac{1}{n}\sum_{i=1}^n D_i
+\]
+\textbf{Time-average \# in queue \& utilization (continuous-time, time-weighted):}
+\[
+\hat q(n) = \frac{\int_0^{T(n)}Q(t)\,dt}{T(n)}
+\]
+\[
+\hat u(n) = \frac{\int_0^{T(n)}B(t)\,dt}{T(n)} = \frac{\text{total busy time}}{T(n)}
+\]
+\textbf{Area accumulation rule} (use the \emph{old} value before updating state):
+\[
+\text{new area} = (\text{old } Q(t)\text{ or } B(t)) \times (\text{clock} - \text{time of last event})
+\]
+\textbf{Event order (critical):} (1) update area accumulators (old values) $\to$ (2) update state $\to$ (3) update time-of-last-event $\to$ (4) update event list.
+
+\textbf{V\&V:} Verification $=$ ``built the model right?'' (code vs.\ conceptual model). Validation $=$ ``built the right model?'' (model vs.\ reality). Calibration $=$ iterative compare-revise loop driving validation.
+
+Input--output transformation: $f(X,D)=Y$ ($X$=inputs, $D$=decision vars, $Y$=outputs).
+
+\textbf{10 Steps in a Simulation Study:} (1) Formulate problem \& plan; (2) Collect data \& define model; (3) Assumptions valid? (else $\to$ step 2); (4) Construct \& verify program; (5) Pilot runs; (6) Model valid? (else $\to$ step 2); (7) Design experiments; (8) Production runs; (9) Analyze output; (10) Document, present, use.
+
+\textbf{Naylor--Finger validation:} (1) Face validity; (2) Validate assumptions; (3) Validate I/O transformations.
+\end{formulabox}

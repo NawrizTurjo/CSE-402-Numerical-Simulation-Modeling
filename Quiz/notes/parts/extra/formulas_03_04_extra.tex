@@ -1,0 +1,227 @@
+\subsection{Systems of Equations --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(S1) How many multipliers does elimination compute?} Step $k$ needs $n-k$ multipliers, so
+\[
+\sum_{k=1}^{n-1}(n-k) \;=\; \boxed{\frac{n(n-1)}{2}}
+\]
+($n=3\to3$, $n=4\to6$, $n=5\to10$, $n=10\to45$). This is also the number of entries stored in the strictly-lower part of $L$ --- the same objects, counted twice.
+
+\smallskip
+\textbf{(S2) Determinant from elimination, with the sign rule.} Row-addition operations do not change $\det$, and $L$ is unit-lower-triangular so $\det L = 1$. Therefore
+\[
+\det A = \det(LU) = \det L \cdot \det U = \prod_{i=1}^{n} u_{ii}
+\]
+and with pivoting,
+\[
+\boxed{\det A = (-1)^{\#\text{row swaps}}\prod_{i=1}^{n}u_{ii}}
+\]
+An \emph{even} number of swaps leaves the sign alone; an odd number flips it.
+
+\smallskip
+\textbf{(S3) The deck's clock-cycle cost model, assembled.} With $T$ = one clock cycle ($+,-,\times$ cost $4T$; $\div$ costs $16T$):
+\[
+C_T\big|_{DE} = \left(\tfrac83 n^3 + 4n^2 - \tfrac{20}{3}n\right)T \qquad\text{(decomposition only)}
+\]
+\[
+C_T\big|_{FS} = (4n^2-4n)T, \qquad C_T\big|_{BS} = (4n^2+12n)T
+\]
+\[
+C_T\big|_{LU} = C_T\big|_{DE} + C_T\big|_{FS} + C_T\big|_{BS} = \left(\tfrac83n^3 + 12n^2 + \tfrac43 n\right)T
+\]
+\[
+C_T\big|_{GE} = C_T\big|_{FE} + C_T\big|_{BS} = \left(\tfrac83n^3 + 12n^2 + \tfrac43 n\right)T \;=\; C_T\big|_{LU}
+\]
+\textbf{They are equal exactly, not approximately} --- for one right-hand side LU buys nothing.
+
+\smallskip
+\textbf{(S4) Cost with $k$ right-hand sides --- where LU actually wins.}
+\[
+C_T\big|_{LU}^{(k)} = C_T\big|_{DE} + k\left(C_T\big|_{FS} + C_T\big|_{BS}\right), \qquad
+C_T\big|_{GE}^{(k)} = k\left(C_T\big|_{FE} + C_T\big|_{BS}\right)
+\]
+LU pays the $O(n^3)$ decomposition \textbf{once}; Gauss repeats it $k$ times. Setting $k=n$ (the matrix inverse):
+\[
+C_T\big|_{inv,LU} = \left(\tfrac{32}{3}n^3 + 12n^2 - \tfrac{20}{3}n\right)T,
+\qquad
+C_T\big|_{inv,GE} = \left(\tfrac83 n^4 + 12n^3 + \tfrac43 n^2\right)T
+\]
+\[
+\frac{C_T|_{inv,GE}}{C_T|_{inv,LU}} \;\approx\; \frac{\tfrac83 n^4}{\tfrac{32}{3}n^3} \;=\; \boxed{\frac{n}{4}}
+\]
+
+\smallskip
+\textbf{(S5) Why forward substitution is cheaper than back substitution.} $L$ has ones on the diagonal, so forward substitution performs \textbf{zero divisions}; back substitution performs one division per row ($n$ in total). In a model where $\div$ costs $4\times$ a multiply, that gap is real --- it is exactly the $-4n$ vs $+12n$ difference between $C_T|_{FS}$ and $C_T|_{BS}$.
+
+\smallskip
+\textbf{(S6) Floating-point operation counts (the standard result behind the clock model).}
+\[
+\text{Gauss elimination} \sim \tfrac23 n^3, \qquad \text{Gauss--Jordan} \sim n^3, \qquad \text{each substitution} \sim n^2 .
+\]
+So Gauss--Jordan does roughly \textbf{50\% more arithmetic} than Gauss elimination --- the price of driving the matrix all the way to $I$ instead of stopping at triangular.
+
+\smallskip
+\textbf{(S7) Conditioning (named standard result; the deck shows the symptom, not the name).}
+\[
+\kappa(A) = \|A\|\,\|A^{-1}\| \;\ge\; 1, \qquad \text{digits lost} \;\approx\; \log_{10}\kappa(A).
+\]
+A tiny pivot inflates the multiplier, which amplifies existing round-off --- the mechanism behind the deck's $0.001$-pivot disaster (50\% error at 5 digits, fixed exactly by one row swap).
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{Inverse-cost ratio (straight off the slide, verified):}
+\begin{center}\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+$n$ & 10 & 100 & 1000 & 10000\\
+\midrule
+$C_T|_{inv,GE} / C_T|_{inv,LU}$ & 3.28 & 25.83 & 250.8 & 2501\\
+$n/4$ (asymptote) & 2.5 & 25 & 250 & 2500\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Cost model:} $+,-,\times \to 4$ cycles; $\div \to 16$ cycles. At $1.2$\,GHz, $T = 1/(1.2\times10^9) \approx 0.833$\,ns.
+
+\smallskip
+\textbf{The rocket matrix (know this one cold).}
+$A=\begin{bmatrix}25&5&1\\64&8&1\\144&12&1\end{bmatrix}$, $\mathbf b = (106.8, 177.2, 279.2)$.
+Multipliers $m_{21}=2.56$, $m_{31}=5.76$, $m_{32}=3.5$.
+\[
+U=\begin{bmatrix}25&5&1\\0&-4.8&-1.56\\0&0&0.7\end{bmatrix},\quad
+L=\begin{bmatrix}1&0&0\\2.56&1&0\\5.76&3.5&1\end{bmatrix},\quad
+\det A = 25(-4.8)(0.7) = -84
+\]
+Solution $a_1 = 0.290472$, $a_2 = 19.6905$, $a_3 = 1.08571$; forward-substitution vector $Z = (106.8, -96.208, 0.76)$ --- identical to Gauss's modified RHS, because $Z = L^{-1}C$.
+
+\smallskip
+\textbf{Round-off benchmark.} Pivot $0.001$ gives multiplier $-2750$; after swapping, pivot $-2.75$ gives $-0.00036$ --- about \textbf{seven million times smaller}. Result at 5 digits: $(0.625, 1.5, 0.99995)$ naive (50\% error) vs the exact $(1,1,1)$ with pivoting.
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{LU is not faster than Gauss for one solve.} $C_T|_{LU} = C_T|_{GE}$ \emph{exactly}. The win appears only with multiple right-hand sides.
+\item \textbf{An even number of row swaps does not change $\det$.} Count the swaps, then apply $(-1)^{\#}$ --- do not assume pivoting always flips the sign.
+\item \textbf{$\det L = 1$ always}, so $\det A = \det U$. Multiplying $\det L$ by something is a wasted step and a wrong answer.
+\item \textbf{Partial pivoting compares $|a_{ik}|$ in the current \emph{column} only}, over rows $k..n$ --- not the whole remaining submatrix (that would be complete pivoting).
+\item \textbf{More precision does not fix a zero pivot.} Extra digits help round-off; only a swap fixes a structurally zero pivot.
+\item \textbf{A zero pivot can appear mid-elimination} even when the original matrix has no zero entries in the pivot column.
+\item \textbf{Gauss--Jordan does more work, not less.} ``No back substitution'' sounds cheaper and is not.
+\item \textbf{The multiplier count is $n(n-1)/2$, not $n^2$.} For $n=4$ that is 6, not 16.
+\end{itemize}
+\end{trapbox}
+
+\subsection{Eigenvalues --- Derived \& Implicit Formulas}
+
+\begin{derivedbox}
+\textbf{(V1) Trace and determinant --- the two fastest checks in the whole topic.}
+\[
+\boxed{\operatorname{tr}A = \sum_{i=1}^{n}\lambda_i}, \qquad \boxed{\det A = \prod_{i=1}^{n}\lambda_i}
+\]
+For a $2\times2$ matrix this \emph{replaces} the characteristic polynomial entirely:
+\[
+\lambda^2 - (\operatorname{tr}A)\lambda + \det A = 0
+\quad\Longrightarrow\quad
+\lambda = \frac{\operatorname{tr}A \pm \sqrt{(\operatorname{tr}A)^2 - 4\det A}}{2}
+\]
+``$\operatorname{tr}=7$, $\det=12$'' gives $3$ and $4$ in about three seconds.
+
+\smallskip
+\textbf{(V2) The spectrum map --- the single richest source of trap MCQs.}
+If $A\mathbf v = \lambda\mathbf v$, then for the \emph{same} eigenvector $\mathbf v$:
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Matrix & Eigenvalue & Eigenvector\\
+\midrule
+$A^k$ & $\lambda^k$ & $\mathbf v$ (unchanged)\\
+$A^{-1}$ & $1/\lambda$ & $\mathbf v$ (unchanged)\\
+$A + cI$ & $\lambda + c$ & $\mathbf v$ (unchanged)\\
+$cA$ & $c\lambda$ & $\mathbf v$ (unchanged)\\
+$p(A)$ (any polynomial) & $p(\lambda)$ & $\mathbf v$ (unchanged)\\
+$A^{\top}$ & $\lambda$ (same set) & generally \emph{different}\\
+\bottomrule
+\end{tabular}
+\end{center}
+So an eigenvalue of $A^3 - 2I$ is $\lambda^3 - 2$: if $\lambda = 2$, the answer is $6$. \textbf{Every row here leaves the eigenvector alone except the transpose.}
+
+\smallskip
+\textbf{(V3) Power-method convergence rate, derived.} From
+\[
+A^k\mathbf x = \lambda_1^k\left[c_1\mathbf v_1 + \sum_{i\ge2}c_i\left(\frac{\lambda_i}{\lambda_1}\right)^{k}\mathbf v_i\right],
+\]
+the unwanted content decays by the factor $|\lambda_2/\lambda_1|$ \emph{per iteration}:
+\[
+\boxed{\text{error after } k \text{ iterations} \;\sim\; \left|\frac{\lambda_2}{\lambda_1}\right|^{k}}
+\]
+Iterations needed to gain one decimal digit:
+\[
+k_{\text{digit}} \;=\; \frac{1}{\log_{10}\left|\lambda_1/\lambda_2\right|}.
+\]
+For the deck's $\begin{bmatrix}2&1\\1&2\end{bmatrix}$ ($\lambda = 3,1$) the ratio is $1/3$: about $1/\log_{10}3 = 2.1$ iterations per digit.
+
+\smallskip
+\textbf{(V4) When the power method fails (both cases are exam favourites).}
+\begin{itemize}
+\item \textbf{No strictly dominant eigenvalue}, e.g.\ $\lambda_1 = 5$, $\lambda_2 = -5$. Then $|\lambda_2/\lambda_1| = 1$, nothing decays, and the iterate oscillates forever between two directions.
+\item \textbf{The start vector is deficient}, $c_1 = 0$ (i.e.\ $\mathbf x_0$ is orthogonal to $\mathbf v_1$ in the symmetric case). In exact arithmetic the $\mathbf v_1$ component can never appear; the method converges to $\lambda_2$ instead.
+\end{itemize}
+Slow (not failed) convergence happens when $|\lambda_2|$ is merely \emph{close} to $|\lambda_1|$.
+
+\smallskip
+\textbf{(V5) Inverse power method, derived in one line.}
+\[
+A\mathbf v = \lambda\mathbf v \;\Longrightarrow\; \mathbf v = \lambda A^{-1}\mathbf v \;\Longrightarrow\; A^{-1}\mathbf v = \frac{1}{\lambda}\mathbf v
+\]
+Reciprocation \emph{reverses the ranking}: the smallest $|\lambda|$ of $A$ becomes the dominant eigenvalue of $A^{-1}$. Run the ordinary power method on $A^{-1}$ and invert the answer. In practice never form $A^{-1}$ --- factor $A = LU$ once and solve $A\mathbf y_{k+1} = \mathbf x_k$ each iteration (this is precisely the LU ``many right-hand sides'' payoff of (S4)).
+
+\smallskip
+\textbf{(V6) Shifted power method} \emph{(extension --- the deck teaches the inverse method but not the shift).} Because $A - \sigma I$ has eigenvalues $\lambda_i - \sigma$:
+\begin{itemize}
+\item power method on $A-\sigma I$ finds the eigenvalue \emph{farthest} from $\sigma$;
+\item inverse power method on $A-\sigma I$ finds the eigenvalue \emph{nearest} to $\sigma$, converging at rate $|\lambda_{\text{near}}-\sigma| / |\lambda_{\text{next}}-\sigma|$, which a good shift makes tiny.
+\end{itemize}
+
+\smallskip
+\textbf{(V7) Deflation.} With $\hat{\mathbf v}_1$ normalized to unit length,
+\[
+A_2 = A - \lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^{\top}
+\quad\text{has spectrum}\quad \{0,\ \lambda_2,\ \lambda_3,\dots\}.
+\]
+It works because $\hat{\mathbf v}_1^{\top}\hat{\mathbf v}_j = 0$ for $j\neq1$ --- which requires \textbf{orthogonal eigenvectors}, guaranteed for \emph{symmetric} $A$. Errors compound: each stage deflates with a numerically approximate eigenvector.
+
+\smallskip
+\textbf{(V8) Symmetric matrices (used implicitly throughout).} Real eigenvalues, orthogonal eigenvectors, and for $2\times2$
+\[
+A = \begin{bmatrix}a&b\\b&d\end{bmatrix}
+\;\Longrightarrow\;
+\lambda = \frac{(a+d) \pm \sqrt{(a-d)^2 + 4b^2}}{2}
+\]
+(the discriminant is a sum of squares, so the roots are always real).
+\end{derivedbox}
+
+\begin{numbox}
+\textbf{The deck's three standing examples.}
+\begin{itemize}
+\item $\begin{bmatrix}2&1\\1&2\end{bmatrix}$: $\operatorname{tr}=4$, $\det=3$, $\lambda = 3, 1$; $\mathbf v_1 = [1,1]^\top$, $\mathbf v_2 = [1,-1]^\top$; ratio $1/3$. Power method from $[1,0]^\top$: $2.000, 2.500, 2.800, 2.929 \to 3$. Deflated: $A_2 = \begin{bmatrix}0.5&-0.5\\-0.5&0.5\end{bmatrix}$, spectrum $\{0,1\}$.
+\item $3\times3$ tridiagonal $(3.556, -1.778)$: converges to $\lambda_{\max} = 6.07048$; the reported error spikes to $150\%$ and $214\%$ at iterations 3--4 \emph{purely because the normalizing factor changes sign}.
+\item $4\times4$ block matrix: $\lambda = 10, 6, 4, 2$ with $\mathbf v = [1,1,0,0], [1,-1,0,0], [0,0,1,1], [0,0,1,-1]$. Inverse power method converges to $\lambda_{\min}=2$ (normalizing factor $\to 0.5$).
+\end{itemize}
+
+\smallskip
+\textbf{Ratio-to-digits.} $|\lambda_2/\lambda_1| = 0.5 \to 3.3$ iterations/digit; $=1/3 \to 2.1$; $=0.1 \to 1$; $=0.9 \to 21.9$ (painfully slow).
+\end{numbox}
+
+\begin{trapbox}
+\begin{itemize}
+\item \textbf{Shifts and powers never move the eigenvectors.} Only the transpose (and general similarity) does. Options claiming ``eigenvector becomes $\mathbf v + c$'' are nonsense.
+\item \textbf{$\det(A+cI) \ne \det A + c$.} You must shift each eigenvalue and re-multiply: $\prod(\lambda_i + c)$.
+\item \textbf{The power method finds the largest $|\lambda|$, not the largest $\lambda$.} With $\lambda = -7$ and $+5$ it converges to $-7$.
+\item \textbf{$|\lambda_1| = |\lambda_2|$ breaks it} even though both are perfectly well-defined eigenvalues.
+\item \textbf{A huge reported $|\epsilon_a|$ can be a sign flip, not divergence} --- the $3\times3$ example shows $150\%$ and $214\%$ mid-convergence.
+\item \textbf{The normalizing factor \emph{is} the eigenvalue estimate}; the normalized vector is the eigenvector estimate. Do not report the vector's largest entry (always 1) as $\lambda$.
+\item \textbf{Deflation needs symmetry} (orthogonal eigenvectors). Applying it blindly to a non-symmetric matrix is unjustified.
+\item \textbf{Inverse power method returns $1/\lambda$} --- you must invert the converged normalizing factor to get $\lambda_{\min}$.
+\item \textbf{Never actually form $A^{-1}$} for the inverse power method; factor once and re-solve.
+\end{itemize}
+\end{trapbox}

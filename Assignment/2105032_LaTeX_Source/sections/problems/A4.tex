@@ -1,0 +1,97 @@
+% =====================================================================
+%  A4 -- Parameter estimation: Newton's law of cooling
+% =====================================================================
+\subsection{A4: Parameter estimation, Newton's law of cooling}
+\setprob{A4}
+
+\begin{frame}{\probtitle{A4}{Estimating a cooling constant by nonlinear least squares}}
+  \begin{probbox}[Problem A4 \hfill Application: Parameter Estimation \quad $\star\star\star$]
+    By Newton's law of cooling, the normalised temperature $\theta = \frac{T - T_a}{T_0 - T_a}$ follows
+    $\theta(t) = e^{-kt}$. We measure $\theta(1) = 0.60$ and $\theta(2) = 0.36$ ($t$ in minutes) and estimate $k$ by minimising
+    \[
+      J(k) = \tfrac12\sum_{i=1}^{2}\bigl(e^{-kt_i} - \theta_i\bigr)^2 .
+    \]
+    \vspace{-8pt}
+    \begin{enumerate}[(a)]
+      \item Derive $J'(k)$ and $J''(k)$, and find the exact minimiser $k^\star$.
+      \item Run two GD iterations from $k_0 = 0$ with $\alpha = 0.5$. Does GD converge?
+      \item Compare the curvature $J''$ at $k = 0$ and at $k^\star$. Where is $J$ convex?
+      \item Now start from a poor guess, $k_0 = 6$. What does GD do, and how would you fix it?
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{The point: a nonconvex fit, curvature that varies, and the plateau failure mode.}
+\end{frame}
+
+\begin{frame}{\soltitle{A4}{1}{4}}
+  \textbf{(a)} With residuals $r_i(k) = e^{-kt_i} - \theta_i$,
+  \[
+    J'(k) = -\sum_i r_i\,t_i\,e^{-kt_i}, \qquad
+    J''(k) = \underbrace{\sum_i t_i^2 e^{-2kt_i}}_{\text{Gauss--Newton part} \ \ge 0}
+           + \underbrace{\sum_i r_i\,t_i^2 e^{-kt_i}}_{\text{residual part (either sign)}}.
+  \]
+  The data fit the model perfectly: $e^{-k} = 0.6$ and $e^{-2k} = 0.36 = 0.6^2$. So $J(k^\star) = 0$ at
+  \[
+    \ans{k^\star = \ln\tfrac53 \approx 0.5108\ \text{min}^{-1}}.
+  \]
+  \vspace{-4pt}
+  \begin{keybox}[Why this is not a linear problem]
+    $J$ depends on $k$ through $e^{-kt}$, so it is \emph{not} quadratic. Its curvature changes with $k$,
+    which means there is no longer one step size that is safe everywhere.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{A4}{2}{4}}
+  \textbf{(b) Two GD iterations} with $\alpha = 0.5$:
+  \begin{itemize}\small
+    \item $k_0 = 0$: $\;r = (0.4,\ 0.64)$, $\;J'(0) = -(0.4\cdot1 + 0.64\cdot2) = -1.68$,
+          so $k_1 = 0 + 0.5(1.68) = \ans{0.84}$.
+    \item $k_1 = 0.84$: $\;e^{-0.84} = 0.43171$, $\;e^{-1.68} = 0.18637$, $\;r = (-0.16829,\ -0.17363)$, and
+          \[
+            J'(0.84) = -\bigl[(-0.16829)(1)(0.43171) + (-0.17363)(2)(0.18637)\bigr] = 0.13737
+          \]
+          so $k_2 = 0.84 - 0.5(0.13737) = \ans{0.7713}$.
+  \end{itemize}
+  \[
+    J:\quad 0.2848 \;\to\; 0.02923 \;\to\; 0.02015 \quad(\text{going down})
+  \]
+  The steep gradient at $k = 0$ makes the first step \alert{overshoot} $k^\star$; after that the iterates come back from above.
+  GD reaches $k^\star = 0.510826$ to within $10^{-6}$ in \ans{26} iterations.
+\end{frame}
+
+\begin{frame}{\soltitle{A4}{3}{4}}
+  \textbf{(c) Curvature.}\quad
+  $J''(0) = (1 + 0.4) + (4 + 4\cdot0.64) = \ans{7.96}$, \qquad
+  $J''(k^\star) = 0.36 + 4(0.1296) = \ans{0.8784}$ \;(the residuals vanish there).
+
+  \vspace{2pt}
+  \centering
+  \includegraphics[width=0.52\textwidth]{fig_cooling_loss}
+
+  \raggedright\small
+  \begin{itemize}
+    \item The local stability limit $2/J''$ is $0.25$ at $k = 0$ but $2.28$ at $k^\star$, a ninefold change.
+          Near $k^\star$ the rate is $|1 - 0.5(0.8784)| = 0.56$ per step.
+    \item For $k \gtrsim 1.00$ (shaded) $J'' < 0$, so $J$ is \alert{nonconvex} there and no global step-size result applies.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{\soltitle{A4}{4}{4}}
+  \textbf{(d) A bad start, $k_0 = 6$.} Here $e^{-6} = 0.00248$ and $e^{-12} \approx 6\times10^{-6}$, so the model says
+  the object is ``already cold'' at both measurement times:
+  \[
+    J(6) = 0.2433 \approx \tfrac12\textstyle\sum\theta_i^2 = 0.2448 \;(\text{plateau}),\qquad
+    J'(6) \approx 1.5\times10^{-3}.
+  \]
+  Each step moves $k$ by only about $7\times10^{-4}$. After \alert{1000 iterations} we are at $k \approx 4.65$.
+  GD has \alert{stalled on a plateau}: the gradient vanishes because the model has saturated.
+
+  \vspace{4pt}
+  \begin{keybox}[How to get unstuck]
+    \small
+    \begin{itemize}
+      \item \textbf{Start somewhere sensible.} Linearising, $\ln\theta = -kt$ gives $k \approx -\ln 0.6 = 0.51$.
+      \item \textbf{Reparametrise}, e.g.\ $k = e^{s}$, or fit $\ln\theta$ instead, which reshapes the landscape.
+      \item \textbf{Adapt the step} with a line search or curvature scaling, so it does not stay tiny on flat ground.
+    \end{itemize}
+  \end{keybox}
+\end{frame}

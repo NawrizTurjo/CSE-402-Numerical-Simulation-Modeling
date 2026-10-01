@@ -1,0 +1,347 @@
+\section{Mock Quiz --- Full Mixed Paper (attempt under exam conditions)}
+
+\begin{keypoint}
+\textbf{How to use this.} Topic-by-topic drilling makes everything feel easy because you already know which method to apply. A real quiz does not tell you. Sit this paper cold, no notes, \textbf{60 minutes}, then mark yourself with the key at the end. Anything you miss, go back to that topic's section in Part I/II.
+
+\textbf{Structure:} Part A --- 35 MCQs (1 mark each). Part B --- 10 short answers (2 marks each). Part C --- 8 problems (5 marks each). Total 95.
+\end{keypoint}
+
+\subsection{Part A --- Multiple Choice (35 marks)}
+
+\begin{mcqbox}
+\mq If the relative approximate error of an iterative scheme is $|\epsilon_a| = 0.04\%$, how many significant digits are guaranteed correct?\qmarks{1}\\
+(a) 2 \quad (b) 3 \quad (c) 4 \quad (d) 5
+
+\mq The true value is $2.71828$ and the approximation is $2.71$. The absolute relative true error is closest to:\qmarks{1}\\
+(a) $0.03\%$ \quad (b) $0.30\%$ \quad (c) $3.05\%$ \quad (d) $0.83\%$
+
+\mq A forward-difference derivative estimate is computed with smaller and smaller $h$. As $h \to 0$ on a real machine, the total error:\qmarks{1}\\
+(a) decreases monotonically to zero \quad (b) stays constant \\
+(c) decreases, reaches a minimum, then increases \quad (d) increases monotonically
+
+\mq Bisection starts on $[1,2]$. The least number of iterations guaranteeing an interval width below $10^{-3}$ is:\qmarks{1}\\
+(a) 8 \quad (b) 9 \quad (c) 10 \quad (d) 11
+
+\mq Bisection begins on $[0, 0.11]$. The interval width after 5 iterations is:\qmarks{1}\\
+(a) $0.0034375$ \quad (b) $0.006875$ \quad (c) $0.0011$ \quad (d) $0.022$
+
+\mq Newton--Raphson is applied to $f(x)=x^2-2$ with $x_0=1$. Then $x_2$ equals:\qmarks{1}\\
+(a) $1.5$ \quad (b) $1.416667$ \quad (c) $1.414216$ \quad (d) $1.333333$
+
+\mq Which statement about the false-position method is \textbf{FALSE}?\qmarks{1}\\
+(a) It is a bracketing method \quad (b) It always converges faster than bisection \\
+(c) One endpoint can stay frozen for many iterations \quad (d) It uses a secant line through the bracket endpoints
+
+\mq Newton--Raphson applied to a root of multiplicity 2 converges:\qmarks{1}\\
+(a) quadratically \quad (b) linearly with rate $1/2$ \quad (c) cubically \quad (d) not at all
+
+\mq In naive Gauss elimination on an $n \times n$ system, the total number of multipliers $m_{ik}$ computed is:\qmarks{1}\\
+(a) $n^2$ \quad (b) $n(n-1)/2$ \quad (c) $n(n+1)/2$ \quad (d) $n-1$
+
+\mq For $n=4$, that number is:\qmarks{1}\\
+(a) 4 \quad (b) 6 \quad (c) 10 \quad (d) 16
+
+\mq After forward elimination with \textbf{two} row swaps, the diagonal of $U$ multiplies to $-1$. Then $\det A$ is:\qmarks{1}\\
+(a) $-1$ \quad (b) $+1$ \quad (c) $-2$ \quad (d) cannot be determined
+
+\mq Compared with Gauss elimination, LU decomposition for a \textbf{single} right-hand side costs:\qmarks{1}\\
+(a) about half as much \quad (b) exactly the same \quad (c) about twice as much \quad (d) $n/4$ times less
+
+\mq A $2\times2$ matrix has $\operatorname{tr}A = 7$ and $\det A = 12$. Its eigenvalues are:\qmarks{1}\\
+(a) $2, 5$ \quad (b) $3, 4$ \quad (c) $1, 6$ \quad (d) $-3, -4$
+
+\mq If $\lambda = 2$ is an eigenvalue of $A$, then an eigenvalue of $A^3 - 2I$ is:\qmarks{1}\\
+(a) $4$ \quad (b) $6$ \quad (c) $8$ \quad (d) $2$
+
+\mq A matrix has eigenvalues $6$ and $2$. The power method's error decays per iteration by a factor of about:\qmarks{1}\\
+(a) $1/2$ \quad (b) $1/3$ \quad (c) $1/6$ \quad (d) $3$
+
+\mq The power method will \textbf{fail to converge} to a single dominant direction when:\qmarks{1}\\
+(a) the matrix is symmetric \quad (b) $\lambda_1 = 5$ and $\lambda_2 = -5$ \\
+(c) $\lambda_1 = 5$ and $\lambda_2 = 2$ \quad (d) the starting vector is $[1,1]^\top$
+
+\mq Golden Section Search starts on $[0,4]$. The interval width after \textbf{3} iterations is closest to:\qmarks{1}\\
+(a) $0.5$ \quad (b) $0.944$ \quad (c) $1.528$ \quad (d) $2.472$
+
+\mq Starting from an interval of width 1, the number of GSS iterations needed to shrink it below $0.01$ is:\qmarks{1}\\
+(a) 7 \quad (b) 8 \quad (c) 10 \quad (d) 14
+
+\mq After 5 GSS iterations, the total number of \emph{interior} function evaluations performed is:\qmarks{1}\\
+(a) 5 \quad (b) 6 \quad (c) 10 \quad (d) 11
+
+\mq The golden ratio $R$ satisfies which identity?\qmarks{1}\\
+(a) $R^2 = R + 1$ \quad (b) $R^2 = 1 - R$ \quad (c) $R^2 = 2R$ \quad (d) $R^2 = 1 + R$
+
+\mq Gradient descent is run on $J(x) = 3(x-2)^2$. It converges for exactly which learning rates?\qmarks{1}\\
+(a) $0 < \alpha < 1/6$ \quad (b) $0 < \alpha < 1/3$ \quad (c) $0 < \alpha < 3$ \quad (d) all $\alpha > 0$
+
+\mq Newton's method for optimization applied to a \textbf{quadratic} objective, from any starting point, converges in:\qmarks{1}\\
+(a) exactly one step \quad (b) two steps \quad (c) infinitely many steps \quad (d) it depends on the start
+
+\mq At a stationary point of $f(x,y)$ the Hessian has $\det H < 0$. The point is a:\qmarks{1}\\
+(a) minimum \quad (b) maximum \quad (c) saddle point \quad (d) cannot be classified
+
+\mq Newton's method for optimization is \textbf{dangerous} mainly because:\qmarks{1}\\
+(a) it needs a learning rate \quad (b) it converges only linearly \\
+(c) it can converge to a maximum or a saddle point \quad (d) it needs a bracketing interval
+
+\mq A least-squares regression line with an intercept \textbf{always} passes through:\qmarks{1}\\
+(a) the origin \quad (b) the first data point \quad (c) $(\bar x, \bar y)$ \quad (d) the median point
+
+\mq If $r = 0.8$, the percentage of variance in $y$ explained by the model is:\qmarks{1}\\
+(a) $80\%$ \quad (b) $64\%$ \quad (c) $89\%$ \quad (d) $40\%$
+
+\mq A scenario states that the regression errors follow a Poisson distribution. Which MLR assumption is violated?\qmarks{1}\\
+(a) Linearity \quad (b) Homoscedasticity \quad (c) Normality \quad (d) No multicollinearity
+
+\mq Given 5 data points, the interpolating polynomial has degree:\qmarks{1}\\
+(a) exactly 5 \quad (b) at most 4 \quad (c) exactly 4 \quad (d) at most 5
+
+\mq The data come from an exact cubic. The \textbf{4th} divided difference of the table is:\qmarks{1}\\
+(a) the leading coefficient \quad (b) $0$ \quad (c) $6$ \quad (d) undefined
+
+\mq A cubic spline is built through 6 data points. The number of unknown coefficients is:\qmarks{1}\\
+(a) 18 \quad (b) 20 \quad (c) 24 \quad (d) 16
+
+\mq Lagrange and Newton divided-difference interpolation on the same data set:\qmarks{1}\\
+(a) give different polynomials \quad (b) give the same polynomial in different form \\
+(c) give the same form \quad (d) differ only at the nodes
+
+\mq A queue holds 0 customers for 9 hours and 10 customers for 1 hour. The time-average queue length is:\qmarks{1}\\
+(a) $5$ \quad (b) $1.0$ \quad (c) $10$ \quad (d) $0.9$
+
+\mq Customers arrive at 8/hour and one server serves 10/hour. The utilization $\rho$ is:\qmarks{1}\\
+(a) $0.8$ \quad (b) $1.25$ \quad (c) $0.2$ \quad (d) $80$
+
+\mq An LCG has $X_0 = 5$, $a = 3$, $c = 7$, $m = 16$. Then $X_3$ is:\qmarks{1}\\
+(a) 6 \quad (b) 9 \quad (c) 2 \quad (d) 13
+
+\mq To reduce the error of a Monte Carlo estimate by a factor of 5, the number of samples must be multiplied by:\qmarks{1}\\
+(a) 5 \quad (b) 10 \quad (c) 25 \quad (d) 125
+\end{mcqbox}
+
+\subsection{Part B --- Short Answer (20 marks)}
+
+\begin{qabox}
+\textbf{S1.} State the unimodality assumption of Golden Section Search and explain exactly what goes wrong without it.\qmarks{2}
+
+\textbf{S2.} Bisection and false position are both bracketing methods, yet false position was measured as \emph{slower} on $f(x)=\ln x$ over $[10^{-4},10^4]$. Explain the mechanism.\qmarks{2}
+
+\textbf{S3.} A model passes every verification check but still gives wrong predictions. Which of verification/validation failed, and why is that possible?\qmarks{2}
+
+\textbf{S4.} Why does the area accumulator in a discrete-event simulation use the state value from \emph{before} the current event?\qmarks{2}
+
+\textbf{S5.} A generator produces $0.01, 0.02, 0.03, \dots, 0.99$ in order. Which of the two ``sacred properties'' does it satisfy, which does it violate, and which statistical test catches it?\qmarks{2}
+
+\textbf{S6.} Explain why LU decomposition costs the same as Gauss elimination for one right-hand side but wins dramatically when computing $A^{-1}$.\qmarks{2}
+
+\textbf{S7.} State what the Lagrange multiplier $\lambda$ measures beyond simply locating the optimum.\qmarks{2}
+
+\textbf{S8.} Why does adding more equally spaced interpolation nodes sometimes make the fit \emph{worse}? Name the phenomenon and where the error concentrates.\qmarks{2}
+
+\textbf{S9.} An RNG is subjected to 10 independent tests at $\alpha = 0.05$ and fails one. Should it be rejected? Justify quantitatively.\qmarks{2}
+
+\textbf{S10.} Distinguish a discrete-time statistic from a continuous-time statistic in simulation output analysis, giving one example of each.\qmarks{2}
+\end{qabox}
+
+\subsection{Part C --- Problems (40 marks)}
+
+\begin{probbox}
+\PQ{P1.} Maximize $f(x) = -x^2 + 6x - 5$ on $[0,5]$ using Golden Section Search. Perform \textbf{2} iterations showing $x_1, x_2, f_1, f_2$ and the surviving bracket. Then, \emph{without iterating further}, state the bracket width after 6 iterations.\qmarks{5}
+
+\PQ{P2.} Solve using Gauss elimination \textbf{with partial pivoting}, showing every swap and multiplier:
+\[
+\begin{bmatrix}2&1&-1\\-3&-1&2\\-2&1&2\end{bmatrix}\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}=\begin{bmatrix}8\\-11\\-3\end{bmatrix}
+\]
+Also report $\det A$ from your elimination.\qmarks{5}
+
+\PQ{P3.} For $A=\begin{bmatrix}4&1\\2&3\end{bmatrix}$ with $\mathbf x_0=[1,0]^\top$, perform \textbf{4} power-method iterations (normalize by the largest-magnitude entry). Report each $\lambda$ estimate and $|\epsilon_a|$ at iteration 4. Then confirm the exact eigenvalues using trace and determinant only, and state the theoretical convergence ratio.\qmarks{5}
+
+\PQ{P4.} Fit a least-squares line to $(1,3),(2,4),(3,8),(4,9),(5,11)$. Report $m$, $b$, $r$ and $r^2$. Then \textbf{verify} two structural properties: that the line passes through the centroid, and that the residuals sum to zero.\qmarks{5}
+
+\PQ{P5.} The function $y = 2x^3 - x + 1$ is sampled at $x = 0,1,2,3$. Build the complete Newton divided-difference table, write $P_3(x)$, and explain what the 3rd divided difference equals and what the 4th would be.\qmarks{5}
+
+\PQ{P6.} A single-server queue receives 3 customers with interarrival times $0.5, 1.0, 0.8$ and service times $1.5, 0.9, 1.2$. Build the event trace, then compute $\hat d(3)$, $\hat q(3)$ and $\hat u(3)$ over the run ending when customer 3 departs. Finally check Little's Law $L_q = \lambda W_q$.\qmarks{5}
+
+\PQ{P7.} An LCG is defined by $X_{i+1} = (3X_i + 7) \bmod 16$ with $X_0 = 5$. Generate 4 values and their $R_i$. Then determine whether this generator can achieve the maximum period $m = 16$, justifying with the max-period conditions.\qmarks{5}
+
+\PQ{P8.} A Monte Carlo estimator has $\sigma = 0.5$. How many samples are needed so that the 95\% confidence interval half-width is at most $0.01$? If a colleague wants half-width $0.002$ instead, by what factor does $n$ grow?\qmarks{5}
+\end{probbox}
+
+\clearpage
+\subsection{Answer Key}
+
+\begin{mcqbox}
+\textbf{Part A.}\\[3pt]
+\textbf{1 (b)} $m=\lfloor 2-\log_{10}(2\times0.04)\rfloor = \lfloor 3.097\rfloor = 3$.\\
+\textbf{2 (b)} $|0.00828/2.71828| = 0.3046\%$.\\
+\textbf{3 (c)} Truncation error falls with $h$ but round-off rises as $h$ shrinks: the total is U-shaped.\\
+\textbf{4 (c)} $n \ge \log_2(1/10^{-3}) = 9.97 \Rightarrow 10$.\\
+\textbf{5 (a)} $0.11/2^5 = 0.0034375$.\\
+\textbf{6 (b)} $x_1 = 1.5$, $x_2 = 1.416667$ (note $x_3 = 1.414216$ --- read the index carefully).\\
+\textbf{7 (b)} On $\ln x$ over $[10^{-4},10^4]$ bisection took 34 iterations vs false position's 126.\\
+\textbf{8 (b)} Multiplicity $k$ gives linear convergence at rate $1-1/k = 1/2$.\\
+\textbf{9 (b)} $(n-1)+(n-2)+\cdots+1 = n(n-1)/2$.\\
+\textbf{10 (b)} $4\cdot3/2 = 6$.\\
+\textbf{11 (a)} $\det A = (-1)^2 \times(-1) = -1$; an \emph{even} number of swaps leaves the sign alone.\\
+\textbf{12 (b)} The cost analysis gives $C_T|_{LU} = C_T|_{GE}$ exactly for one RHS.\\
+\textbf{13 (b)} $\lambda^2-7\lambda+12=0 \Rightarrow 3,4$.\\
+\textbf{14 (b)} $\lambda^3 - 2 = 8-2 = 6$.\\
+\textbf{15 (b)} decay $=|\lambda_2/\lambda_1| = 2/6 = 1/3$.\\
+\textbf{16 (b)} Equal magnitudes mean no strictly dominant eigenvalue; the iterate oscillates.\\
+\textbf{17 (b)} $L_3 = 4R^3 = 4(0.236068) = 0.944$. \emph{This is the past-exam question.}\\
+\textbf{18 (c)} $n \ge \ln(0.01)/\ln(0.618034) = 9.57 \Rightarrow 10$.\\
+\textbf{19 (b)} 2 interior evaluations on iteration 1, then 1 each: $2+4 = 6$.\\
+\textbf{20 (b)} $R^2+R-1=0 \Rightarrow R^2 = 1-R = 0.381966$.\\
+\textbf{21 (b)} $J = a(x-2)^2$ with $a=3$; converges iff $0<\alpha<1/a = 1/3$.\\
+\textbf{22 (a)} The second-order Taylor model is exact for a quadratic, so the first step lands on the vertex.\\
+\textbf{23 (c)} $\det H<0$ means eigenvalues of opposite sign: a saddle.\\
+\textbf{24 (c)} It solves $f'=0$, which is satisfied by minima, maxima and saddles alike.\\
+\textbf{25 (c)} Follows directly from $b = \bar y - m\bar x$.\\
+\textbf{26 (b)} $r^2 = 0.64$.\\
+\textbf{27 (c)} Poisson errors are not normal.\\
+\textbf{28 (b)} $(n+1)$ points give \emph{at most} degree $n$; collinear data collapse to lower degree.\\
+\textbf{29 (b)} The 3rd divided difference of a cubic is its leading coefficient (constant); the 4th is 0.\\
+\textbf{30 (b)} 6 points $\Rightarrow n=5$ intervals $\Rightarrow 4n = 20$.\\
+\textbf{31 (b)} The interpolating polynomial is unique; only the representation differs.\\
+\textbf{32 (b)} $(0\cdot9 + 10\cdot1)/10 = 1.0$. Averaging $0$ and $10$ to get 5 is the trap.\\
+\textbf{33 (a)} $\rho = \lambda/\mu = 8/10 = 0.8$.\\
+\textbf{34 (c)} $X_1=6,\ X_2=9,\ X_3=2$.\\
+\textbf{35 (c)} Error $\propto 1/\sqrt n$, so $n$ scales by $5^2 = 25$.
+\end{mcqbox}
+
+\begin{qabox}
+\textbf{Part B (model answers, condensed).}\\[3pt]
+\textbf{S1.} Exactly one extremum in $[x_L,x_u]$. Without it, the ``keep the better side'' comparison can discard the sub-interval that actually contains the global optimum, and the method converges confidently to the wrong point.\\
+\textbf{S2.} False position replaces one endpoint each iteration, but if the function is strongly curved, one endpoint can remain \emph{frozen} indefinitely while the other creeps; the bracket then shrinks far slower than bisection's guaranteed halving (34 vs 126 iterations in the measured test).\\
+\textbf{S3.} Validation failed. Verification only asks ``does the code implement the conceptual model correctly?''; the model's assumptions themselves can be wrong, so a perfectly verified program can faithfully implement a model that does not match reality.\\
+\textbf{S4.} Because the rectangle's height must be the state that actually held \emph{during} the elapsed interval $[\text{time of last event}, \text{clock}]$. The current event changes the state at its right endpoint, so using the post-update value would attribute the new state to time it did not occupy.\\
+\textbf{S5.} It satisfies \textbf{uniformity} (the values are evenly spread over $(0,1)$) but violates \textbf{independence} (each value perfectly predicts the next). Uniformity tests (K-S, chi-square) ignore ordering and would pass it; the \textbf{autocorrelation test} catches it.\\
+\textbf{S6.} For one RHS the total work is identical --- LU just relabels the same elimination arithmetic. The payoff is that $L$ and $U$ do not depend on the RHS: computing $A^{-1}$ means $n$ solves, and LU pays the $O(n^3)$ decomposition \emph{once} and then $n$ cheap $O(n^2)$ substitutions, while Gauss redoes the full $O(n^3)$ elimination $n$ times --- ratio $\approx n/4$.\\
+\textbf{S7.} $\lambda$ is the sensitivity or shadow price: it measures how much the optimal objective value changes per unit relaxation of the constraint, and it carries scale information about how hard the constraint is binding.\\
+\textbf{S8.} \textbf{Runge's phenomenon}: more equally spaced nodes force a higher-degree global polynomial, which oscillates increasingly violently. The error concentrates at the \textbf{edges} of the interval. The fix is local low-order pieces --- splines.\\
+\textbf{S9.} No. Under a correct generator, $P(\text{at least one false rejection}) = 1-(0.95)^{10} \approx 0.40$, so a single failure in 10 tests is the \emph{expected} outcome about 40\% of the time. Concern is warranted only for repeated failures of the same test or failures across several different tests.\\
+\textbf{S10.} A discrete-time statistic averages over a discrete index, e.g.\ $\hat d(n)=\frac1n\sum D_i$ (average delay). A continuous-time statistic is a time-weighted average of a function of time, e.g.\ $\hat q(n)=\int_0^T Q(t)dt / T$ (time-average queue length) or $\hat u(n)$.
+\end{qabox}
+
+\begin{probbox}
+\textbf{Part C solutions.}
+
+\PQ{P1.} $R=0.618034$, $L_0=5$.
+
+\emph{Iteration 1:} $d = R(5-0) = 3.09017$; $x_1 = 5-3.09017 = 1.90983$, $x_2 = 0+3.09017 = 3.09017$.
+$f(x_1) = 2.81153$, $f(x_2) = 3.99187$. Since $f_1 < f_2$ the maximum lies to the right: $x_L = x_1 = 1.90983$. New bracket $[1.90983, 5]$, width $3.09017 = 5R$. $\checkmark$
+
+\emph{Iteration 2:} $d = R(5-1.90983) = 1.90983$; $x_1 = 3.09017$ (reused), $x_2 = 3.81966$.
+$f(x_1) = 3.99187$, $f(x_2) = 3.32816$. Now $f_1 > f_2$, so the maximum is to the left: $x_u = x_2 = 3.81966$. Bracket $[1.90983, 3.81966]$, width $1.90983 = 5R^2$. $\checkmark$
+
+\emph{Shortcut:} width after 6 iterations $= L_0R^6 = 5(0.055728) = \boxed{0.27864}$ --- no iteration required. (True optimum $x^*=3$ lies in every bracket.)
+
+\PQ{P2.} Column 1 candidates $|2|,|-3|,|-2|$: pivot is $-3$, \textbf{swap} $R_1\leftrightarrow R_2$.
+Multipliers $m_{21} = 2/(-3) = -0.666667$, $m_{31} = -2/(-3) = 0.666667$:
+\[
+\begin{bmatrix}-3&-1&2&-11\\0&0.333333&0.333333&0.666667\\0&1.666667&0.666667&4.333333\end{bmatrix}
+\]
+Column 2 candidates $|0.333333|, |1.666667|$: \textbf{swap} $R_2\leftrightarrow R_3$. Then $m_{32} = 0.333333/1.666667 = 0.2$:
+\[
+\begin{bmatrix}-3&-1&2&-11\\0&1.666667&0.666667&4.333333\\0&0&0.2&-0.2\end{bmatrix}
+\]
+Back substitution: $x_3 = -1$; $1.666667x_2 + 0.666667(-1) = 4.333333 \Rightarrow x_2 = 3$; $-3x_1 - 3 - 2 = -11 \Rightarrow x_1 = 2$.
+\[
+(x_1,x_2,x_3) = (2, 3, -1)
+\]
+Determinant: 2 swaps (even), so $\det A = (-1)^2(-3)(1.666667)(0.2) = -1$.
+
+\PQ{P3.} $\mathbf x_0 = [1,0]^\top$:
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+Iter & $A\mathbf x_k$ & $\lambda$ estimate & $\mathbf x_{k+1}$\\
+\midrule
+1 & $[4, 2]^\top$ & $4.00000$ & $[1, 0.5]^\top$\\
+2 & $[4.5, 3.5]^\top$ & $4.50000$ & $[1, 0.77778]^\top$\\
+3 & $[4.77778, 4.33333]^\top$ & $4.77778$ & $[1, 0.90698]^\top$\\
+4 & $[4.90698, 4.72093]^\top$ & $4.90698$ & $[1, 0.96209]^\top$\\
+\bottomrule
+\end{tabular}
+\end{center}
+$|\epsilon_a|$ at iteration 4 $= |(4.90698-4.77778)/4.90698|\times100\% = 2.633\%$.
+
+\emph{Exact check without the characteristic polynomial:} $\operatorname{tr}A = 7$ and $\det A = 10$, so $\lambda^2-7\lambda+10=0 \Rightarrow \lambda = 5, 2$. The iterates are climbing toward $5$. Convergence ratio $= |\lambda_2/\lambda_1| = 2/5 = 0.4$ per iteration.
+
+\PQ{P4.} $n=5$: $\sum x = 15$, $\sum y = 35$, $\sum xy = 126$, $\sum x^2 = 55$, $\sum y^2 = 291$.
+\[
+m = \frac{5(126)-15(35)}{5(55)-15^2} = \frac{630-525}{275-225} = \frac{105}{50} = 2.1
+\]
+\[
+b = \frac{35-2.1(15)}{5} = \frac{35-31.5}{5} = 0.7 \qquad\Rightarrow\qquad \hat y = 2.1x+0.7
+\]
+\[
+r = \frac{105}{\sqrt{(50)(5(291)-35^2)}} = \frac{105}{\sqrt{50 \times 230}} = 0.979130, \qquad r^2 = 0.958696
+\]
+\emph{Centroid:} $\bar x = 3$, $\bar y = 7$; $\hat y(3) = 2.1(3)+0.7 = 7 = \bar y$. $\checkmark$
+\emph{Residuals:} $y - \hat y = (0.2, -0.9, 1.0, -0.1, -0.2)$, summing to $0$. $\checkmark$
+
+\PQ{P5.} $y(0)=1,\ y(1)=2,\ y(2)=15,\ y(3)=52$.
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$x_i$ & $y_i$ & 1st d.d. & 2nd d.d. & 3rd d.d.\\
+\midrule
+0 & 1 & & & \\
+  &   & 1 & & \\
+1 & 2 & & 6 & \\
+  &   & 13 & & \textbf{2}\\
+2 & 15 & & 12 & \\
+  &   & 37 & & \\
+3 & 52 & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+P_3(x) = 1 + 1(x-0) + 6(x-0)(x-1) + 2(x-0)(x-1)(x-2)
+\]
+(Expanding confirms $P_3(x) = 2x^3 - x + 1$ exactly.) The 3rd divided difference equals $2$, which is precisely the \textbf{leading coefficient} of the cubic --- consistent with $f[x_0..x_n] = f^{(n)}(\xi)/n!$ and $f'''=12$, giving $12/3! = 2$. The 4th divided difference would be $\mathbf{0}$, because the 4th derivative of a cubic vanishes.
+
+\PQ{P6.} Arrival times (cumulative): $0.5,\ 1.5,\ 2.3$.
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Cust. & Arrives & Service starts & Departs & Delay $D_i$\\
+\midrule
+1 & 0.5 & 0.5 & 2.0 & 0\\
+2 & 1.5 & 2.0 & 2.9 & 0.5\\
+3 & 2.3 & 2.9 & 4.1 & 0.6\\
+\bottomrule
+\end{tabular}
+\end{center}
+Run ends at $T = 4.1$.
+\[
+\hat d(3) = \frac{0+0.5+0.6}{3} = 0.366667
+\]
+$Q(t)=1$ on $[1.5,2.0]$ (customer 2 waiting) and on $[2.3,2.9]$ (customer 3 waiting):
+\[
+\int_0^{4.1}Q(t)\,dt = 1(0.5)+1(0.6) = 1.1 \qquad \hat q(3) = \frac{1.1}{4.1} = 0.268293
+\]
+The server is busy from $0.5$ to $4.1$:
+\[
+\int_0^{4.1}B(t)\,dt = 3.6 \qquad \hat u(3) = \frac{3.6}{4.1} = 0.878049
+\]
+\emph{Little's Law:} $\lambda = 3/4.1 = 0.731707$, $W_q = \hat d(3) = 0.366667$, so
+\[
+\lambda W_q = 0.731707 \times 0.366667 = 0.268293 = \hat q(3). \qquad\checkmark
+\]
+
+\PQ{P7.} $X_1 = (15+7)\bmod16 = 22\bmod16 = 6 \Rightarrow R_1 = 0.375$.
+$X_2 = (18+7)\bmod16 = 25\bmod16 = 9 \Rightarrow R_2 = 0.5625$.
+$X_3 = (27+7)\bmod16 = 34\bmod16 = 2 \Rightarrow R_3 = 0.125$.
+$X_4 = (6+7)\bmod16 = 13 \Rightarrow R_4 = 0.8125$.
+
+\emph{Max-period test:} this is a \emph{mixed} generator ($c = 7 \neq 0$) with $m = 16 = 2^4$. The conditions for $P = m$ are (i) $\gcd(c,m)=1$ and (ii) $a = 1+4k$. Here $\gcd(7,16)=1$ $\checkmark$, but $a = 3$ and $3 = 1+4k$ has no integer solution ($k = 0.5$) $\times$. \textbf{So the full period 16 is not achieved.}
+
+\PQ{P8.} The 95\% half-width is $1.96\sigma/\sqrt n$. Setting $1.96(0.5)/\sqrt n \le 0.01$:
+\[
+\sqrt n \ge \frac{1.96\times0.5}{0.01} = 98 \qquad\Rightarrow\qquad n \ge 9604
+\]
+For half-width $0.002$ the target is $5\times$ tighter, and since error $\propto 1/\sqrt n$, $n$ grows by $5^2 = \mathbf{25}$, i.e.\ $n \ge 240100$.
+\end{probbox}

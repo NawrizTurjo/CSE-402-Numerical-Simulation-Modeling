@@ -1,0 +1,165 @@
+% Shared preamble for CSE 402 Numerical Methods Quiz prep documents
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{tocloft}
+\usepackage{microtype}
+
+% ---------- colors ----------
+\definecolor{navy}{RGB}{20,40,80}
+\definecolor{gold}{RGB}{180,140,30}
+\definecolor{formulabg}{RGB}{237,242,250}
+\definecolor{defbg}{RGB}{240,247,240}
+\definecolor{qabg}{RGB}{252,244,230}
+\definecolor{examplebg}{RGB}{245,240,250}
+\definecolor{lightgray}{RGB}{245,245,245}
+
+% ---------- hyperref ----------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=navy,
+  citecolor=navy,
+  urlcolor=navy,
+  linktoc=all
+}
+
+% ---------- section styling ----------
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{navy}}
+  {\thesection}{0.6em}{}[{\color{gold}\titlerule[1pt]}]
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{navy}}
+  {\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalfont\bfseries\color{navy!80}}
+  {\thesubsubsection}{0.6em}{}
+
+% ---------- boxed environments ----------
+\newtcolorbox{formulabox}[1][]{
+  colback=formulabg, colframe=navy, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, #1
+}
+\newtcolorbox{defbox}[1][]{
+  colback=defbg, colframe=navy!70, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Definition}, fonttitle=\bfseries\color{white},
+  colbacktitle=navy!70, #1
+}
+\newtcolorbox{examplebox}[1][]{
+  colback=examplebg, colframe=navy!60, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Worked Example}, fonttitle=\bfseries\color{white},
+  colbacktitle=navy!60, #1
+}
+\newtcolorbox{qabox}[1][]{
+  colback=qabg, colframe=gold, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, #1
+}
+\newtcolorbox{keypoint}[1][]{
+  colback=navy!5, colframe=navy, boxrule=0.8pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Key Point / Exam Tip}, fonttitle=\bfseries\color{white},
+  colbacktitle=navy, #1
+}
+
+% ---------- extra colors for new box types ----------
+\definecolor{derivedbg}{RGB}{235,245,243}
+\definecolor{derivedfr}{RGB}{20,110,95}
+\definecolor{trapbg}{RGB}{253,238,238}
+\definecolor{trapfr}{RGB}{160,40,40}
+\definecolor{mcqbg}{RGB}{243,241,250}
+\definecolor{mcqfr}{RGB}{85,60,150}
+\definecolor{probbg}{RGB}{247,247,242}
+\definecolor{probfr}{RGB}{100,95,60}
+
+% ---------- derived / implicit formulas (not on slides, exam-critical) ----------
+\newtcolorbox{derivedbox}[1][]{
+  colback=derivedbg, colframe=derivedfr, boxrule=0.8pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Derived \& Implicit Formulas --- not on the slides, but exam-critical},
+  fonttitle=\bfseries\color{white}, colbacktitle=derivedfr, #1
+}
+
+% ---------- exam trap ----------
+\newtcolorbox{trapbox}[1][]{
+  colback=trapbg, colframe=trapfr, boxrule=0.8pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Exam Traps}, fonttitle=\bfseries\color{white},
+  colbacktitle=trapfr, #1
+}
+
+% ---------- MCQ bank ----------
+\newtcolorbox{mcqbox}[1][]{
+  colback=mcqbg, colframe=mcqfr, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={MCQ / Rapid-Fire Bank}, fonttitle=\bfseries\color{white},
+  colbacktitle=mcqfr, #1
+}
+
+% ---------- practice problem set ----------
+\newtcolorbox{probbox}[1][]{
+  colback=probbg, colframe=probfr, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Practice Problems (with full solutions)},
+  fonttitle=\bfseries\color{white}, colbacktitle=probfr, #1
+}
+
+% ---------- quick-numbers reference ----------
+\newtcolorbox{numbox}[1][]{
+  colback=white, colframe=navy!60, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  breakable, title={Quick Numbers (memorize)}, fonttitle=\bfseries\color{white},
+  colbacktitle=navy!60, #1
+}
+
+% ---------- Q&A helper ----------
+\newcommand{\shortq}[2]{%
+  \begin{qabox}
+  \textbf{Q: } #1 \\[2pt]
+  \textbf{A: } #2
+  \end{qabox}
+}
+
+% ---------- problem/answer helpers ----------
+\newcommand{\PQ}[1]{\smallskip\noindent\textbf{\color{probfr}#1}\ }
+\newcommand{\ans}{\smallskip\noindent\textbf{Solution.}\ }
+\newcommand{\Tr}[1]{\smallskip\noindent\textbf{\color{trapfr}Trap.}\ #1}
+
+% ---------- part-divider banner ----------
+\newcommand{\parttitle}[2]{%
+  \clearpage
+  \begin{tcolorbox}[colback=navy, colframe=navy, boxrule=0pt, arc=3pt,
+      left=10pt, right=10pt, top=10pt, bottom=10pt]
+    \centering
+    {\LARGE\bfseries\color{white} #1}\\[5pt]
+    {\normalsize\color{gold!85!white} #2}
+  \end{tcolorbox}
+  \vspace{6pt}
+  \addcontentsline{toc}{section}{\protect\numberline{}\textbf{#1}}
+}
+
+% ---------- mock-exam question helpers ----------
+\newcounter{mockq}
+\newcommand{\mq}{\refstepcounter{mockq}\smallskip\noindent\textbf{\color{navy}Q\themockq.}\ }
+\newcommand{\qmarks}[1]{\hfill{\small\itshape[#1]}}
+
+% ---------- misc ----------
+\setlist[itemize]{leftmargin=1.4em, itemsep=2pt, topsep=2pt}
+\setlist[enumerate]{leftmargin=1.6em, itemsep=3pt, topsep=2pt}
+\renewcommand{\arraystretch}{1.25}
+
+\newcommand{\topicnum}{}

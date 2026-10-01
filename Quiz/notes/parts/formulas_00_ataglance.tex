@@ -1,0 +1,98 @@
+\section*{At a Glance --- The 40 Formulas Most Likely to Decide Your Grade}
+\addcontentsline{toc}{section}{At a Glance --- The 40 Formulas Most Likely to Decide Your Grade}
+
+\begin{keypoint}
+If you memorize nothing else, memorize this page. Entries marked $\bigstar$ are \emph{derived} results that do \textbf{not} appear on the slides but turn multi-minute calculations into one line --- exactly the kind that has shown up in past MCQs.
+\end{keypoint}
+
+\renewcommand{\arraystretch}{1.75}
+\begin{longtable}{@{}p{0.30\textwidth}p{0.66\textwidth}@{}}
+\toprule
+\textbf{Situation} & \textbf{Formula} \\
+\midrule
+\endhead
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Errors}}\\
+Relative approx.\ error & $\epsilon_a = \dfrac{\text{present} - \text{previous}}{\text{present}}$ \\
+Digits guaranteed & $|\epsilon_a| \le 0.5\times10^{\,2-m}\%$ \\
+$\bigstar$ Invert it & $m = \left\lfloor 2 - \log_{10}\!\big(2|\epsilon_a|\big) \right\rfloor$ \quad ($|\epsilon_a|$ in \%) \\
+Correct to $M$ digits & $|x-\hat x| \le \tfrac12\times10^{\,n-M+1}$, \ $n=\lfloor\log_{10}|x|\rfloor$ \\
+$\bigstar$ Error trade-off & total error $=$ round-off $+$ truncation is \textbf{U-shaped} in $h$; shrinking $h$ forever makes it worse \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Root Finding}}\\
+Bisection step & $x_m=\dfrac{x_\ell+x_u}{2}$, \ requires $f(x_\ell)f(x_u)<0$ \\
+$\bigstar$ Width after $n$ & $L_n = \dfrac{b-a}{2^n}$, \ error bound $\dfrac{b-a}{2^{n+1}}$ \\
+$\bigstar$ Iterations needed & $n \ge \log_2\!\dfrac{b-a}{\varepsilon} = \dfrac{\ln((b-a)/\varepsilon)}{\ln 2}$ \\
+False position & $x_r=\dfrac{x_Uf(x_L)-x_Lf(x_U)}{f(x_L)-f(x_U)}$ \\
+Newton--Raphson & $x_{i+1}=x_i-\dfrac{f(x_i)}{f'(x_i)}$ \\
+$\bigstar$ NR error law & $e_{i+1}\approx\dfrac{f''(r)}{2f'(r)}e_i^2$ \ (quadratic: digits double) \\
+$\bigstar$ NR on multiple root & only \textbf{linear}, rate $1-\frac1k$ for multiplicity $k$; fix: $x-k\,f/f'$ \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Linear Systems}}\\
+Multiplier & $m_{ik}=a_{ik}^{(k-1)}/a_{kk}^{(k-1)}$ \\
+$\bigstar$ Determinant & $\det A = (-1)^{\#\text{swaps}}\prod_i u_{ii}$ \ (since $\det L=1$) \\
+LU solve & $LZ=C$ (forward), then $UX=Z$ (back) \\
+$\bigstar$ Cost & Gauss $\approx \tfrac23 n^3$; Gauss--Jordan $\approx n^3$; \newline $A^{-1}$: LU $\sim n^3$ vs Gauss $\sim n^4$, ratio $\approx n/4$ \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Eigenvalues}}\\
+Definition & $A\mathbf v=\lambda\mathbf v \Rightarrow \det(A-\lambda I)=0$ \\
+Decomposition & $A=V\Lambda V^{-1}$, \ $A^k=V\Lambda^kV^{-1}$ \\
+$\bigstar$ Instant checks & $\operatorname{tr}A=\sum\lambda_i$, \quad $\det A=\prod\lambda_i$ \\
+$\bigstar$ Spectrum map & $A^k\!\to\lambda^k$; \ $A^{-1}\!\to 1/\lambda$; \ $A+cI\to\lambda+c$; \ $cA\to c\lambda$ \newline (eigen\emph{vectors} unchanged in every case) \\
+Power method & $\mathbf x_{k+1}=\dfrac{A\mathbf x_k}{\text{largest-magnitude entry}}$, \ $\lambda_1\approx$ that entry \\
+$\bigstar$ Convergence rate & unwanted part decays as $\left|\lambda_2/\lambda_1\right|^k$ \\
+Deflation & $A_2=A-\lambda_1\hat{\mathbf v}_1\hat{\mathbf v}_1^\top$ \ (spectrum $\{0,\lambda_2,\dots\}$) \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Optimization}}\\
+Golden ratio & $R=\dfrac{\sqrt5-1}{2}=0.618034$, \ $d=R(x_u-x_L)$ \\
+$\bigstar$ \textbf{GSS width after $n$} & $\boxed{L_n = R^{\,n}L_0}$ \quad $R^3=0.236068$, \ $R^5=0.090170$ \\
+$\bigstar$ GSS iterations needed & $n \ge \dfrac{\ln(\varepsilon/L_0)}{\ln R}$ \\
+$\bigstar$ GSS identities & $R^2=1-R=0.381966$, \quad $1/R=1+R=1.618034$ \\
+$\bigstar$ GSS evaluations & $2$ interior evals on iter.\ 1, then $1$ each $\Rightarrow n+1$ after $n$ iters \\
+GD update & $w_j\leftarrow w_j-\alpha\,\partial J/\partial w_j$ \\
+$\bigstar$ GD on $J=a(x-x^*)^2$ & $e_{k+1}=(1-2a\alpha)e_k$; converges iff $0<\alpha<1/a$; \newline exact in one step at $\alpha=1/(2a)$ \\
+Newton (opt.) & $x_{t+1}=x_t-\dfrac{f'(x_t)}{f''(x_t)}$, \ vector: $x_t-H^{-1}g$ \\
+$\bigstar$ Newton on a quadratic & converges in \textbf{exactly one step} from any start \\
+$\bigstar$ 2-D classification & $\det H>0,\ f_{xx}>0\Rightarrow$ min; $\det H>0,\ f_{xx}<0\Rightarrow$ max; \newline $\det H<0\Rightarrow$ saddle \\
+Lagrange & $\nabla J+\lambda\nabla C=0$, \ $C(\mathbf x)=0$ \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Regression}}\\
+Slope / intercept & $m=\dfrac{n\sum xy-\sum x\sum y}{n\sum x^2-(\sum x)^2}$, \ $b=\dfrac{\sum y-m\sum x}{n}$ \\
+$\bigstar$ Centroid property & the fit \textbf{always} passes through $(\bar x,\bar y)$; \ $\sum e_i=0$ \\
+Correlation & $r=\dfrac{n\sum xy-\sum x\sum y}{\sqrt{[n\sum x^2-(\sum x)^2][n\sum y^2-(\sum y)^2]}}$ \\
+$\bigstar$ Shortcut & $m = r\,\dfrac{s_y}{s_x}$, \quad $r^2=1-\dfrac{SSE}{SST}$ \\
+MLR cost \& update & $J=\dfrac{1}{2m}\sum(\hat y_i-y_i)^2$, \ $w_j\!\leftarrow\! w_j-\dfrac{\alpha}{m}\sum(\hat y_i-y_i)x_{ij}$ \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Interpolation}}\\
+Lagrange & $f(x)=\sum_j y_j\prod_{k\neq j}\dfrac{x-x_k}{x_j-x_k}$ \\
+Newton form & $P_n=a_0+a_1(x-x_0)+\dots$, \ $a_k=f[x_0..x_k]$ \\
+Divided difference & $f[x_0..x_{n+1}]=\dfrac{f[x_1..x_{n+1}]-f[x_0..x_n]}{x_{n+1}-x_0}$ \\
+$\bigstar$ D.d.\ $\leftrightarrow$ derivative & $f[x_0..x_n]=\dfrac{f^{(n)}(\xi)}{n!}$ $\Rightarrow$ for a degree-$n$ polynomial the \newline $n$-th d.d.\ is the \textbf{leading coefficient} and the $(n{+}1)$-th is \textbf{0} \\
+$\bigstar$ Same polynomial & Lagrange and Newton give \textbf{identical} values --- only the form differs \\
+Spline counts & linear $2n$; quadratic $3n=2n+(n{-}1)+1$; \newline cubic $4n=2n+(n{-}1)+(n{-}1)+2$ \ \ ($n=k-1$ for $k$ points) \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}Simulation}}\\
+Average delay & $\hat d(n)=\frac1n\sum D_i$ \ (discrete-time average) \\
+Time averages & $\hat q(n)=\dfrac{\int_0^{T}Q(t)dt}{T}$, \ $\hat u(n)=\dfrac{\int_0^{T}B(t)dt}{T}$ \\
+Area rule & new area $=$ \textbf{old} state $\times$ (clock $-$ time of last event) \\
+$\bigstar$ Little's Law & $L=\lambda W$, \quad $L_q=\lambda W_q$ \\
+$\bigstar$ Utilization & $\rho=\lambda/\mu$; \ stable only if $\lambda<\mu$ \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{\color{navy}RNG \& Monte Carlo}}\\
+LCG & $X_{i+1}=(aX_i+c)\bmod m$, \ $R_i=X_i/m$ \\
+$U(0,1)$ moments & $E[R]=\tfrac12$, \ $E[R^2]=\tfrac13$, \ $\operatorname{Var}=\tfrac1{12}=0.0833$ \\
+Multiple testing & $P(\ge 1 \text{ false reject})=1-(1-\alpha)^k$ \\
+Autocorrelation & $\hat\rho_{i\ell}=\frac{1}{M+1}\sum R_{i+k\ell}R_{i+(k+1)\ell}-0.25$, \ $\sigma=\frac{\sqrt{13M+7}}{12(M+1)}$ \\
+MC estimator & $\bar Y(n)=(b-a)\frac1n\sum g(X_i)$, \quad $\hat\pi=4h/n$ \\
+$\bigstar$ MC accuracy law & error $\propto \dfrac{\sigma}{\sqrt n}$ $\Rightarrow$ \textbf{$100\times$ the samples for $10\times$ the accuracy} \\
+\bottomrule
+\end{longtable}
+\renewcommand{\arraystretch}{1.25}

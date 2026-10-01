@@ -1,0 +1,73 @@
+Total Marks: 20
+
+Deliverables: LaTeX Beamer Slide Deck (PDF) & Source Code Archive (.zip)
+
+Submission: Two Separate Submission Links on the Course Moodle (Assignment's LaTeX File Submission & Assignment's PDF File Submission)
+
+Deadline: October 2, 2026 (Friday) at 11:59PM
+1. Topic Allocation Formula
+
+Your individual assigned topic is determined by:
+Topic ID = Last 3 Digits of Roll Number % 15 + 1
+Topic ID	Assigned Topic
+1	Golden-Section Search
+2	Newton’s Method (Optimization)
+3	Gradient Methods
+4	Constrained Optimization
+5	Lagrange Polynomial Interpolation
+6	Newton’s Polynomial Interpolation
+7	Spline Interpolation
+8	Newton-Cotes Integration
+9	Trapezoidal Rule
+10	Simpson’s Rule
+11	Romberg’s Integration
+12	Richardson’s Extrapolation
+13	Euler’s Method
+14	Runge-Kutta Methods
+15	Finite Difference Methods
+
+2. Structural Requirements
+
+You are required to act as the primary instructor for your assigned topic and prepare a comprehensive teaching module consisting of two main components:
+Part A: Concept Presentation & Advanced Theory (Teaching Slides)
+
+    Beyond-Lecture Content ("Wow Factor"): Merely reproducing class lecture notes or standard textbook definitions will not earn top marks. Your presentation must demonstrate elevated technical rigor, advanced perspectives, or novel insights. Consider incorporating:
+
+        Deeper mathematical proofs or rigorous error bound derivations omitted in class.
+
+        Analysis of numerical instability, pathology cases, or stiff system behaviors.
+
+        Modern computational adaptations (e.g., vectorized implementations, adaptive step-sizing, higher-dimensional extensions).
+
+        Unique, intuitive geometric visualizations or animated step-by-step logic.
+
+    Error & Convergence Analysis: In-depth evaluation of order of convergence, stability regions, computational complexity, and failure modes.
+
+Part B: Problem Set & Solutions (10 Problems — Worth 15 Marks)
+
+    5 Pure Mathematical Problems: Theoretical proofs, step-by-step hand calculations, edge cases, or analytical comparisons.
+
+    5 Real-Life Application Problems: Applied scenarios (e.g., structural mechanics, dynamic systems, thermodynamics, biological growth, economics) demonstrating practical utility.
+
+    Full Solution Keys: Complete, step-by-step worked solutions for all 10 problems, formatted clearly after each problem slide.
+
+3. Technical & Submission Instructions
+
+    LaTeX Requirement: The entire submission must be created using LaTeX (e.g., LaTeX Beamer for slides). Word processors (MS Word, Google Docs) are strictly prohibited.
+
+    Submission Link 1 (PDF Deck): Submit the compiled PDF named as [RollNo].pdf.
+
+    Submission Link 2 (Source Archive): Submit a compressed .zip folder named [RollNo]_LaTeX_Source.zip containing:
+
+        The primary .tex document.
+
+        All raw image files, diagrams (.png, .jpg, .pdf, .tikz).
+
+        Style files or bibliography files (if applicable).
+
+Note: If your .tex source code fails to compile into the submitted PDF during grading, marks will be deducted.
+
+Topic Strictness Warning: You must strictly adhere to the topic assigned to you via the roll number formula. Submissions covering an unassigned or incorrect topic will receive zero marks (0/20) and will not be eligible for re-evaluation under any circumstances.
+
+Submission & Naming Penalty Notice: Both files must strictly follow the specified naming conventions and be uploaded to their respective submission links. Submissions with incorrect file names, swapped upload links, or missing source .zip archives will face immediate mark deductions.
+

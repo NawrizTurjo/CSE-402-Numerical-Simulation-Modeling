@@ -1,0 +1,103 @@
+% =====================================================================
+%  M5 -- Heavy-ball momentum vs plain GD: spectral comparison
+% =====================================================================
+\subsection{M5: Heavy-ball momentum vs.\ plain GD}
+\setprob{M5}
+
+\begin{frame}{\probtitle{M5}{Heavy-ball momentum against plain GD}}
+  \begin{probbox}[Problem M5 \hfill Mathematical \quad $\star\star\star$]
+    The heavy-ball (Polyak) iteration is
+    $\x_{k+1} = \x_k - \alpha\nabla f(\x_k) + \beta(\x_k - \x_{k-1})$.
+    Model each eigen-direction by $f(x) = \tfrac12\lambda x^2$ with $\lambda\in[\mu,L]$.
+    \begin{enumerate}[(a)]
+      \item Show that $x_{k+1} = (1+\beta-\alpha\lambda)x_k - \beta x_{k-1}$, and derive its characteristic polynomial.
+      \item Show that when the roots are complex, $|r_1| = |r_2| = \sqrt\beta$, \emph{whatever $\lambda$ is}.
+      \item For $\mu = 1$, $L = 100$, take
+            $\alpha = \frac{4}{(\sqrt L+\sqrt\mu)^2}$ and $\beta = \bigl(\frac{\sqrt L-\sqrt\mu}{\sqrt L+\sqrt\mu}\bigr)^2$.
+            Compute them, and show that every $\lambda\in[1,100]$ gives complex or repeated roots.
+      \item How many iterations do GD (best $\alpha = \frac{2}{\mu+L}$) and heavy ball need to cut the error by $10^{6}$?
+      \item What goes on at exactly $\lambda = \mu$?
+    \end{enumerate}
+  \end{probbox}
+\end{frame}
+
+\begin{frame}{\soltitle{M5}{1}{4}}
+  \textbf{(a)} With $\nabla f = \lambda x$:
+  $\;x_{k+1} = x_k - \alpha\lambda x_k + \beta x_k - \beta x_{k-1} = (1+\beta-\alpha\lambda)\,x_k - \beta\,x_{k-1}.$
+
+  Trying $x_k = r^k$ gives the \textbf{characteristic polynomial}
+  \[
+    \ans{r^2 - (1+\beta-\alpha\lambda)\,r + \beta = 0},
+    \qquad\text{with companion matrix } \mathbf T = \begin{pmatrix}1+\beta-\alpha\lambda & -\beta\\ 1 & 0\end{pmatrix}.
+  \]
+  The iteration converges iff the spectral radius $\rho(\mathbf T) = \max|r_i|$ is below 1.
+
+  \vspace{4pt}
+  \textbf{(b)} Vieta gives $r_1 r_2 = \beta$. If the roots are complex conjugates, $r_2 = \bar r_1$, so
+  \[
+    |r_1|^2 = r_1\bar r_1 = r_1 r_2 = \beta \;\Longrightarrow\; \ans{|r_{1,2}| = \sqrt\beta}.
+  \]
+  The roots are complex exactly when the discriminant is negative:
+  \[
+    (1+\beta-\alpha\lambda)^2 < 4\beta
+    \iff (1-\sqrt\beta)^2 < \alpha\lambda < (1+\sqrt\beta)^2 .
+  \]
+\end{frame}
+
+\begin{frame}{\soltitle{M5}{2}{4}}
+  \textbf{(c)} Here $\kappa = L/\mu = 100$ and $\sqrt\kappa = 10$, so
+  \[
+    \alpha = \frac{4}{(10+1)^2} = \ans{\frac{4}{121}\approx 0.03306},
+    \qquad
+    \sqrt\beta = \frac{9}{11},\;\; \beta = \ans{\frac{81}{121}\approx 0.6694}.
+  \]
+  The edges of the complex region are
+  \[
+    (1-\sqrt\beta)^2 = \Bigl(\frac{2}{11}\Bigr)^2 = \frac{4}{121} = \alpha\mu,
+    \qquad
+    (1+\sqrt\beta)^2 = \Bigl(\frac{20}{11}\Bigr)^2 = \frac{400}{121} = \alpha L .
+  \]
+  So as $\lambda$ runs over $[1,100]$, $\alpha\lambda$ covers \emph{exactly} $[\tfrac4{121},\tfrac{400}{121}]$: complex roots inside,
+  a double root at each end. Therefore
+  \[
+    \rho(\mathbf T) = \sqrt\beta = \frac{9}{11} \approx 0.818 \quad\text{for \emph{every} } \lambda\in[1,100].
+  \]
+  \small\textcolor{mGrey}{That is the whole point of this tuning: it puts the entire spectrum on the circle $|r| = \sqrt\beta$.}
+\end{frame}
+
+\begin{frame}{\soltitle{M5}{3}{4}}
+  \begin{columns}[T]
+    \begin{column}{0.53\textwidth}
+      \textbf{(d)} Contraction factors, and iterations from $k \ge \ln 10^6 / \ln(1/\rho)$:
+      \begin{align*}
+        \rho_{\text{GD}} &= \tfrac{\kappa-1}{\kappa+1} = \tfrac{99}{101}, &
+        k_{\text{GD}} &\ge \tfrac{13.8155}{0.0200} \Rightarrow \ans{691}\\[2pt]
+        \rho_{\text{HB}} &= \tfrac{\sqrt\kappa-1}{\sqrt\kappa+1} = \tfrac{9}{11}, &
+        k_{\text{HB}} &\ge \tfrac{13.8155}{0.2007} \Rightarrow \ans{69}
+      \end{align*}
+      That is about $10 = \sqrt\kappa$ times faster. In general the cost drops from
+      $O(\kappa\log\tfrac1\varepsilon)$ to $O(\sqrt\kappa\log\tfrac1\varepsilon)$.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_hb_spectrum}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\soltitle{M5}{4}{4}}
+  \textbf{(e) Repeated roots at the ends.} At $\lambda = \mu$ the discriminant is $0$ and there is a double root
+  $r = \tfrac12(1+\beta-\alpha\mu) = \sqrt\beta = \tfrac9{11}$, so
+  \[
+    x_k = (c_1 + c_2\,k)\,r^k \qquad\text{(an extra factor of $k$ appears).}
+  \]
+  \begin{itemize}\small
+    \item So the error is \emph{not} bounded by $1\cdot r^k$. From $x_0 = x_{-1} = 1$ with $\lambda = \mu$,
+          heavy ball needs \alert{83} iterations for $|x_k|<10^{-6}$, not 69 (checked numerically); GD needs 691.
+    \item Rates like $\rho_{\text{HB}}$ are \emph{asymptotic}: $\norm{\e_k}\le C(k)\,\rho^k$, where $C(k)$ grows at most polynomially.
+  \end{itemize}
+  \begin{warnbox}[Beyond quadratics, be careful]
+    For a general strongly convex $f$, heavy ball with these parameters is not guaranteed to converge.
+    Lessard, Recht and Packard give a counterexample~\cite{lessard2016}; Nesterov's method has a proof.
+  \end{warnbox}
+\end{frame}

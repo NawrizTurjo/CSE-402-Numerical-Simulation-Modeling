@@ -1,0 +1,72 @@
+\section{Interpolation}
+
+\subsection{Lagrange Interpolation}
+\begin{formulabox}
+$(n+1)$ points $\Rightarrow$ at most an $n$-th order polynomial:
+\[
+f(x) = \sum_{j=0}^{n} y_j \prod_{\substack{k=0 \\ k\neq j}}^{n} \frac{x - x_k}{x_j - x_k}
+\]
+\end{formulabox}
+
+\subsection{Linear Interpolation}
+\begin{formulabox}
+Bracketing points $(x_2,y_2),(x_3,y_3)$, query $x_m$:
+\[
+\frac{y_3 - y_2}{x_3 - x_2} = \frac{y_m - y_2}{x_m - x_2}
+\]
+\[
+\Longrightarrow\quad y_m = y_2 + \frac{y_3-y_2}{x_3-x_2}(x_m - x_2)
+\]
+Always use the two tabulated points that bracket the query $x$.
+\end{formulabox}
+
+\subsection{Newton's Divided-Difference Interpolation}
+\begin{formulabox}
+\[
+P_n(x) = a_0 + a_1(x-x_0) + a_2(x-x_0)(x-x_1) + \dots
+\]
+\[
+a_0 = y_0, \qquad a_1 = f[x_1,x_0] = \frac{y_1-y_0}{x_1-x_0}
+\]
+\[
+a_2 = f[x_2,x_1,x_0], \quad \dots
+\]
+Master recurrence:
+\[
+f[x_0,x_1,\dots,x_{n+1}] = \frac{f[x_1,\dots,x_{n+1}] - f[x_0,\dots,x_n]}{x_{n+1}-x_0}
+\]
+Divided-difference table (top diagonal = coefficients $a_0,a_1,a_2,\dots$):
+\[
+\begin{array}{c c c c c}
+x_0 & y_0 & & & \\
+ & & f[x_0,x_1] & & \\
+x_1 & y_1 & & f[x_0,x_1,x_2] & \\
+ & & f[x_1,x_2] & & f[x_0,x_1,x_2,x_3]\\
+x_2 & y_2 & & f[x_1,x_2,x_3] & \\
+ & & f[x_2,x_3] & & \\
+x_3 & y_3 & & &
+\end{array}
+\]
+Advantage over Lagrange: adding a new point only appends one row/coefficient (no recomputation).
+\end{formulabox}
+
+\subsection{Spline Interpolation}
+\begin{formulabox}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Order & Piece & Unknowns \\
+\midrule
+Linear & $P_i = m_i x + c_i$ & $2n$ \\
+Quadratic & $P_i = a_i x^2+b_ix+c_i$ & $3n$ \\
+Cubic & $P_i = a_ix^3+b_ix^2+c_ix+d_i$ & $4n$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Quadratic equation count: $3n = \underbrace{2n}_{\text{through pts}} + \underbrace{(n-1)}_{\text{match }P'} + \underbrace{1}_{P_1''(x_1)=0}$
+
+Cubic equation count: $4n = \underbrace{2n}_{\text{through pts}} + \underbrace{(n-1)}_{\text{match }P'} + \underbrace{(n-1)}_{\text{match }P''} + \underbrace{2}_{\text{boundary}}$
+
+Natural cubic: $P_1''(x_{first})=0,\ P_n''(x_{last})=0$. Clamped cubic: end slopes $dy/dx$ given.
+Runge's phenomenon $\Rightarrow$ motivation for splines (local, low-order pieces) over one global high-order polynomial.
+\end{formulabox}

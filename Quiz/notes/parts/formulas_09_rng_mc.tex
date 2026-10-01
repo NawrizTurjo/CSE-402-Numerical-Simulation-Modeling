@@ -1,0 +1,56 @@
+\section{Random Number Generation \& Monte Carlo}
+
+\subsection{Random Number Generation}
+\begin{formulabox}
+Two Sacred Properties: \textbf{Uniformity} \& \textbf{Independence} ($R_i\sim U(0,1)$ i.i.d.).
+\[
+E(R)=\tfrac12, \qquad E(R^2)=\tfrac13, \qquad \mathrm{Var}(R)=\tfrac{1}{12}
+\]
+LCG recurrence ($c\neq0$: mixed; $c=0$: multiplicative):
+\[
+X_{i+1} = (aX_i+c)\bmod m, \qquad R_i = \frac{X_i}{m}
+\]
+\textbf{Max.\ period conditions:}
+\begin{itemize}
+\item $m=2^b,\,c\neq0$: $P=m$ if $\gcd(c,m)=1$ and $a=1+4k$.
+\item $m=2^b,\,c=0$: $P=m/4$ if $X_0$ odd, $a=3{+}8k$ or $5{+}8k$.
+\item $m$ prime, $c=0$: $P=m-1$ if smallest $k$ with $m\mid(a^k-1)$ is $k=m-1$.
+\end{itemize}
+\textbf{Multiple testing:} $P(\ge1 \text{ false reject}) = 1-(1-\alpha)^k$.
+
+\textbf{K-S test:} $D=\max(D^+,D^-)$,
+\[
+D^+_i = \frac{i}{N}-R_{(i)}, \qquad D^-_i = R_{(i)}-\frac{i-1}{N}
+\]
+reject $H_0$ if $D>D_\alpha$.
+
+\textbf{Chi-square:}
+\[
+\chi_0^2 = \sum_{i=1}^n \frac{(O_i-E_i)^2}{E_i}, \quad E_i=\frac{N}{n}
+\]
+reject if $\chi_0^2>\chi^2_{\alpha,n-1}$.
+
+\textbf{Autocorrelation} (lag $\ell$, start $i$, $M{=}$ largest int.\ with $i+(M{+}1)\ell\le N$):
+\[
+\hat\rho_{i\ell} = \frac{1}{M+1}\sum_{k=0}^M R_{i+k\ell}R_{i+(k+1)\ell} - 0.25
+\]
+\[
+\sigma_{\hat\rho_{i\ell}} = \frac{\sqrt{13M+7}}{12(M+1)}, \qquad Z_0 = \frac{\hat\rho_{i\ell}}{\sigma_{\hat\rho_{i\ell}}}
+\]
+reject $H_0$ (dependence) if $|Z_0|>1.96$ ($\alpha=0.05$).
+\end{formulabox}
+
+\subsection{Monte Carlo Simulation}
+\begin{formulabox}
+Integration as expectation: $X\sim U(a,b)$, $Y=(b-a)g(X) \Rightarrow E(Y)=\int_a^b g(x)\,dx$.
+
+Sample-mean estimator:
+\[
+\bar Y(n) = (b-a)\cdot\frac1n\sum_{i=1}^n g(X_i) \approx I
+\]
+Monte Carlo estimate of $\pi$ (quarter circle in unit square, $h$ = hits with $X_i^2+Y_i^2\le1$):
+\[
+\hat\pi = \frac{4h}{n}
+\]
+Estimator $\bar Y(n)$ is itself a random variable (error need not shrink monotonically in $n$); justified by the Law of Large Numbers.
+\end{formulabox}

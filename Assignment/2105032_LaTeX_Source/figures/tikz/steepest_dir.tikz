@@ -1,0 +1,26 @@
+% Steepest-descent geometry: the half-plane of descent directions, the unit
+% circle of candidate directions d, the gradient and the angle theta.
+\begin{tikzpicture}[scale=1.4, >={Stealth[length=7pt]}]
+  % descent half-plane  {d : grad^T d < 0}  (gradient direction (0.447, 0.894))
+  \begin{scope}
+    \clip (-1.75,-1.35) rectangle (1.75,1.35);
+    \fill[mGreen!9] (-2,1) -- (2,-1) -- (2,-3) -- (-2,-3) -- cycle;
+  \end{scope}
+  \draw[mGrey, dashed, line width=0.6pt] (-1.75,0.875) -- (1.75,-0.875);
+  \node[font=\scriptsize, mGreen, anchor=west] at (-1.72,-1.18) {descent directions};
+  \node[font=\scriptsize, mGrey, rotate=-26.6, anchor=south] at (1.15,-0.56) {level set};
+  % unit circle
+  \draw[mDarkTeal!35, line width=1pt] (0,0) circle (1);
+  % candidate directions (faint)
+  \foreach \t in {200,230,260,290,320,350,20,50,80,110,140,170}
+    \draw[mGrey!45, -{Stealth[length=4pt]}] (0,0) -- (\t:1);
+  % a generic direction d and the angle
+  \draw[->, line width=1.3pt, mBlue] (0,0) -- (-15:1) node[right, font=\small] {$\vd$};
+  \draw[mBlue, line width=0.7pt] (63.4:0.32) arc[start angle=63.4, end angle=-15, radius=0.32];
+  \node[mBlue, font=\small] at (24:0.5) {$\theta$};
+  % gradient and steepest descent
+  \draw[->, line width=1.8pt, mRed] (0,0) -- (63.4:1.18) node[above, font=\small] {$\nabla f(\x)$};
+  \draw[->, line width=1.8pt, mGreen] (0,0) -- (243.4:1) node[below left=-1pt, font=\small] {$\vd^\star$};
+  \fill[mInk] (0,0) circle (1.4pt);
+  \node[font=\small, mInk] at (-0.22,0.12) {$\x$};
+\end{tikzpicture}
