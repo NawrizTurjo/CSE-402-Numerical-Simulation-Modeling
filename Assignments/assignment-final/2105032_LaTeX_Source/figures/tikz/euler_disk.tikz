@@ -1,0 +1,22 @@
+% Explicit-Euler stability disk |1 + z| < 1 with the points z_i = -alpha*lambda_i
+% (Problem M3: lambda = 2, 4) for alpha = 1/3 (stable) and alpha = 0.6 (unstable)
+\begin{tikzpicture}[scale=1.35, >={Stealth[length=5pt]}]
+  \shade[inner color=mGreen!28, outer color=mGreen!6] (-1,0) circle (1);
+  \draw[line width=1.1pt, mGreen] (-1,0) circle (1);
+  % axes
+  \draw[->, mGrey] (-2.85,0) -- (0.6,0) node[right, font=\scriptsize] {$\mathrm{Re}\,z$};
+  \draw[->, mGrey] (0,-1.2) -- (0,1.25) node[above, font=\scriptsize] {$\mathrm{Im}\,z$};
+  \foreach \t/\lab in {-2/-2, -1/-1} {
+    \draw[mGrey] (\t,0.05) -- (\t,-0.05);
+    \node[font=\tiny, mGrey, fill=white, inner sep=1pt] at (\t,-0.17) {$\lab$};
+  }
+  \node[font=\tiny, mGrey] at (0.1,-0.15) {$0$};
+  \node[font=\scriptsize\bfseries, mGreen] at (-1,0.55) {stable};
+  % alpha = 1/3: z = -2/3, -4/3
+  \fill[mBlue, draw=white, line width=0.6pt] (-0.667,0) circle (2.3pt);
+  \fill[mBlue, draw=white, line width=0.6pt] (-1.333,0) circle (2.3pt);
+  % alpha = 0.6: z = -1.2, -2.4
+  \draw[mRed, line width=1.1pt, fill=white] (-1.2,0) circle (2.6pt);
+  \draw[mRed, line width=1.1pt, fill=white] (-2.4,0) circle (2.6pt);
+  \draw[mRed, ->] (-2.4,-0.62) node[below, font=\tiny] {escapes} -- (-2.4,-0.12);
+\end{tikzpicture}

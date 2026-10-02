@@ -1,0 +1,109 @@
+% =====================================================================
+%  11. Momentum and Nesterov acceleration
+% =====================================================================
+\section{Momentum and acceleration}
+
+\begin{frame}{Heavy-ball momentum: give the iterate some mass}
+  \textbf{Polyak's heavy ball}~\cite{polyak1964}:
+  $\quad\x_{k+1} = \x_k - \alpha\nabla f(\x_k) + \beta\,(\x_k-\x_{k-1}),\quad 0\le\beta<1.$
+
+  \vspace{4pt}
+  \small Where does that come from? Picture a ball of mass $m$ rolling on the landscape with friction $\gamma$:
+  $\;m\ddot\x+\gamma\dot\x = -\nabla f(\x)$. Discretise with step $h$ (central difference for $\ddot\x$, forward for $\dot\x$):
+  \[
+    m\frac{\x_{k+1}-2\x_k+\x_{k-1}}{h^2}+\gamma\frac{\x_{k+1}-\x_k}{h} = -\nabla f(\x_k)
+  \]
+  \[
+    \Longrightarrow\quad \x_{k+1} = \x_k - \underbrace{\tfrac{h^2}{m+\gamma h}}_{\alpha}\nabla f(\x_k) + \underbrace{\tfrac{m}{m+\gamma h}}_{\beta}(\x_k-\x_{k-1}).
+  \]
+  \begin{itemize}\small
+    \item The velocity $\x_k-\x_{k-1}$ \alert{builds up} where the gradient keeps its sign (down the valley) and
+          \alert{cancels} where it flips (across it), so the zig-zag is damped.
+    \item Plain GD is the massless ball: $m\to0$, i.e.\ $\beta = 0$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why momentum is faster: look at the spectrum}
+  \begin{columns}[T]
+    \begin{column}{0.42\textwidth}
+      \small Each eigen-direction obeys $r^2-(1+\beta-\alpha\lambda)r+\beta = 0$ (M5). Tuned well, every root sits on $|r| = \sqrt\beta$:
+      \[
+        \rho_{\text{HB}} = \tfrac{\sqrt\kappa-1}{\sqrt\kappa+1}
+        \;\text{ vs. }\;
+        \rho_{\text{GD}} = \tfrac{\kappa-1}{\kappa+1}.
+      \]
+      \begin{itemize}\footnotesize
+        \item $\kappa = 100$: $0.818$ against $0.980$, so $69$ iterations instead of $691$.
+        \item In general $O(\sqrt\kappa)$ instead of $O(\kappa)$.
+        \item \alert{Caveat:} proven for quadratics only; counterexamples exist beyond~\cite{lessard2016}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_momentum}
+
+      \footnotesize $f = \frac12(x^2+100y^2)$: the first 40 steps of each method (left) and $\norm{\x_k}$ (right).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nesterov's accelerated gradient}
+  The trick is to \textbf{take the gradient at a look-ahead point}~\cite{nesterov1983}:
+  \vspace{-4pt}
+  \[
+    \y_k = \x_k+\beta_k(\x_k-\x_{k-1}),\qquad \x_{k+1} = \y_k-\tfrac1L\nabla f(\y_k).
+  \]
+  \begin{thmbox}[Convex, $L$-smooth, $\beta_k = \frac{k-1}{k+2}$]
+    \vspace{-4pt}
+    \[ f(\x_k)-f^\star\le\frac{2L\norm{\x_0-\x^\star}^2}{(k+1)^2}\qquad\text{vs. GD: } \frac{L\norm{\x_0-\x^\star}^2}{2k}. \]
+  \end{thmbox}
+  \begin{thmbox}[$\mu$-strongly convex, $\beta = \frac{\sqrt\kappa-1}{\sqrt\kappa+1}$]
+    \vspace{-4pt}
+    \[ f(\x_k)-f^\star\le\Bigl(1-\tfrac1{\sqrt\kappa}\Bigr)^k\Bigl(f(\x_0)-f^\star+\tfrac\mu2\norm{\x_0-\x^\star}^2\Bigr). \]
+  \end{thmbox}
+  \footnotesize GD's bound after $10^4$ steps, Nesterov reaches after about $200$, for \emph{every} smooth convex function~\cite{nesterov2018}.
+  Continuous-time limit: $\ddot\x+\frac3t\dot\x+\nabla f = 0$~\cite{su2016}, a heavy ball with fading friction.
+\end{frame}
+
+\begin{frame}{Optimality: no first-order method can do better}
+  \begin{thmbox}[Lower bounds \normalfont\cite{nesterov2018}]
+    \small For any method with iterates in $\x_0+\operatorname{span}\{\nabla f(\x_0),\dots,\nabla f(\x_{k-1})\}$
+    (Nesterov matches both up to a constant):
+    \begin{itemize}
+      \item convex, $L$-smooth (high enough dimension): $f(\x_k)-f^\star\ge\frac{3L\norm{\x_0-\x^\star}^2}{32(k+1)^2}$;
+      \item strongly convex: $\norm{\x_k-\x^\star}\ge\bigl(\frac{\sqrt\kappa-1}{\sqrt\kappa+1}\bigr)^k\norm{\x_0-\x^\star}$.
+    \end{itemize}
+  \end{thmbox}
+  \centering\footnotesize
+  \begin{tabular}{@{}l c c c@{}}
+    \toprule
+    & GD & Heavy ball & Nesterov \\
+    \midrule
+    convex rate & $O(1/k)$ & no guarantee & $O(1/k^2)$ \textcolor{mGreen}{(optimal)} \\
+    strongly convex & $O(\kappa\log\frac1\varepsilon)$ & $O(\sqrt\kappa\log\frac1\varepsilon)$ on quadratics & $O(\sqrt\kappa\log\frac1\varepsilon)$ \textcolor{mGreen}{(optimal)} \\
+    $f(\x_k)$ always decreases? & yes ($\alpha\le\frac1L$) & no & no (``ripples'') \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\statement{THE PRICE OF A PROBLEM}{The condition number $\kappa$\\ decides how many steps you pay.}{GD pays $O(\kappa)$. Nesterov pays $O(\sqrt\kappa)$, and nothing that only sees gradients can do better.}
+
+\begin{frame}{Acceleration in practice}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_rosenbrock}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \footnotesize
+      \begin{itemize}
+        \item On Rosenbrock, after 2000 iterations, momentum ($\beta = 0.9$) is down to $f\approx10^{-8}$ while
+              GD with Armijo is stuck near $10^{-4}$.
+        \item Momentum methods are \alert{non-monotone}. $f$ ripples up and down as the ball overshoots and swings back.
+        \item A common practical fix: \emph{restart} the momentum whenever $f$ goes up.
+        \item Momentum is built into the optimisers people actually use, such as SGD with momentum and Adam (Section~13).
+      \end{itemize}
+      \footnotesize\textcolor{mGrey}{For more intuition, see \cite{goh2017}.}
+    \end{column}
+  \end{columns}
+\end{frame}

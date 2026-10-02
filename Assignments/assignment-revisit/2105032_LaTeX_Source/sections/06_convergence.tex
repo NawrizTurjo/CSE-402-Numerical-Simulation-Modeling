@@ -1,0 +1,156 @@
+% =====================================================================
+%  6. How fast does it converge?
+% =====================================================================
+\section{How fast does it converge?}
+
+\begin{frame}{Order of convergence: GD is linear}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      Near a minimum GD behaves like $e_{k+1}\approx\rho\,e_k$ with $\rho = |1 - \alpha f''|$: the error shrinks by the
+      \alert{same factor} every step. That is \textbf{linear} convergence (order $p = 1$).
+
+      To cut the error by $10^{6}$ we need $\rho^k\le10^{-6}$:
+      \[
+        k \ge \frac{\ln 10^{6}}{\ln(1/\rho)} .
+      \]
+      \begin{itemize}\footnotesize
+        \item $f = (x-3)^2$, $\alpha = 0.1$: $\rho = 0.8$, so $k = \ans{62}$ steps.
+        \item running example, $\alpha = 0.1$: $\rho = 0.4$, so $k = \ans{16}$ steps.
+      \end{itemize}
+      Newton is \textbf{quadratic} ($p = 2$): correct digits roughly double each step.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.56\textheight, keepaspectratio]{fig_gd_vs_newton}
+
+      \footnotesize Log scale: linear falls steadily; quadratic falls faster
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{GD or Newton? Count the cost}
+  \small
+  \emph{When GD, and when Newton?} Count the work for $n$ parameters~\cite{nocedal2006}.
+
+  \vspace{2pt}
+  \centering\footnotesize
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    & Gradient descent & Newton's method \\
+    \midrule
+    information used & gradient ($n$ numbers) & gradient + Hessian ($n^2$ numbers) \\
+    cost of one step & $O(n)$ after the gradient & $O(n^3)$ to solve $H\mathbf y = \g$ \\
+    order of convergence & linear & quadratic \\
+    learning rate & must be chosen & not needed \\
+    on a concave stretch ($f'' < 0$) & still goes downhill & can head for a \textcolor{mRed}{maximum} \\
+    best for & large problems (ML, $n\sim10^6$) & small problems needing high accuracy \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \vspace{3pt}
+  \begin{keybox}[Why ML uses GD]
+    \footnotesize With $n = 10^6$ a Hessian has $10^{12}$ entries and will not fit in memory; GD stores $n$ numbers.
+    When $H$ is not positive definite, Levenberg--Marquardt~\cite{nocedal2006} moves towards a gradient step.
+  \end{keybox}
+\end{frame}
+
+\statement{FIRST VS.\ SECOND ORDER}{First-order Taylor gives GD.\\ Second-order Taylor gives Newton.}{GD needs more steps; Newton does more work per step.}
+
+\begin{frame}{Two assumptions: smooth, and strongly convex}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \small
+      \textbf{$L$-smooth}: the slope cannot change too fast,
+      $\norm{\nabla J(\x) - \nabla J(\y)} \le L\norm{\x - \y}$. In 1-D: $|J''| \le L$.
+
+      \vspace{3pt}
+      \textbf{$\mu$-strongly convex}: the bowl is curved at least by $\mu$ everywhere. In 1-D: $J'' \ge \mu > 0$.
+
+      \vspace{3pt}
+      Together they squeeze $J$ between two parabolas through the current point. The
+      \textbf{condition number}
+      \[
+        \kappa = L/\mu \ \ge 1
+      \]
+      measures how stretched the bowl is. It appears in every rate that follows~\cite{nesterov2018,boyd2004}.
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \input{figures/tikz/sandwich.tikz}
+
+      \scriptsize
+      \textcolor{mRed}{\rule[2pt]{10pt}{1.1pt}} upper, curvature $L$ \quad
+      \textcolor{mInk}{\rule[2pt]{10pt}{1.8pt}} $J$ \quad
+      \textcolor{mBlue}{\rule[2pt]{10pt}{1.1pt}} lower, curvature $\mu$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The descent lemma}
+  \begin{thmbox}[Descent lemma~\cite{nesterov2018}]
+    If $J$ is $L$-smooth, then for all $\x, \y$:\quad
+    $J(\y) \le J(\x) + \nabla J(\x)\T(\y - \x) + \tfrac L2\norm{\y - \x}^2$.
+  \end{thmbox}
+  \small
+  \textbf{Proof idea.} Write $J(\y) - J(\x)$ as $\int_0^1 \nabla J(\x + t(\y - \x))\T(\y - \x)\,dt$ and bound the change in
+  the gradient by $L\,t\norm{\y - \x}$. $\blacksquare$
+
+  \vspace{4pt}
+  Put in one GD step, $\y = \x_k - \alpha\g_k$:
+  \[
+    J(\x_{k+1}) \le J(\x_k) - \alpha\Bigl(1 - \frac{\alpha L}{2}\Bigr)\norm{\g_k}^2
+    \;\overset{\alpha = 1/L}{=}\; J(\x_k) - \frac{1}{2L}\norm{\g_k}^2 .
+  \]
+  \begin{keybox}[What it tells us]
+    \small Any $\alpha < 2/L$ is \emph{guaranteed} to lower $J$, the same window as in Section 5, now for any smooth $J$.
+    Each step removes at least $\norm{\g_k}^2/2L$, and every rate below is built on that drop~\cite{bubeck2015}.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Strongly convex: the error shrinks by a fixed factor}
+  \begin{thmbox}[Theorem ($L$-smooth, $\mu$-strongly convex, $\alpha = 1/L$)]
+    \[ \norm{\x_k - \x^\star}^2 \le \Bigl(1 - \frac1\kappa\Bigr)^{k}\norm{\x_0 - \x^\star}^2 . \]
+  \end{thmbox}
+  \small\textbf{Proof.} Let $\e = \x_k - \x^\star$ and $\Delta = J(\x_k) - J^\star$. Expand one step:
+  $\norm{\x_{k+1} - \x^\star}^2 = \norm{\e}^2 - \tfrac2L\g_k\T\e + \tfrac1{L^2}\norm{\g_k}^2$. Two facts:
+  \begin{itemize}\footnotesize
+    \item strong convexity gives $\g_k\T\e \ge \Delta + \tfrac\mu2\norm{\e}^2$;
+    \item the descent lemma gives $J^\star \le J(\x_k) - \tfrac1{2L}\norm{\g_k}^2$, so $\norm{\g_k}^2 \le 2L\Delta$.
+  \end{itemize}
+  \[
+    \norm{\x_{k+1} - \x^\star}^2 \le \norm{\e}^2 - \tfrac2L\Delta - \tfrac\mu L\norm{\e}^2 + \tfrac2L\Delta
+    = \Bigl(1 - \tfrac1\kappa\Bigr)\norm{\e}^2 . \quad\blacksquare
+  \]
+  \footnotesize This is the \emph{linear} order from the start of this section, now proved for every smooth, strongly convex function. It needs $O(\kappa\log\tfrac1\varepsilon)$ steps.
+\end{frame}
+
+\begin{frame}{Convergence guarantees}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \footnotesize
+      \begin{tabular}{@{}l l l@{}}
+        \toprule
+        Assumption & Guarantee ($\alpha = \frac1L$) & Steps to $\varepsilon$ \\
+        \midrule
+        smooth only & $\min_k\norm{\g_k}^2 \le \frac{2L\Delta_0}{K}$ & $O(\varepsilon^{-2})$ \\
+        convex & $J - J^\star \le \frac{LR^2}{2k}$ & $O(\varepsilon^{-1})$ \\
+        strongly convex & $\norm{\e_k}^2 \le (1 - \frac1\kappa)^k R^2$ & $O(\kappa\log\frac1\varepsilon)$ \\
+        PL~\cite{karimi2016} & $J - J^\star \le (1 - \frac1\kappa)^k\Delta_0$ & $O(\kappa\log\frac1\varepsilon)$ \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{4pt}
+      \begin{itemize}\footnotesize
+        \item Smooth only (deep learning): GD reaches a point with a small gradient, possibly a saddle.
+        \item PL, $\tfrac12\norm{\nabla J}^2 \ge \mu(J - J^\star)$, needs no convexity and still gives a linear rate.
+        \item $R = \norm{\x_0 - \x^\star}$, $\Delta_0 = J(\x_0) - J^\star$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.62\textheight, keepaspectratio]{fig_rate_bounds}
+    \end{column}
+  \end{columns}
+\end{frame}

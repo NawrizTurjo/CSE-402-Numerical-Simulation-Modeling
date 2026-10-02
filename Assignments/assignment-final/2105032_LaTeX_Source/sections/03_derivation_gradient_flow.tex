@@ -1,0 +1,187 @@
+% =====================================================================
+%  3. Deriving gradient descent: Taylor, majorisation, gradient flow
+% =====================================================================
+\section{Three ways to arrive at gradient descent}
+
+\begin{frame}{View 1: trust the linear model, but only nearby}
+  The Taylor model at $\x_k$ is good close to $\x_k$ and gets worse as you move away. So minimise the model
+  plus a penalty for going too far:
+  \[
+    \x_{k+1} = \argmin_{\x}\;\Bigl\{\underbrace{f(\x_k) + \nabla f(\x_k)\T(\x - \x_k)}_{\text{linear model}}
+      + \underbrace{\tfrac{1}{2\alpha}\norm{\x - \x_k}^2}_{\text{stay close}}\Bigr\}.
+  \]
+  Set the gradient of the braces to zero:
+  \[
+    \nabla f(\x_k) + \tfrac1\alpha(\x - \x_k) = \mathbf 0
+    \quad\Longrightarrow\quad
+    \ans{\x_{k+1} = \x_k - \alpha\,\nabla f(\x_k)}
+  \]
+  \begin{itemize}\small
+    \item $\alpha$ is the \alert{step size} (the ``learning rate'' in ML). A large $\alpha$ means we trust the linear model further out.
+    \item Change the penalty and you get a different method. With $\tfrac12\norm{\cdot}_{\bP}^2$ you get preconditioned GD (Section~2).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{View 2: minimise an upper bound}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      \small
+      If $\nabla f$ is $L$-Lipschitz, the \emph{descent lemma} (Section~7, Problem M2) says that for every $\x$
+      \[
+        f(\x) \le f(\x_k) + \nabla f(\x_k)\T(\x-\x_k) + \tfrac L2\norm{\x-\x_k}^2 .
+      \]
+      \begin{itemize}\footnotesize
+        \item That is View 1 with $\alpha = 1/L$, except now the model is an \alert{upper bound} touching $f$ at $\x_k$.
+        \item Its minimiser is $\x_{k+1} = \x_k - \tfrac1L\nabla f(\x_k)$.
+        \item $f(\x_{k+1}) \le$ bound at $\x_{k+1}$ $\le$ bound at $\x_k = f(\x_k)$, so $f$ \alert{has to go down}.
+      \end{itemize}
+      \footnotesize\textcolor{mGrey}{This trick is known as majorise and minimise (MM).}
+    \end{column}
+    \begin{column}{0.51\textwidth}
+      \centering
+      \input{figures/tikz/descent_upper.tikz}
+
+      \scriptsize
+      \textcolor{mInk}{\rule[2pt]{10pt}{1.8pt}} $f$ \quad
+      \textcolor{mBlue}{\rule[2pt]{10pt}{1pt}} tangent \quad
+      \textcolor{mOrange}{\rule[2pt]{10pt}{1.2pt}} upper model (curvature $L$)\\
+      \textcolor{mOrange}{$\bullet$} minimum of the model, \quad \textcolor{mGreen}{$\bullet$} the true $f(x_{k+1})$, lower still.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{View 3, the central idea: GD is forward Euler on the gradient flow}
+  The \textbf{gradient flow} ODE $\;\dot\x(t) = -\nabla f(\x(t))$ always runs downhill:
+  \[
+    \frac{d}{dt}f(\x(t)) = \nabla f\T\dot\x = -\norm{\nabla f(\x(t))}^2 \le 0 .
+  \]
+  Now discretise it with \textbf{forward Euler}, step $h$: $\;\x_{k+1} = \x_k + h\,(-\nabla f(\x_k))$.
+  That is \alert{gradient descent with $\alpha = h$}. Everything we know about Euler's method now applies.
+
+  \vspace{4pt}
+  \centering\small
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    What we know from ODEs & What it means for optimisation \\
+    \midrule
+    Euler stability interval $|1 - h\lambda| < 1$ & the step limit $\alpha < 2/L$ (Section~5) \\
+    stiffness (widely spread eigenvalues) & ill-conditioning and the zig-zag (Section~8) \\
+    implicit (backward) Euler & the proximal-point method, stable for any step \\
+    second-order ODE with friction & heavy-ball momentum (Section~11) \\
+    $\ddot\x + \tfrac3t\dot\x + \nabla f = 0$ & Nesterov acceleration~\cite{su2016} \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\statement{THE CENTRAL IDEA}{Gradient descent is forward Euler\\ on the gradient flow.}{So the step limit is a stability limit, and ill-conditioning is stiffness.}
+
+\begin{frame}{The algorithm}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{thmbox}[Algorithm: gradient descent]
+        \small
+        \textbf{Input:} $\x_0$, step $\alpha>0$, tolerances $\varepsilon_{\text{rel}},\varepsilon_{\text{abs}}$, $k_{\max}$\\[2pt]
+        \textbf{for} $k = 0,1,2,\dots,k_{\max}-1$:\\
+        \quad $\g_k \gets \nabla f(\x_k)$\\
+        \quad \textbf{if} $\norm{\g_k}\le\varepsilon_{\text{rel}}\norm{\g_0}+\varepsilon_{\text{abs}}$: \textbf{stop}\\
+        \quad $\x_{k+1}\gets\x_k - \alpha\,\g_k$\\
+        \textbf{return} $\x_k$
+      \end{thmbox}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \small\textbf{When should it stop?}
+      \begin{itemize}\footnotesize
+        \item A small $\norm{\nabla f}$ is the natural test. For strongly convex $f$ it even bounds the error:
+              $\norm{\x-\x^\star}\le\norm{\nabla f(\x)}/\mu$ (Section~6).
+        \item Stopping only because $|f_{k+1}-f_k|$ is tiny is a trap. On a plateau $f$ hardly changes
+              while $\x$ is still far from the answer (Problem A4).
+        \item Always cap the iteration count and use a relative tolerance, because floating point limits
+              how small the gradient can get (Section~9).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{One parameter by hand: the line fit, with numbers}
+  \small
+  Fix the slope at $m = 0.64$ and let GD find the intercept $b$, starting from $b_0 = 0$ with learning rate $\alpha = 0.1$.
+  \[
+    \frac{d\,\SSR}{db} = -2\sum_{i}\bigl(y_i - b - 0.64\,x_i\bigr),\quad
+    \text{step} = \frac{d\,\SSR}{db}\times\alpha,\quad b_{\text{new}} = b_{\text{old}} - \text{step}.
+  \]
+  \centering\footnotesize
+  \begin{tabular}{@{}c c c c c@{}}
+    \toprule
+    step $k$ & $b_k$ & slope $d\SSR/db$ & step size & $\SSR(b_{k+1})$ \\
+    \midrule
+    0 & $0$ & $-5.704$ & $-0.5704$ & $0.878$ \\
+    1 & $0.5704$ & $-2.282$ & $-0.2282$ & $0.514$ \\
+    2 & $0.7986$ & $-0.913$ & $-0.0913$ & $0.456$ \\
+    3 & $0.8898$ & $-0.365$ & $-0.0365$ & $0.446$ \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \vspace{4pt}
+  Each step is about $0.4\times$ the last (start $\SSR = 3.156$), and $b$ settles at \ans{b^\star = 0.951}.\par
+  Steps shrink because the slope flattens near the minimum.
+\end{frame}
+
+\begin{frame}{Several parameters: the same recipe, once per parameter}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \scalebox{0.9}{\input{figures/tikz/algorithm_flow.tikz}}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \small
+      For $\hat y = b + mx$ both parameters move:
+      \begin{align*}
+        \frac{\partial\SSR}{\partial b} &= -2\sum_i\bigl(y_i - b - m x_i\bigr),\\
+        \frac{\partial\SSR}{\partial m} &= -2\sum_i x_i\bigl(y_i - b - m x_i\bigr).
+      \end{align*}
+      In general, for every $w_j$ at once:
+      \[
+        \ans{w_j \leftarrow w_j - \alpha\,\frac{\partial f}{\partial w_j}}
+      \]
+      \textbf{Stop} when the step size is near zero (say $<10^{-3}$) or after a maximum number of steps.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{The whole method in a dozen lines}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+\begin{lstlisting}[style=py]
+import numpy as np
+
+def gradient_descent(grad, x0, alpha,
+                     rtol=1e-8, maxit=10_000):
+    x = np.asarray(x0, dtype=float).copy()
+    g0 = np.linalg.norm(grad(x))
+    for k in range(maxit):
+        g = grad(x)
+        if np.linalg.norm(g) <= rtol * g0:
+            break
+        x -= alpha * g       # O(n) update
+    return x, k
+
+# least squares: f(w) = ||Xw - y||^2 / (2m)
+def ls_grad(w, X, y):
+    return X.T @ (X @ w - y) / len(y)
+\end{lstlisting}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \small\textbf{What one iteration costs}
+      \begin{itemize}\footnotesize
+        \item One gradient and an $O(n)$ vector update, with $O(n)$ memory.
+        \item For least squares with $\mathbf X\in\R^{m\times n}$, that is two matrix--vector products, $O(mn)$.
+              Nothing gets factorised.
+        \item Written with array operations (BLAS, GPUs) instead of Python loops, the same code runs for
+              $n = 2$ or for millions of variables.
+        \item Total cost is (number of iterations) $\times$ (cost of $\nabla f$). The rest of the module is
+              about that first factor.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}

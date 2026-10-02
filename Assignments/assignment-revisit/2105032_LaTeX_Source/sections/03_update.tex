@@ -1,0 +1,149 @@
+% =====================================================================
+%  3. The update rule: step = slope \times learning rate
+% =====================================================================
+\section{The update rule: step = slope $\times$ learning rate}
+
+\begin{frame}{One parameter: the running example, with numbers}
+  \small
+  Fix the slope at $m = 0.64$ and let GD find the intercept $b$, starting from $b_0 = 0$ with learning rate $\alpha = 0.1$.
+  \[
+    \frac{d\,\SSR}{db} = -2\sum_{i}\bigl(y_i - b - 0.64\,x_i\bigr),\quad
+    \text{step} = \frac{d\,\SSR}{db}\times\alpha,\quad b_{\text{new}} = b_{\text{old}} - \text{step}.
+  \]
+  \centering\footnotesize
+  \begin{tabular}{@{}c c c c c@{}}
+    \toprule
+    step $k$ & $b_k$ & slope $d\SSR/db$ & step size & $\SSR(b_{k+1})$ \\
+    \midrule
+    0 & $0$ & $-5.704$ & $-0.5704$ & $0.878$ \\
+    1 & $0.5704$ & $-2.282$ & $-0.2282$ & $0.514$ \\
+    2 & $0.7986$ & $-0.913$ & $-0.0913$ & $0.456$ \\
+    3 & $0.8898$ & $-0.365$ & $-0.0365$ & $0.446$ \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \vspace{4pt}
+  Each step is about $0.4\times$ the last (start $\SSR = 3.156$), and $b$ settles at \ans{b^\star = 0.951}.\par
+  Steps shrink because the slope flattens near the minimum.
+\end{frame}
+
+\begin{frame}{Updating several parameters}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \scalebox{0.9}{\input{figures/tikz/algorithm_flow.tikz}}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \small
+      For $\hat y = b + mx$ both parameters move:
+      \begin{align*}
+        \frac{\partial\SSR}{\partial b} &= -2\sum_i\bigl(y_i - b - m x_i\bigr),\\
+        \frac{\partial\SSR}{\partial m} &= -2\sum_i x_i\bigl(y_i - b - m x_i\bigr).
+      \end{align*}
+      In general, for every $w_j$ at once:
+      \[
+        \ans{w_j \leftarrow w_j - \alpha\,\frac{\partial J}{\partial w_j}}
+      \]
+      \textbf{Stop} when the step size is near zero (say $<10^{-3}$) or after a maximum number of steps.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Where the update comes from: first-order Taylor}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \small
+      Newton uses a \emph{second}-order Taylor model. Use the \emph{first}-order one, trusted only near $\x_k$
+      (constant $J(\x_k)$ dropped):
+      \[
+        \x_{k+1} = \argmin_{\x}\Bigl\{\underbrace{\nabla J(\x_k)\T(\x - \x_k)}_{\text{straight-line model}}
+          + \underbrace{\tfrac{1}{2\alpha}\norm{\x - \x_k}^2}_{\text{stay close}}\Bigr\}.
+      \]
+      Setting the gradient of the braces to zero gives
+      $\nabla J(\x_k) + \tfrac1\alpha(\x - \x_k) = \mathbf 0$, i.e.
+      \[
+        \ans{\x_{k+1} = \x_k - \alpha\,\nabla J(\x_k)}
+      \]
+      so the learning rate controls \alert{how far we trust the straight-line model}.
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \footnotesize
+      \begin{tabular}{@{}l c c@{}}
+        \toprule
+        & GD & Newton \\
+        \midrule
+        Taylor model & 1st order & 2nd order \\
+        uses & $\nabla J$ & $\nabla J$, Hessian $H$ \\
+        update & $\x - \alpha\nabla J$ & $\x - H^{-1}\nabla J$ \\
+        step length & set by $\alpha$ & set by curvature \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{6pt}
+      \raggedright\footnotesize Newton's method~\cite{chapra} offers another approach; Section 6 compares their costs.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Gradient descent as forward Euler}
+  \small
+  Let a point slide downhill in continuous time. The \textbf{gradient flow} ODE always lowers $J$:
+  \[
+    \dot\x(t) = -\nabla J(\x(t)) \quad\Longrightarrow\quad \frac{d}{dt}J(\x(t)) = \nabla J\T\dot\x = -\norm{\nabla J}^2 \le 0 .
+  \]
+  Solve it with \textbf{forward Euler}, step $h$~\cite{chapra}: $\;\x_{k+1} = \x_k + h\,(-\nabla J(\x_k))$.
+  That is \alert{gradient descent with $\alpha = h$}, so Euler's stability analysis applies.
+
+  \vspace{3pt}
+  \centering\footnotesize
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    Numerical ODEs & Optimisation \\
+    \midrule
+    Euler is stable only if $|1 - h\lambda| < 1$ & the learning-rate limit $\alpha < 2/f''$ (Section 5) \\
+    stiff system (eigenvalues far apart) & stretched contours and the zig-zag (Section 4) \\
+    implicit (backward) Euler & the proximal-point method, stable for any step \\
+    a ball with mass and friction & momentum (Section 8) \\
+    $\ddot\x + \tfrac3t\dot\x + \nabla J = 0$ & Nesterov's method~\cite{su2016} \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\statement{THE ODE CONNECTION}{Gradient descent is forward Euler\\ on the gradient flow.}{So the learning-rate limit is a stability limit, and a stretched valley is a stiff ODE.}
+
+\begin{frame}[fragile]{Many parameters at once: the vectorised update}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      \small
+      Multiple linear regression~\cite{chapra}: $\hat y = w_0 + w_1x_1 + \dots + w_nx_n$ with the mean squared error
+      \[
+        J(\w) = \frac{1}{2m}\sum_{i=1}^{m}\bigl(\hat y_i - y_i\bigr)^2 .
+      \]
+      Stack a column of ones and the features into $\bX$. All partial derivatives come from one product,
+      \[
+        \nabla J(\w) = \tfrac1m\,\bX\T(\bX\w - \vy),
+      \]
+      so one step costs $O(mn)$: two matrix-vector products, no matrix inversion.
+    \end{column}
+    \begin{column}{0.58\textwidth}
+\begin{lstlisting}[style=py]
+import numpy as np
+
+def gd(X, y, alpha=0.1, tol=1e-8,
+       steps=10_000):
+    X = np.column_stack([np.ones(len(y)), X])
+    w = np.zeros(X.shape[1])            # (ii)
+    for k in range(steps):
+        g = X.T @ (X @ w - y) / len(y)  # (iii)
+        step = alpha * g                # (iv)
+        w = w - step                    # (v)
+        if np.linalg.norm(step) < tol:  # (vi)
+            break
+    return w, k
+\end{lstlisting}
+      \footnotesize The comments match steps (i)--(vi) of the loop.
+    \end{column}
+  \end{columns}
+\end{frame}

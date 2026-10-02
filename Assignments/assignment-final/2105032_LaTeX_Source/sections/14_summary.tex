@@ -1,0 +1,39 @@
+% =====================================================================
+%  14. Summary / cheat sheet
+% =====================================================================
+\section{Summary}
+
+\begin{frame}{The whole module on one slide}
+  \centering\footnotesize
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}l l l l l@{}}
+    \toprule
+    Method & Step rule & Rate (str.\ convex) & Cost/iter. & Watch out for \\
+    \midrule
+    GD, fixed $\alpha$ & $\x-\alpha\nabla f$, $\alpha<2/L$ & $\frac{\kappa-1}{\kappa+1}$; $O(\kappa\log\frac1\varepsilon)$ & 1 grad & divergence, zig-zag \\
+    GD + exact LS & $\argmin_\alpha f(\x-\alpha\g)$ & $(\frac{\kappa-1}{\kappa+1})^2$ in $f$ & 1 grad + 1-D & zig-zag \\
+    GD + Armijo & backtracking & as GD, no $L$ needed & 1 grad + few $f$ & plateaus \\
+    Barzilai--Borwein & $\mathbf s\T\mathbf s/\mathbf s\T\y$ & fast in practice & 1 grad & nonmonotone \\
+    Heavy ball & $+\beta(\x_k-\x_{k-1})$ & $\frac{\sqrt\kappa-1}{\sqrt\kappa+1}$ (quadratics) & 1 grad & fails off quadratics \\
+    Nesterov & grad.\ at look-ahead & $O(\sqrt\kappa\log\frac1\varepsilon)$ (optimal) & 1 grad & ripples \\
+    SGD & $\x-\alpha_k\nabla f_{i_k}$ & $O(1/k)$, $\alpha_k\propto\frac1k$ & $\frac1N$ grad & noise ball \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Five things to remember}
+  \begin{enumerate}\small
+    \item \textbf{Gradient descent is forward Euler on the gradient flow.} The step limit $\alpha<2/L$ is Euler's stability
+          interval, and ill-conditioning is stiffness under another name.
+    \item \textbf{The condition number $\kappa$ sets the price.} GD needs $O(\kappa)$ iterations; accelerated methods need
+          $O(\sqrt\kappa)$, and no first-order method can do better.
+    \item \textbf{One inequality powers the proofs.} The descent lemma, paired with convexity, strong convexity or PL,
+          gives every rate in this module.
+    \item \textbf{Failures are predictable.} Divergence, saddles, plateaus, nonsmoothness and round-off each leave a
+          recognisable signature, and each has a known remedy.
+    \item \textbf{Modern practice is the same idea at scale.} SGD, momentum, Adam and autodiff all build on the plain update
+          $\x\gets\x-\alpha\nabla f$.
+  \end{enumerate}
+\end{frame}
+
+\statement{IN ONE SENTENCE}{A gradient step is cheap.\\ The number of steps is the hard part.}{And the geometry of $f$ decides that number, which is what most of the numerical analysis is about.}

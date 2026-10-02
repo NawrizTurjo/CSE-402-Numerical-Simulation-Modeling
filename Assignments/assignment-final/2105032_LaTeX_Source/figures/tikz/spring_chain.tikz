@@ -1,0 +1,24 @@
+% Spring chain for Problem A2: wall -- k1 -- m1 -- k2 -- m2 <- F
+\begin{tikzpicture}[scale=0.8, every node/.style={font=\small},
+  spring/.style={decorate, decoration={coil, aspect=0.45, segment length=4.2pt, amplitude=5pt,
+                 pre length=5pt, post length=5pt}, line width=0.9pt, mDarkTeal},
+  mass/.style={draw=mDarkTeal, line width=0.9pt, top color=mOrange!8, bottom color=mOrange!30,
+               minimum width=0.95cm, minimum height=0.85cm, rounded corners=2pt,
+               drop shadow={opacity=0.18, shadow xshift=0.5pt, shadow yshift=-0.7pt}}]
+  % ground and wall
+  \fill[pattern=north east lines, pattern color=mGrey!70] (-0.38,-0.75) rectangle (0,0.75);
+  \draw[line width=1.2pt, mDarkTeal] (0,-0.75) -- (0,0.75);
+  \fill[pattern=north east lines, pattern color=mGrey!50] (0,-0.75) rectangle (6.7,-0.92);
+  \draw[mGrey] (0,-0.75) -- (6.7,-0.75);
+  % masses
+  \node[mass] (m1) at (2.4,-0.32) {\textbf{1}};
+  \node[mass] (m2) at (5.0,-0.32) {\textbf{2}};
+  % springs
+  \draw[spring] (0,-0.32) -- node[above=6pt] {$k_1$} (m1.west);
+  \draw[spring] (m1.east) -- node[above=6pt] {$k_2$} (m2.west);
+  % load
+  \draw[-{Stealth[length=7pt]}, line width=1.6pt, mRed] (m2.east) -- ++(1.1,0) node[right] {$F$};
+  % displacements
+  \draw[-{Stealth[length=4pt]}, line width=0.8pt, mBlue] ($(m1.north)+(-0.35,0.18)$) -- ++(0.75,0) node[right, font=\scriptsize] {$u_1$};
+  \draw[-{Stealth[length=4pt]}, line width=0.8pt, mBlue] ($(m2.north)+(-0.35,0.18)$) -- ++(0.75,0) node[right, font=\scriptsize] {$u_2$};
+\end{tikzpicture}

@@ -1,0 +1,73 @@
+% =====================================================================
+%  A1 -- Health: weight vs height, the running example
+% =====================================================================
+\subsection{A1: Health, weight against height}
+\setprob{A1}
+
+\begin{frame}{\probtitle{A1}{Health: predicting height from weight}}
+  \begin{probbox}[Problem A1 \hfill Application \quad $\star$]
+    A clinic records weight $x$ and height $y$ for three people: $x = (0.5,\ 2.3,\ 2.9)$, $y = (1.4,\ 1.9,\ 3.2)$.
+    Fit $\hat y = b + m x$ by minimising $\SSR(b, m)$.
+    \begin{enumerate}[(a)]
+      \item Fix $m = 0.64$. Run three GD steps on $b$ from $b_0 = 0$ with $\alpha = 0.1$.
+            When does the condition ``stop when $|\text{step}| < 0.001$'' hold?
+      \item Now move both: start at $(b, m) = (0, 1)$ with $\alpha = 0.01$ and take two steps.
+      \item Solve the least-squares equations by hand and compare with where GD ends.
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{Practice: steps (i)--(vi), worked by hand.}
+\end{frame}
+
+\begin{frame}{\soltitle{A1}{1}{3}}
+  \textbf{(a) Intercept only.} $\dfrac{d\,\SSR}{db} = -2\sum_i(y_i - b - 0.64x_i)$, step $=$ slope $\times\,0.1$, $b \leftarrow b - \text{step}$.
+  \begin{center}\small
+  \begin{tabular}{@{}c c c c@{}}
+    \toprule
+    step & slope $d\SSR/db$ & step size & new $b$ \\
+    \midrule
+    1 & $-5.704$ & $-0.5704$ & $0.5704$ \\
+    2 & $-2.2816$ & $-0.22816$ & $0.79856$ \\
+    3 & $-0.91264$ & $-0.091264$ & $0.889824$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  Each step is $0.4$ times the one before, so it takes \ans{8} updates for the step to drop below $0.001$
+  (last step $0.00093$). GD stops at $b = 0.9500$, just short of $b^\star = 0.9507$.
+\end{frame}
+
+\begin{frame}{\soltitle{A1}{2}{3}}
+  \textbf{(b) Both parameters.} The residuals at $(b, m) = (0, 1)$ are $y_i - x_i = (0.9,\ -0.4,\ 0.3)$:
+  \[
+    \frac{\partial\SSR}{\partial b} = -2(0.9 - 0.4 + 0.3) = -1.6,\qquad
+    \frac{\partial\SSR}{\partial m} = -2(0.45 - 0.92 + 0.87) = -0.8 .
+  \]
+  Both move \emph{at the same time}, with $\alpha = 0.01$:
+  \[
+    (b, m)_1 = (0 + 0.016,\ 1 + 0.008) = \ans{(0.016,\ 1.008)}
+  \]
+  At the new point the gradient is $(-1.4128,\ -0.3944)$, so
+  \[
+    (b, m)_2 = \ans{(0.030128,\ 1.01194)}
+  \]
+  After \alert{808} updates both steps are below $10^{-6}$ and $(b, m) = (0.94863,\ 0.64106)$.
+\end{frame}
+
+\begin{frame}{\soltitle{A1}{3}{3}}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \small
+      \textbf{(c) Least squares by hand.} With $n = 3$, $\sum x = 5.7$, $\sum y = 6.5$, $\sum x^2 = 13.95$, $\sum xy = 14.35$:
+      \[
+        m = \frac{n\sum xy - \sum x\sum y}{n\sum x^2 - (\sum x)^2} = \frac{6.00}{9.36} = \ans{0.641026}
+      \]
+      \[
+        b = \frac{\sum y - m\sum x}{n} = \ans{0.948718}
+      \]
+      GD matched both to within $10^{-4}$. Here a closed form is easy; GD uses the gradient instead.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.58\textheight, keepaspectratio]{fig_line_frame_5}
+    \end{column}
+  \end{columns}
+\end{frame}

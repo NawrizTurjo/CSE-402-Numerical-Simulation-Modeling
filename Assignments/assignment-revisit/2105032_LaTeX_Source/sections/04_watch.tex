@@ -1,0 +1,55 @@
+% =====================================================================
+%  4. Watching it move
+% =====================================================================
+\section{Watching it move}
+
+\begin{frame}{Gradient descent, one step at a time}
+  \centering
+  \only<1>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_0}}%
+  \only<2>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_1}}%
+  \only<3>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_2}}%
+  \only<4>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_3}}%
+  \only<5>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_4}}%
+  \only<6>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_5}}%
+  \only<7>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_6}}%
+  \only<8>{\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{fig_ssr_frame_7}}%
+
+  \raggedright\footnotesize
+  Weight--height data, both parameters free, $\alpha = 0.01$ from $(b, m) = (0, 1)$, as in Problem A1.
+  Left: the point $(b, m)$ walks downhill across the SSR contours. Right: the line that point draws.
+  Click through steps $0, 1, 2, 4, 15, 60, 250, 808$.
+\end{frame}
+
+\begin{frame}{The same walk on the SSR surface}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.76\textheight, keepaspectratio]{fig_ssr_surface}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \small
+      $\SSR(b, m)$ is a bowl over the $(b, m)$ plane. Every point of the bowl is one line through the data.
+      \begin{itemize}\footnotesize
+        \item GD starts at $(0, 1)$ and rolls downhill. The dashed curve is its shadow on the contour map,
+              the path of the previous slide.
+        \item It drops into the valley in a few steps, then creeps along the valley floor, because the valley
+              is long and narrow ($\kappa \approx 29$, Section 7).
+        \item After $808$ steps it stops at $(0.9486,\ 0.6411)$, the least-squares line $(0.9487,\ 0.6410)$.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Stretched contours make GD zig-zag}
+  \centering
+  \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{fig_zigzag_scaling}
+
+  \raggedright
+  \footnotesize
+  \begin{itemize}
+    \item Round rings ($x_1^2 + x_2^2$): $-\nabla J$ points straight at the minimum.
+    \item Stretched rings ($x_1^2 + 4x_2^2$): it points across the valley; GD zig-zags. The steep
+          direction ($f'' = 8$) caps $\alpha < 2/8$; the flat one ($f'' = 2$) then needs many steps.
+    \item \textbf{Fix: scale the features} to similar curvature (standardise inputs, Problem A2).
+  \end{itemize}
+\end{frame}

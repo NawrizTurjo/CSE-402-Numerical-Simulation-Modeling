@@ -1,0 +1,45 @@
+% =====================================================================
+%  10. Summary
+% =====================================================================
+\nextsectionstop{11}
+\section{Summary}
+
+\begin{frame}{Gradient descent on two slides (1/2): the method}
+  \centering\footnotesize
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    Idea & In one line \\
+    \midrule
+    update & $w_j \leftarrow w_j - \alpha\,\partial J/\partial w_j$ \quad (step size $=$ slope $\times$ learning rate) \\
+    gradient & direction and size of the steepest slope; $-\nabla J$ is the steepest way down \\
+    stop & step size $\approx0$, or maximum number of steps reached \\
+    stability & converges only if $0 < \alpha < 2/f''$; best fixed $\alpha = 1/f''$ \\
+    speed & linear order: error $\times\,|1-\alpha f''|$ per step; Newton is quadratic \\
+    cost & $O(mn)$ per step, no matrix inversion: the reason ML uses it \\
+    geometry & steps cross contours at right angles; stretched contours make it zig-zag \\
+    failures & too-big $\alpha$, saddles, plateaus, non-smooth losses, local minima \\
+    SGD & one point (or a mini-batch) per step: cheap and noisy; decay $\alpha$ to settle \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Gradient descent on two slides (2/2): why it works}
+  \centering\footnotesize
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}l l@{}}
+    \toprule
+    Idea & In one line \\
+    \midrule
+    ODE view & GD is forward Euler on $\dot\x = -\nabla J$; $\alpha < 2/\lmax$ is Euler's stability limit \\
+    best step & on a quadratic $\alpha^\star = 2/(\lmin + \lmax)$, error factor $(\kappa - 1)/(\kappa + 1)$ \\
+    guarantees & descent lemma: each step drops $J$ by $\norm{\g}^2/2L$; strongly convex gives $(1 - 1/\kappa)^k$ \\
+    condition number & $\kappa = L/\mu$ means about $\kappa$ steps per digit; scaling features shrinks it \\
+    momentum & heavy ball and Nesterov need about $\sqrt\kappa$, and no gradient method can do better \\
+    SGD theory & a constant $\alpha$ leaves a noise floor; Robbins--Monro schedules remove it \\
+    practice & Adam $=$ momentum $+$ per-parameter steps; backpropagation makes $\nabla J$ cheap \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\statement{IN ONE SENTENCE}{Take a step downhill,\\ sized by the slope and the learning rate.}{Choose the learning rate carefully and check where the method converges.}

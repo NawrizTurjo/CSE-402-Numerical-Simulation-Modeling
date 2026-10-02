@@ -2,7 +2,7 @@
 
 # CSE 402 · Numerical Analysis, Simulation and Modeling Sessional
 
-**My code, notes and submissions for CSE 402: three online lab exams, the quiz, and the assignment.**
+**My code, notes and submissions for CSE 402: three online lab exams, the quiz, and the CSE 401 assignment.**
 
 ![Python](https://img.shields.io/badge/Python-3.12-1E3A5F?logo=python&logoColor=white)
 ![NumPy](https://img.shields.io/badge/NumPy-SciPy-0F766E?logo=numpy&logoColor=white)
@@ -37,7 +37,7 @@ flowchart LR
 | [Online-2](Online-2/) | Gauss elimination, Gauss-Jordan, LU, power and inverse power method, deflation, eigendecomposition | [`code/README.md`](Online-2/code/README.md) |
 | [Online-3](Online-3/) | discrete-event simulation, random number generators and their tests, Monte Carlo, Metropolis-Hastings | [`STUDY_GUIDE.md`](Online-3/STUDY_GUIDE.md) |
 | [Quiz](Quiz/) | all nine theory topics, from errors to RNG and Monte Carlo | [`notes/formulas_master.pdf`](Quiz/notes/formulas_master.pdf) |
-| [Assignment](Assignment/) | Topic 3, Gradient Methods: a full teaching deck with 10 solved problems | [`2105032.pdf`](Assignment/2105032.pdf) |
+| [Assignments](Assignments/) | CSE 401 Topic 3, Gradient Methods: a full teaching deck with 10 solved problems (three versions) | [`2105032.pdf`](Assignments/assignment-final/2105032.pdf) |
 
 The online exams were open-material coding tests, so most folders are built around one question:
 *what can I open on exam day and run in under a minute?* That's why each one has exam templates
@@ -230,22 +230,32 @@ booklet rebuilt. The lecture slides used as sources are in [`rsc/`](Quiz/rsc/).
 
 ## Assignment · Gradient Methods Beamer deck
 
+The assignment belongs to the theory course, **CSE 401: Numerical Analysis, Simulation and Modeling**.
 The allocated topic was number 3 (`032 mod 15 + 1 = 3`): **Gradient Methods**. The brief asked for a
 LaTeX Beamer teaching module that goes past the lecture notes, plus ten problems with complete solutions.
 
-**Deliverables:** [`2105032.pdf`](Assignment/2105032.pdf) and
-[`2105032_LaTeX_Source.zip`](Assignment/2105032_LaTeX_Source.zip). The editable source is in
-[`2105032_LaTeX_Source/`](Assignment/2105032_LaTeX_Source/).
+Everything lives in [`Assignments/`](Assignments/), in three versions of the deck:
 
-**Part A: theory, in 14 sections.** It starts from the optimisation problem and the steepest-descent
-theorem, and the main thread is that gradient descent is forward Euler on the gradient flow. That one
-idea explains the step-size limit $\alpha < 2/L$ (Euler's stability interval) and why ill-conditioning
-behaves like stiffness. From there it covers:
-- convergence proofs for nonconvex, convex, strongly convex and PL functions;
+| Folder | Version | What it is |
+|---|---|---|
+| [`assignment-final/`](Assignments/assignment-final/) | **submitted** | the hybrid: the rigorous deck below, plus the class's worked line fit |
+| [`Assignment/`](Assignments/Assignment/) | v3 | the rigorous deck the final one is built on; also holds the brief and the class notes |
+| [`assignment-revisit/`](Assignments/assignment-revisit/) | v4 | a rewrite scoped to the class notes, with easier problems |
+
+**Deliverables:** [`2105032.pdf`](Assignments/assignment-final/2105032.pdf) and
+[`2105032_LaTeX_Source.zip`](Assignments/assignment-final/2105032_LaTeX_Source.zip). The editable source is in
+[`2105032_LaTeX_Source/`](Assignments/assignment-final/2105032_LaTeX_Source/).
+
+**Part A: theory, in 14 sections.** It starts from the optimisation problem and a worked example from
+class: fitting a line to weight-height data, first by hand (step = slope × learning rate), then as an
+animation of the walk across the SSR contours and the 3D SSR surface. The main thread is that gradient
+descent is forward Euler on the gradient flow. That one idea explains the step-size limit
+$\alpha < 2/L$ (Euler's stability interval) and why ill-conditioning behaves like stiffness. From there it covers:
+- convergence proofs for nonconvex, convex, strongly convex and PL functions, and GD against Newton;
 - the zig-zag and the Kantorovich bound, then preconditioning;
-- failure modes such as saddles, plateaus, nonsmoothness and finite-difference round-off;
+- failure modes such as saddles, local minima, plateaus, nonsmoothness and finite-difference round-off;
 - Armijo and Barzilai-Borwein steps, heavy-ball and Nesterov acceleration with lower bounds;
-- SGD, and a short modern section (autodiff, Adam, the edge of stability).
+- SGD (batch, stochastic and mini-batch side by side), and a short modern section (autodiff, Adam, the edge of stability).
 
 **Part B: ten problems, each followed straight away by a step-by-step solution.**
 
@@ -258,20 +268,21 @@ behaves like stiffness. From there it covers:
 | M5 heavy-ball momentum against plain GD | A5 calibrating a streaming sensor with SGD |
 
 **How it was built:**
-- [`scripts/verify_problems.py`](Assignment/2105032_LaTeX_Source/scripts/verify_problems.py) recomputes
+- [`scripts/verify_problems.py`](Assignments/assignment-final/2105032_LaTeX_Source/scripts/verify_problems.py) recomputes
   every number in the solutions with assertions, so a typo in a hand calculation fails loudly.
-- [`scripts/make_figures.py`](Assignment/2105032_LaTeX_Source/scripts/make_figures.py) draws all the plots.
-  They share one visual style and are saved as vector PDFs, so the deck compiles without Python.
-- [`build.ps1`](Assignment/build.ps1) builds the PDF and zips the source, then unpacks the zip into an
+- [`scripts/make_figures.py`](Assignments/assignment-final/2105032_LaTeX_Source/scripts/make_figures.py) and
+  [`scripts/make_linefit_figures.py`](Assignments/assignment-final/2105032_LaTeX_Source/scripts/make_linefit_figures.py)
+  draw all the plots. They share one visual style and are saved as vector PDFs, so the deck compiles without Python.
+- [`build.ps1`](Assignments/assignment-final/build.ps1) builds the PDF and zips the source, then unpacks the zip into an
   empty folder and compiles it again to confirm the submitted source reproduces the submitted PDF.
 - The theme is a custom Metropolis setup with three fixed colour jobs (navy, orange, teal), Fira Sans
   and light slides that stay readable on a projector. It is all in
-  [`preamble.tex`](Assignment/2105032_LaTeX_Source/preamble.tex).
+  [`preamble.tex`](Assignments/assignment-final/2105032_LaTeX_Source/preamble.tex).
 
 To rebuild:
 
 ```bash
-cd Assignment/2105032_LaTeX_Source
+cd Assignments/assignment-final/2105032_LaTeX_Source
 pdflatex 2105032 && bibtex 2105032 && pdflatex 2105032 && pdflatex 2105032
 ```
 

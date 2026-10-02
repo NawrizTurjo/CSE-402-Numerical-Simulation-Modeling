@@ -1,0 +1,21 @@
+% Forward-Euler stability disk |1 + z| < 1 with the points z_i = -alpha*lambda_i
+% for J = x1^2 + 4 x2^2 (lambda = 2, 8): alpha = 0.1 (stable) and alpha = 0.3 (unstable)
+\begin{tikzpicture}[scale=1.3, >={Stealth[length=5pt]}]
+  \shade[inner color=mTeal!26, outer color=mTeal!5] (-1,0) circle (1);
+  \draw[line width=1.1pt, mTeal] (-1,0) circle (1);
+  \draw[->, mGrey] (-2.85,0) -- (0.6,0) node[right, font=\scriptsize] {$\mathrm{Re}\,z$};
+  \draw[->, mGrey] (0,-1.2) -- (0,1.25) node[above, font=\scriptsize] {$\mathrm{Im}\,z$};
+  \foreach \t/\lab in {-2/-2, -1/-1} {
+    \draw[mGrey] (\t,0.05) -- (\t,-0.05);
+    \node[font=\tiny, mGrey, anchor=north east, inner sep=1pt] at ({\t-0.06},-0.13) {$\lab$};
+  }
+  \node[font=\tiny, mGrey, anchor=north west, inner sep=2pt] at (0,-0.10) {$0$};
+  \node[font=\scriptsize\bfseries, mTeal] at (-1,0.55) {stable};
+  % alpha = 0.1: z = -0.2, -0.8
+  \fill[mBlue, draw=white, line width=0.6pt] (-0.2,0) circle (2.3pt);
+  \fill[mBlue, draw=white, line width=0.6pt] (-0.8,0) circle (2.3pt);
+  % alpha = 0.3: z = -0.6, -2.4
+  \draw[mRed, line width=1.1pt, fill=white] (-0.6,0) circle (2.6pt);
+  \draw[mRed, line width=1.1pt, fill=white] (-2.4,0) circle (2.6pt);
+  \draw[mRed, ->] (-2.4,-0.62) node[below, font=\tiny] {escapes} -- (-2.4,-0.12);
+\end{tikzpicture}

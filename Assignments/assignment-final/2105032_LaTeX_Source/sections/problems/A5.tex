@@ -1,0 +1,139 @@
+% =====================================================================
+%  A5 -- Signal processing: streaming sensor calibration by SGD
+% =====================================================================
+\subsection{A5: Signal processing, calibrating a sensor with SGD}
+\setprob{A5}
+
+\begin{frame}{\probtitle{A5}{Calibrating a streaming sensor with SGD}}
+  \begin{probbox}[Problem A5 \hfill Application: Signal Processing \quad $\star\star$]
+    A temperature sensor reports $\xi_k = \theta + \varepsilon_k$, where the $\varepsilon_k$ are i.i.d.\ with mean $0$ and variance $\sigma^2 = 0.25\ (^\circ\text{C})^2$.
+    We estimate $\theta$ by minimising $F(x) = \tfrac12\E\bigl[(x-\xi)^2\bigr]$, using \emph{one new reading per step}:
+    \[
+      x_{k+1} = x_k - \alpha_k\,(x_k - \xi_{k+1}) \qquad\text{(stochastic gradient descent)}.
+    \]
+    \vspace{-10pt}
+    \begin{enumerate}[(a)]
+      \item Show that $\nabla F(x) = x - \theta$ and that the stochastic gradient $x - \xi$ is unbiased.
+      \item Show that $\alpha_k = \tfrac1{k+1}$ with $x_1 = \xi_1$ gives the running sample mean, so $\operatorname{Var}(x_k) = \sigma^2/k$.
+      \item For a constant $\alpha$, show that $\operatorname{Var}(x_k) \to \alpha\sigma^2/(2-\alpha)$.
+      \item With readings $20.4,\ 19.7,\ 20.2,\ 20.6,\ 19.9$, run both schedules (constant $\alpha = 0.5$).
+      \item Connect the results to the Robbins--Monro step-size conditions.
+    \end{enumerate}
+  \end{probbox}
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{1}{5}}
+  \textbf{(a)} Expand, using $\E\xi = \theta$ and $\operatorname{Var}\xi = \sigma^2$:
+  \[
+    F(x) = \tfrac12\E\bigl[(x - \theta - \varepsilon)^2\bigr] = \tfrac12(x-\theta)^2 + \tfrac12\sigma^2
+    \;\Longrightarrow\; \ans{\nabla F(x) = x - \theta}, \quad x^\star = \theta .
+  \]
+  So $F$ is a quadratic with $\mu = L = 1$. The stochastic gradient $G(x,\xi) = x - \xi$ has
+  $\E[G] = x - \theta = \nabla F(x)$: it is \alert{unbiased}, and it needs only one reading instead of the whole expectation.
+
+  \vspace{4pt}
+  \textbf{(b) Induction.} Suppose $x_k = \frac1k\sum_{i\le k}\xi_i$. Then
+  \[
+    x_{k+1} = x_k + \frac{\xi_{k+1} - x_k}{k+1} = \frac{k\,x_k + \xi_{k+1}}{k+1}
+    = \frac{1}{k+1}\sum_{i\le k+1}\xi_i . \qquad\blacksquare
+  \]
+  The readings are independent, so $\operatorname{Var}(x_k) = \ans{\sigma^2/k} \to 0$. With this schedule SGD \emph{is} the sample mean.
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{2}{5}}
+  \textbf{(c) Constant step.} Subtract $\theta$ from both sides:
+  \[
+    x_{k+1} - \theta = (1-\alpha)(x_k - \theta) + \alpha\,\varepsilon_{k+1}.
+  \]
+  \begin{itemize}\small
+    \item \textbf{Mean:} $\E[x_k] - \theta = (1-\alpha)^k(x_0 - \theta) \to 0$ geometrically, so the bias disappears.
+    \item \textbf{Variance:} $\varepsilon_{k+1}$ is independent of $x_k$, so
+          $V_{k+1} = (1-\alpha)^2V_k + \alpha^2\sigma^2$. Its fixed point is
+  \end{itemize}
+  \[
+    V_\infty = \frac{\alpha^2\sigma^2}{1-(1-\alpha)^2} = \frac{\alpha^2\sigma^2}{\alpha(2-\alpha)}
+    = \ans{\frac{\alpha\sigma^2}{2-\alpha}} \qquad (0<\alpha<2).
+  \]
+  \begin{keybox}[The noise ball]
+    Constant-step SGD gets close fast, then jitters in a \emph{neighbourhood} of radius $O(\sqrt\alpha)$.
+    Monte-Carlo, $\alpha = 0.1$: $V_\infty = 0.01320$ against $0.01316$ predicted.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{3}{5}}
+  \begin{columns}[T]
+    \begin{column}{0.42\textwidth}
+      \textbf{(d)} Both schedules start from $x_1 = \xi_1 = 20.4$:
+
+      \vspace{3pt}
+      \footnotesize
+      \begin{tabular}{@{}c c c c@{}}
+        \toprule
+        $k$ & $\xi_k$ & $\alpha_k = \frac1{k+1}$ & $\alpha = 0.5$\\
+        \midrule
+        1 & 20.4 & 20.4000 & 20.4000\\
+        2 & 19.7 & 20.0500 & 20.0500\\
+        3 & 20.2 & 20.1000 & 20.1250\\
+        4 & 20.6 & 20.2250 & 20.3625\\
+        5 & 19.9 & \ans{20.1600} & \ans{20.1313}\\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{4pt}
+      \small
+      Standard deviations: the sample mean after 5 readings has $\sqrt{0.25/5} = 0.224$ and it keeps shrinking;
+      $\alpha = 0.5$ is stuck at $\sqrt{0.5\cdot0.25/1.5} = 0.289$.
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_sgd}
+
+      \vspace{2pt}
+      \footnotesize A constant step weights old readings by $\alpha(1-\alpha)^j$, so it slowly forgets them.
+      That is useful if $\theta$ drifts, and wasteful if it does not.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{4}{5}}
+  \textbf{(e) The Robbins--Monro conditions:}
+  \[
+    \sum_k\alpha_k = \infty \qquad\text{and}\qquad \sum_k\alpha_k^2 < \infty .
+  \]
+  \begin{itemize}\small
+    \item $\sum\alpha_k = \infty$: the steps add up to enough ``travel'' to forget the start, since $\prod(1-\alpha_k)\to0$.
+    \item $\sum\alpha_k^2 < \infty$: the total injected noise variance $\sum\alpha_k^2\sigma^2$ stays finite and gets averaged away.
+  \end{itemize}
+  \vspace{2pt}
+  \centering\small
+  \begin{tabular}{@{}l c c l@{}}
+    \toprule
+    Schedule ($k\ge1$) & $\sum\alpha_k$ & $\sum\alpha_k^2$ & What happens \\
+    \midrule
+    $\alpha_k = \frac1{k+1}$ & $\infty$ & $\frac{\pi^2}{6} - 1$ & converges to $\theta$ \checkmark \\
+    $\alpha_k = \alpha$ & $\infty$ & $\infty$ & noise ball, $V_\infty = \frac{\alpha\sigma^2}{2-\alpha}$ \\
+    $\alpha_k = \frac{1}{(k+1)^2}$ & $< \infty$ & $< \infty$ & stops moving too early \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright\small
+  For $\frac1{(k+1)^2}$, $\prod_{k\ge1}\bigl(1-\frac1{(k+1)^2}\bigr) = \frac12$: only half of any initial error ever gets removed.
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{5}{5}}
+  \textbf{Beyond this example.}
+  \begin{itemize}\small
+    \item \textbf{Mini-batches:} averaging $B$ readings per step divides the noise variance by $B$:
+          \[
+            V_\infty = \frac{\alpha\sigma^2}{B\,(2-\alpha)} .
+          \]
+          This is the step-size against batch-size trade-off behind large-scale machine learning.
+    \item \textbf{Any strongly convex $F$:} with a fixed step, the expected optimality gap of SGD falls linearly
+          to a floor proportional to $\alpha$. With diminishing steps $\alpha_k = O(1/k)$ it decays like
+          $O(1/k)$~\cite{bottou2018}.
+  \end{itemize}
+  \begin{keybox}[Takeaway]
+    A decaying schedule gives up speed to gain accuracy. A constant step gives up accuracy to gain speed and the
+    ability to follow changes. Practical schedules (constant first, then decaying) get some of both.
+  \end{keybox}
+\end{frame}

@@ -1,0 +1,120 @@
+% =====================================================================
+%  CSE 402 -- Numerical Analysis Assignment
+%  Topic 3: Gradient Methods
+%  Roll: 2105032
+%  Build:  pdflatex 2105032 ; bibtex 2105032 ; pdflatex 2105032 ; pdflatex 2105032
+% =====================================================================
+\documentclass[aspectratio=169, 11pt]{beamer}
+\input{preamble}
+
+\title{Gradient Methods}
+\subtitle{From ``slope $\times$ learning rate'' to stability, acceleration and SGD}
+\author{Nawriz Ahmed Turjo}
+\institute{CSE 402: Numerical Analysis}
+\date{October 2026}
+
+\renewcommand{\deckkicker}{CSE 402 \,\textperiodcentered\, NUMERICAL ANALYSIS \,\textperiodcentered\, TOPIC 3}
+\renewcommand{\deckmeta}{Roll 2105032 \quad\textperiodcentered\quad October 2026}
+\renewcommand{\deckfooter}{Gradient Methods \quad|\quad Nawriz Ahmed Turjo \quad|\quad 2105032}
+\renewcommand{\deckstops}{Why GD, Gradient, Update rule, Watch it move, Step size, Convergence, Failures, Fixes, At scale, Problems}
+
+% small maths helpers used in this deck
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\g}{\mathbf{g}}
+\newcommand{\e}{\mathbf{e}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\SSR}{\mathrm{SSR}}
+\newcommand{\lmin}{\lambda_{\min}}
+\newcommand{\lmax}{\lambda_{\max}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Assigned topic}
+  \centering
+  \vspace{2pt}
+  {\Large\textbf{Topic 3: Gradient Methods}}
+
+  \vspace{3pt}
+  {\small The same update fits a line by hand and trains large models.}
+
+  \vspace{8pt}
+  \begin{columns}[T]
+    \begin{column}{0.31\textwidth}
+      \begin{keybox}[How it works (1--4)]
+        \footnotesize Fitting a line, the gradient, the update rule, and watching GD move on contours
+        and in 3D.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{thmbox}[When it works, and when not (5--9)]
+        \footnotesize The learning rate and stability, speed and guarantees, failure modes, the fixes,
+        and SGD at scale.
+      \end{thmbox}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{probbox}[Part B: the problems]
+        \footnotesize Five mathematical and five real-life problems, each followed by a full
+        worked solution.
+      \end{probbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Where we are going}
+  \centering
+  \input{figures/tikz/roadmap.tikz}
+
+  \vspace{6pt}
+  \footnotesize
+  \textcolor{mNavy}{\textbf{1--4}} how GD works \qquad
+  \textcolor{mOrange}{\textbf{5--7}} when it works, and when it fails \qquad
+  \textcolor{mTeal}{\textbf{8--9}} fixes, and scale
+\end{frame}
+
+\statement{PART A}{The ideas}{The update is new value = old value $-$ slope $\times$ learning rate.}
+
+\input{sections/01_why}
+\input{sections/02_gradient}
+\input{sections/03_update}
+\input{sections/04_watch}
+\input{sections/05_step_size}
+\input{sections/06_convergence}
+\input{sections/07_failures}
+\input{sections/08_fixes}
+\input{sections/09_scale}
+\input{sections/10_summary}
+
+% ---------------- Part B ---------------------------------------------
+\nextsectionlabel{B}
+\nextsectionstop{10}
+\input{sections/problems/intro}
+\input{sections/problems/M1}
+\input{sections/problems/M2}
+\input{sections/problems/M3}
+\input{sections/problems/M4}
+\input{sections/problems/M5}
+\input{sections/problems/A1}
+\input{sections/problems/A2}
+\input{sections/problems/A3}
+\input{sections/problems/A4}
+\input{sections/problems/A5}
+
+% ---------------- References -----------------------------------------
+\setprob{}
+\nextsectionlabel{R}
+\nextsectionstop{0}
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \scriptsize
+  \nocite{*}
+  \bibliographystyle{plain}
+  \bibliography{bibliography/references}
+\end{frame}
+
+\end{document}

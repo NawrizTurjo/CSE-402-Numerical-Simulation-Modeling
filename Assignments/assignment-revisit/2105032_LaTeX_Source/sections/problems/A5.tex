@@ -1,0 +1,78 @@
+% =====================================================================
+%  A5 -- Education: predicting pass or fail (logistic regression)
+% =====================================================================
+\subsection{A5: Education, pass or fail}
+\setprob{A5}
+
+\begin{frame}{\probtitle{A5}{Education: will this student pass?}}
+  \begin{probbox}[Problem A5 \hfill Application \quad $\star\star\star$]
+    Five students: hours studied $x = (1, 2, 3, 4, 5)$, result $y = (0, 0, 1, 0, 1)$ (1 means pass).
+    Model $p = \sigma(wx + b) = 1/(1 + e^{-(wx + b)})$ with the mean cross-entropy loss
+    \[
+      L(w, b) = -\tfrac1m\textstyle\sum_i\bigl[y_i\ln p_i + (1 - y_i)\ln(1 - p_i)\bigr].
+    \]
+    \begin{enumerate}[(a)]
+      \item The gradients are $\partial L/\partial w = \tfrac1m\sum(p_i - y_i)x_i$ and $\partial L/\partial b = \tfrac1m\sum(p_i - y_i)$.
+            Take two GD steps from $(0, 0)$ with $\alpha = 0.5$.
+      \item Why can't we just solve $\nabla L = \mathbf 0$ by hand?
+      \item Run GD to convergence. Predict the chance of passing after $3.5$ hours, and find the pass/fail boundary.
+    \end{enumerate}
+  \end{probbox}
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{1}{3}}
+  \textbf{(a) Step 1 from $(w, b) = (0, 0)$.} Every $p_i = \sigma(0) = 0.5$, and $L = \ln 2 = 0.6931$.
+  \[
+    p_i - y_i = (0.5,\ 0.5,\ -0.5,\ 0.5,\ -0.5)
+  \]
+  \[
+    \frac{\partial L}{\partial w} = \tfrac15(0.5 + 1 - 1.5 + 2 - 2.5) = -0.1,\qquad
+    \frac{\partial L}{\partial b} = \tfrac15(0.5) = 0.1
+  \]
+  \[
+    (w, b)_1 = (0 + 0.05,\ 0 - 0.05) = \ans{(0.05,\ -0.05)}
+  \]
+  \textbf{Step 2.} Now $p = (0.500,\ 0.512,\ 0.525,\ 0.537,\ 0.550)$ and $L = 0.6850$, lower than before.
+  The gradient is $(-0.00024,\ 0.1249)$, so
+  \[
+    (w, b)_2 = \ans{(0.05012,\ -0.11247)}
+  \]
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{2}{3}}
+  \textbf{(b) No closed form.} Setting the gradients to zero gives
+  \[
+    \textstyle\sum_i\bigl(\sigma(wx_i + b) - y_i\bigr) = 0,\qquad \sum_i\bigl(\sigma(wx_i + b) - y_i\bigr)x_i = 0 .
+  \]
+  Here $w$ and $b$ appear inside exponentials, so the equations cannot be rearranged for them.
+  GD handles this case: the loss is smooth, but ``slope $= 0$'' cannot be solved.
+
+  \vspace{4pt}
+  The loss is \emph{convex} (its Hessian is positive definite), so there is one minimum, and GD from any start
+  reaches it. Unlike M1, the starting point does not matter.
+\end{frame}
+
+\begin{frame}{\soltitle{A5}{3}{3}}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      \textbf{(c) After 20\,000 steps}, the gradient is essentially zero ($\approx4\times10^{-16}$):
+      \[
+        \ans{w = 1.0904,\quad b = -3.8940}
+      \]
+      with $L = 0.4844$. After $3.5$ hours:
+      \[
+        p = \sigma(1.0904\times3.5 - 3.8940) = \ans{0.481}
+      \]
+      The boundary is where $p = 0.5$, i.e.\ $wx + b = 0$:
+      \[
+        x = -b/w = \ans{3.57\text{ hours}}
+      \]
+      Above about $3\tfrac12$ hours, the model predicts a pass.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.64\textheight, keepaspectratio]{fig_logistic}
+    \end{column}
+  \end{columns}
+\end{frame}

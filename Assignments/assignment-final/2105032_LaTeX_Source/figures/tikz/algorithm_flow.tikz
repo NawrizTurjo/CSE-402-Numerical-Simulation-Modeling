@@ -1,0 +1,21 @@
+% Gradient descent loop, steps (i)-(vi)
+\begin{tikzpicture}[
+  node distance=0.30cm,
+  step/.style={draw=#1, line width=0.8pt, rounded corners=4pt, fill=white,
+               drop shadow={opacity=0.15, shadow xshift=0.5pt, shadow yshift=-0.7pt},
+               text width=3.8cm, minimum height=0.62cm, align=left, font=\scriptsize\color{mInk},
+               inner xsep=10pt},
+  step/.default=mNavy,
+  badge/.style={circle, fill=#1, text=white, font=\tiny\bfseries, inner sep=1pt, minimum size=10pt},
+  arr/.style={-{Stealth[length=5pt]}, line width=0.9pt, mGrey}]
+  \node[step] (s1) {take the derivative of the loss for each parameter};
+  \node[step, below=of s1] (s2) {pick a starting value for each parameter};
+  \node[step, below=of s2] (s3) {plug the current values into the derivatives};
+  \node[step=mOrange, below=of s3] (s4) {step size $=$ slope $\times$ learning rate};
+  \node[step=mOrange, below=of s4] (s5) {new value $=$ old value $-$ step size};
+  \node[step=mTeal, below=of s5] (s6) {stop if the step is tiny or max steps reached};
+  \foreach \a/\b in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6} \draw[arr] (\a) -- (\b);
+  \draw[arr] (s6.east) -- ++(0.55,0) |- node[pos=0.25, right=3pt, font=\scriptsize, mGrey] {not yet} (s3.east);
+  \foreach \n/\lab/\c in {s1/i/mNavy, s2/ii/mNavy, s3/iii/mNavy, s4/iv/mOrange, s5/v/mOrange, s6/vi/mTeal}
+    \node[badge=\c] at (\n.west) {\lab};
+\end{tikzpicture}

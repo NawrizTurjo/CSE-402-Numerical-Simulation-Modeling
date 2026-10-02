@@ -1,0 +1,73 @@
+% =====================================================================
+%  A2 -- Real estate: house prices with two features
+% =====================================================================
+\subsection{A2: Real estate, house prices}
+\setprob{A2}
+
+\begin{frame}{\probtitle{A2}{Real estate: pricing houses with two features}}
+  \begin{probbox}[Problem A2 \hfill Application \quad $\star\star\star$]
+    Four flats in Dhaka:
+    \begin{center}\small
+    \begin{tabular}{@{}l c c c c@{}}
+      size (sq ft) & 800 & 1000 & 1200 & 1500 \\
+      bedrooms & 2 & 2 & 3 & 3 \\
+      price (lakh Tk) & 40 & 50 & 60 & 70 \\
+    \end{tabular}
+    \end{center}
+    Fit $\hat y = w_0 + w_1\,\text{size} + w_2\,\text{beds}$ with $J(\w) = \frac{1}{2m}\sum_i(\hat y_i - y_i)^2$.
+    \begin{enumerate}[(a)]
+      \item Find $\nabla J$ at $\w = \mathbf 0$ on the raw data. Why is plain GD slow here?
+      \item Standardise both features and run GD with $\alpha = 0.1$. Map the weights back to original units.
+      \item Check with the normal equation, then price a 1100 sq ft, 2-bedroom flat.
+    \end{enumerate}
+  \end{probbox}
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{1}{3}}
+  \textbf{(a) The raw gradient.} At $\w = \mathbf 0$, $\nabla J = \tfrac1m\bX\T(\bX\w - \vy) = -\tfrac1m\bX\T\vy$:
+  \[
+    \nabla J(\mathbf 0) = \bigl(-55,\ \ -64\,750,\ \ -142.5\bigr).
+  \]
+  The size component is hundreds of times bigger than the others, because sizes are in the hundreds.
+  \begin{itemize}\small
+    \item Stability needs $\alpha < 2/\lambda_{\max}$, where $\lambda_{\max} = 1.33\times10^{6}$ is the largest curvature.
+          So $\alpha < \ans{1.5\times10^{-6}}$.
+    \item With such a tiny $\alpha$, the step for $w_0$ is about $10^{-6}\times55$: the intercept barely moves.
+  \end{itemize}
+  This is the stretched-contour zig-zag of Section 4, with very unequal scales.
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{2}{3}}
+  \textbf{(b) Standardise}, $z = (\text{value} - \text{mean})/\text{std}$:
+  size mean $1125$, std $258.60$; beds mean $2.5$, std $0.5$.
+
+  \vspace{3pt}
+  Now every feature has a similar scale, and GD with $\alpha = 0.1$ converges in $1391$ steps
+  (until $\norm{\nabla J} < 10^{-8}$) to
+  \[
+    \hat y = 55 + 9.946\,z_{\text{size}} + 1.346\,z_{\text{beds}} .
+  \]
+  \textbf{Back to original units:} divide each weight by its std, then fix the intercept.
+  \[
+    w_1 = \tfrac{9.946}{258.60} = 0.03846,\qquad w_2 = \tfrac{1.346}{0.5} = 2.692,
+  \]
+  \[
+    w_0 = 55 - 0.03846(1125) - 2.692(2.5) = 5.000 .
+  \]
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{3}{3}}
+  \textbf{(c) Normal equation check.} Solving $\bX\T\bX\,\w = \bX\T\vy$ directly gives
+  \[
+    \w = (5,\ 0.038462,\ 2.692308),
+  \]
+  the same as GD to within $10^{-7}$. So the model is
+  \[
+    \text{price} \approx 5 + 0.0385\times\text{size} + 2.69\times\text{beds}\quad\text{(lakh Tk)}.
+  \]
+  For 1100 sq ft and 2 bedrooms: $5 + 42.31 + 5.38 = \ans{52.69\text{ lakh Tk}}$.
+  \begin{keybox}[Take-away]
+    A large feature scale slows raw GD; standardising the same data speeds convergence.
+    Each extra square foot adds about Tk 3,850, and each extra bedroom about Tk 2.7 lakh.
+  \end{keybox}
+\end{frame}

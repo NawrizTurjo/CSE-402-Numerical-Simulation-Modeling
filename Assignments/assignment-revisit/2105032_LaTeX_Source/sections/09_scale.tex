@@ -1,0 +1,111 @@
+% =====================================================================
+%  9. At scale: SGD and modern practice
+% =====================================================================
+\section{At scale: SGD and modern practice}
+
+\begin{frame}{When the data is huge: stochastic gradient descent}
+  \small
+  Plain (batch) GD uses \emph{every} data point to compute each gradient. With millions of points and parameters,
+  one step is already expensive.
+  \vspace{2pt}
+  \begin{center}
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    Variant & data used per step & character \\
+    \midrule
+    batch GD & all $m$ points & smooth path, expensive steps \\
+    stochastic GD (strict) & one random point & cheap, very noisy steps \\
+    mini-batch GD (common practice) & a small random subset & cheap and fairly stable \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \begin{keybox}[Why use mini-batches~\cite{bottou2018}]
+    \small Mini-batches give more stable estimates than one point, while keeping steps cheap.
+    When \alert{new data} arrives, updates can continue from the current parameters.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{What the noise looks like}
+  \centering
+  \includegraphics[width=\textwidth, height=0.55\textheight, keepaspectratio]{fig_sgd_paths}
+
+  \raggedright\small
+  \begin{itemize}
+    \item One-point gradients are \emph{unbiased}: on average they equal the full gradient.
+    \item Their noise does not vanish at the minimum, so with a fixed $\alpha$ SGD keeps jittering.
+          Averaging $B$ points cuts the variance by $B$; a decaying $\alpha$ lets the path settle.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{SGD's noise floor, and how a schedule removes it}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \small
+      One-sample gradients are right \emph{on average}, but at the minimum they are not zero:
+      $\nabla J(w^\star) = 0$ while each $\nabla J_i(w^\star) \neq 0$.
+      \begin{itemize}\footnotesize
+        \item Constant $\alpha$: fast at first, then limited by a \alert{noise floor} that grows with $\alpha$.
+        \item Decaying $\alpha_k$: the noise floor falls, at rate $O(1/k)$ for strongly convex $J$~\cite{bottou2018}.
+      \end{itemize}
+      \textbf{Robbins--Monro}~\cite{robbins1951}: SGD converges if
+      \[
+        \textstyle\sum_k \alpha_k = \infty, \qquad \sum_k \alpha_k^2 < \infty ,
+      \]
+      steps persist while their squared sizes remain summable.
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.6\textheight, keepaspectratio]{fig_sgd_noise}
+
+      \footnotesize The sensor data of Problem A3, averaged over $300$ shuffled runs. After $200$ epochs: constant $\alpha$ sits near $4\times10^{-5}$, the schedule reaches $2\times10^{-8}$.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Where the gradient comes from: automatic differentiation}
+  \begin{thmbox}[Cheap gradient principle~\cite{griewank2008}]
+    Reverse-mode automatic differentiation computes the \emph{whole} gradient $\nabla J \in \R^n$ for a small constant
+    times the cost of evaluating $J$ once, \alert{however large $n$ is}.
+  \end{thmbox}
+  \vspace{2pt}
+  \centering\small
+  \begin{tabular}{@{}l c c@{}}
+    \toprule
+    How we get $\nabla J$ & cost & accuracy \\
+    \midrule
+    by hand (as in Part B) & free once derived & exact \\
+    finite differences, $\frac{J(\x + h\mathbf e_i) - J(\x)}{h}$ & $(n + 1)\times$ cost of $J$ & about $\sqrt{\epsilon_{\text{mach}}}$ \\
+    reverse-mode AD (backpropagation) & a few times the cost of $J$ & machine precision \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright\vspace{4pt}
+  \footnotesize Backpropagation in neural networks \emph{is} reverse-mode AD. That, plus GD's $O(n)$ update, is why a
+  model with $10^9$ parameters can be trained at all.
+\end{frame}
+
+\begin{frame}{Adaptive steps and stability}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Barzilai--Borwein: learn $\alpha$ from the last move}~\cite{barzilai1988}
+      \small
+      \[
+        \alpha_k = \frac{\mathbf s\T\mathbf s}{\mathbf s\T\mathbf r},\qquad \mathbf s = \x_k - \x_{k-1},\ \ \mathbf r = \g_k - \g_{k-1}.
+      \]
+      \begin{itemize}\footnotesize
+        \item $\mathbf r \approx H\mathbf s$, so $\alpha_k$ estimates $1/f''$ along the last step: Newton's step size, from gradients only.
+        \item $J$ may briefly go \emph{up}, yet it is often faster than a fixed $\alpha$. Pair it with
+              Armijo backtracking~\cite{armijo1966} for safety.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{The edge of stability}~\cite{cohen2021}
+      \begin{itemize}\small
+        \item Theory says keep $\alpha < 2/L$.
+        \item Yet when full-batch GD trains a neural network, the sharpness $\lmax$ \emph{rises} until it reaches
+              $2/\alpha$, then hovers there while the loss keeps falling, unevenly.
+        \item The analysis of Sections 5 and 6 does not explain this. It is an open research question.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}

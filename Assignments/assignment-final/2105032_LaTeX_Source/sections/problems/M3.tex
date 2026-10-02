@@ -1,0 +1,105 @@
+% =====================================================================
+%  M3 -- Step-size stability on a coupled quadratic
+% =====================================================================
+\subsection{M3: Step-size stability on a coupled quadratic}
+\setprob{M3}
+
+\begin{frame}{\probtitle{M3}{Step-size stability on a coupled quadratic}}
+  \begin{probbox}[Problem M3 \hfill Mathematical \quad $\star\star$]
+    Let $f(\x) = \tfrac12\x\T\bA\x - \vb\T\x$ with
+    $\bA = \begin{pmatrix}3&1\\1&3\end{pmatrix}$, $\vb = \begin{pmatrix}4\\4\end{pmatrix}$,
+    and run GD, $\x_{k+1} = \x_k - \alpha\nabla f(\x_k)$.
+    \begin{enumerate}[(a)]
+      \item Find $\x^\star$ and show that $\e_k = \x_k - \x^\star$ obeys $\e_{k+1} = (\bI - \alpha\bA)\,\e_k$.
+      \item Use the eigenpairs of $\bA$ to find \emph{all} $\alpha$ for which GD converges from every $\x_0$.
+      \item Find the $\alpha$ that makes the worst-case contraction factor smallest, and that factor.
+      \item With this $\alpha$ and $\x_0 = (3,0)$, compute $\x_1,\x_2$ and check that $\norm{\e_2} = \norm{\e_0}/9$.
+      \item How many iterations guarantee $\norm{\e_k}\le 10^{-6}\norm{\e_0}$?
+      \item Describe exactly what happens when $\alpha = 0.6$.
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{What this practises: an exact stability analysis, the best fixed step, and comparing step choices.}
+\end{frame}
+
+\begin{frame}{\soltitle{M3}{1}{4}}
+  \textbf{(a)} Solve $\nabla f(\x) = \bA\x - \vb = \mathbf 0$. Since $\det\bA = 8$,
+  \[
+    \x^\star = \bA^{-1}\vb = \frac18\begin{pmatrix}3&-1\\-1&3\end{pmatrix}\begin{pmatrix}4\\4\end{pmatrix}
+    = \ans{\begin{pmatrix}1\\1\end{pmatrix}} .
+  \]
+  Using $\vb = \bA\x^\star$:
+  $\;\e_{k+1} = \x_k - \alpha(\bA\x_k - \bA\x^\star) - \x^\star = (\bI - \alpha\bA)\,\e_k .$
+
+  \vspace{4pt}
+  \textbf{Eigen-decomposition.} $\det(\bA-\lambda\bI) = (3-\lambda)^2 - 1 = 0$ gives
+  \[
+    \lambda_1 = 2,\;\; \vv_1 = \tfrac1{\sqrt2}(1,-1)\T; \qquad
+    \lambda_2 = 4,\;\; \vv_2 = \tfrac1{\sqrt2}(1,1)\T .
+  \]
+  Writing $\e_k = c_1^{(k)}\vv_1 + c_2^{(k)}\vv_2$ splits the iteration into two separate scalar ones:
+  \[
+    c_i^{(k)} = (1 - \alpha\lambda_i)^k\, c_i^{(0)}, \qquad i = 1,2 .
+  \]
+\end{frame}
+
+\begin{frame}{\soltitle{M3}{2}{4}}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{(b)} To converge for \emph{every} $\e_0$ we need $|1-\alpha\lambda_i|<1$ for both $i$:
+      \[
+        0<\alpha<1 \;\text{ and }\; 0<\alpha<\tfrac12
+      \]
+      \[
+        \Longrightarrow\;\ans{0 < \alpha < \tfrac{2}{\lmax} = \tfrac12}
+      \]
+      \textbf{(c)} $\rho(\alpha) = \max\{|1-2\alpha|,\,|1-4\alpha|\}$ is smallest where the two branches cross:
+      \[
+        1 - 2\alpha = -(1-4\alpha) \Rightarrow \ans{\alpha^\star = \tfrac13},\;\; \ans{\rho^\star = \tfrac13}
+      \]
+      \small In general $\alpha^\star = \frac{2}{\lmin+\lmax}$ and $\rho^\star = \frac{\kappa-1}{\kappa+1}$; here $\kappa = 2$.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_amplification}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\soltitle{M3}{3}{4}}
+  \textbf{(d)} With $\alpha = \tfrac13$ and $\x_0 = (3,0)$:
+  \begin{align*}
+    \g_0 &= \bA\x_0 - \vb = (9,3) - (4,4) = (5,-1), &
+    \x_1 &= (3,0) - \tfrac13(5,-1) = \ans{\bigl(\tfrac43,\tfrac13\bigr)}\\
+    \g_1 &= \bigl(4+\tfrac13,\ \tfrac43+1\bigr) - (4,4) = \bigl(\tfrac13,-\tfrac53\bigr), &
+    \x_2 &= \bigl(\tfrac43-\tfrac19,\ \tfrac13+\tfrac59\bigr) = \ans{\bigl(\tfrac{11}9,\tfrac89\bigr)}
+  \end{align*}
+  So $\e_0 = (2,-1)$ and $\e_2 = \bigl(\tfrac29,-\tfrac19\bigr) = \tfrac19\,\e_0$, which gives $\norm{\e_2} = \norm{\e_0}/9$. \checkmark
+
+  \vspace{4pt}
+  \textbf{Why exactly $1/9$?} Split $\e_0 = \tfrac12(1,1) + \tfrac32(1,-1)$. The factors are
+  $1-\tfrac43 = -\tfrac13$ on $(1,1)$ and $1-\tfrac23 = \tfrac13$ on $(1,-1)$. Both have size $\tfrac13$,
+  so \emph{every} component shrinks by $\tfrac13$ per step: the optimal step \alert{balances} the two modes.
+  \[
+    \e_1 = -\tfrac16(1,1) + \tfrac12(1,-1) = \bigl(\tfrac13,-\tfrac23\bigr) \;\checkmark
+  \]
+\end{frame}
+
+\begin{frame}{\soltitle{M3}{4}{4}}
+  \textbf{(e)} $\norm{\e_k} = 3^{-k}\norm{\e_0}$, so we need $3^{-k} \le 10^{-6}$:
+  \vspace{-4pt}
+  \[
+    k \ge \frac{6\ln 10}{\ln 3} = \frac{13.8155}{1.0986} = 12.58
+    \;\Longrightarrow\; \ans{k = 13}
+  \]
+  \textbf{(f) $\alpha = 0.6 > 0.5$.} The factors are $1 - 0.6\cdot2 = -0.2$ and $1 - 0.6\cdot4 = \alert{-1.4}$:
+  \[
+    \e_k = \tfrac12(-1.4)^k(1,1) + \tfrac32(-0.2)^k(1,-1).
+  \]
+  \begin{itemize}\small
+    \item The $(1,1)$ mode \alert{grows} $\times1.4$ per step, flipping sign each time: $\e_6 \approx (3.765, 3.765)$.
+    \item The $(1,-1)$ mode still decays. One stiff direction ($\lmax$) sets the step limit.
+  \end{itemize}
+  \begin{keybox}[Lesson]
+    The blow-up happens along the eigenvector of $\lmax$, just as it does for explicit Euler on a stiff ODE.
+  \end{keybox}
+\end{frame}

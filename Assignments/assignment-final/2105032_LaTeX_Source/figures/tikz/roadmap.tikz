@@ -1,0 +1,40 @@
+% Roadmap of the teaching story: three phases, numbered stops
+\begin{tikzpicture}[
+  node distance=0.34cm and 0.36cm,
+  stop/.style={draw=#1, line width=0.8pt, rounded corners=4pt, fill=white,
+               drop shadow={opacity=0.18, shadow xshift=0.6pt, shadow yshift=-0.8pt},
+               minimum height=1.0cm, text width=2.0cm, align=center, font=\scriptsize\color{mInk}},
+  badge/.style={circle, fill=#1, text=white, font=\tiny\bfseries, inner sep=1.3pt, minimum size=11pt},
+  arr/.style={-{Stealth[length=5pt]}, line width=0.9pt, #1},
+  arr/.default=mGrey]
+  % row 1: foundations (teal)
+  \node[stop=mDarkTeal] (p) {\textbf{Problem}\\ $\min f(\x)$};
+  \node[stop=mDarkTeal, right=of p] (g) {\textbf{Gradient}\\ steepest direction};
+  \node[stop=mDarkTeal, right=of g] (d) {\textbf{Derivation}\\ Taylor, Euler};
+  \node[stop=mDarkTeal, right=of d] (s) {\textbf{Step size}\\ stability $\alpha<2/L$};
+  \node[stop=mDarkTeal, right=of s] (c) {\textbf{Convergence}\\ rates and order};
+  % row 2: when it struggles and how to fix it (orange), right to left
+  \node[stop=mOrange, below=0.62cm of c] (k) {\textbf{Conditioning}\\ zig-zag, $\kappa$};
+  \node[stop=mOrange, left=of k] (f) {\textbf{Failure modes}\\ saddles, plateaus};
+  \node[stop=mOrange, left=of f] (a) {\textbf{Adaptive steps}\\ Armijo, BB};
+  \node[stop=mOrange, left=of a] (m) {\textbf{Acceleration}\\ momentum, Nesterov};
+  \node[stop=mOrange, left=of m] (sg) {\textbf{SGD, modern}\\ noise, autodiff};
+  % row 3: practice (green)
+  \node[stop=mGreen, below=0.62cm of sg, text width=4.45cm] (ap) {\textbf{Applications}: ML, mechanics, economics, estimation, sensors};
+  \node[stop=mGreen, right=of ap, text width=4.45cm] (pr) {\textbf{Part B}: 10 problems with full solutions};
+  % arrows
+  \draw[arr=mDarkTeal] (p) -- (g);  \draw[arr=mDarkTeal] (g) -- (d);
+  \draw[arr=mDarkTeal] (d) -- (s);  \draw[arr=mDarkTeal] (s) -- (c);
+  \draw[arr] (c.south) -- (k.north);
+  \draw[arr=mOrange] (k) -- (f);  \draw[arr=mOrange] (f) -- (a);
+  \draw[arr=mOrange] (a) -- (m);  \draw[arr=mOrange] (m) -- (sg);
+  \draw[arr] (sg.south) -- (sg.south |- ap.north);
+  \draw[arr=mGreen] (ap) -- (pr);
+  % badges
+  \foreach \n/\lab in {p/1, g/2, d/3, s/4, c/5}
+    \node[badge=mDarkTeal] at (\n.north west) {\lab};
+  \foreach \n/\lab in {k/6, f/7, a/8, m/9, sg/10}
+    \node[badge=mOrange] at (\n.north west) {\lab};
+  \node[badge=mGreen] at (ap.north west) {11};
+  \node[badge=mGreen] at (pr.north west) {12};
+\end{tikzpicture}

@@ -1,0 +1,80 @@
+% =====================================================================
+%  8. Why convergence can be slow: conditioning and the zig-zag
+% =====================================================================
+\section{Why it can be so slow: conditioning}
+
+\begin{frame}{What if we pick the perfect step every time?}
+  Exact line search takes the \emph{best} step along $-\g_k$: $\;\alpha_k = \argmin_{\alpha>0}f(\x_k-\alpha\g_k)$.
+  \begin{itemize}\small
+    \item For a quadratic there is a closed form, $\alpha_k = \dfrac{\g_k\T\g_k}{\g_k\T\bA\g_k}$, at the price of one extra matrix--vector product.
+    \item For general $f$ it is a 1-D minimisation every iteration. Any 1-D method works (golden-section search, for example,
+          which is a separate topic). In practice cheaper inexact rules win (Section~10).
+  \end{itemize}
+  \begin{thmbox}[Consecutive steps are perpendicular]
+    At the optimal $\alpha_k$,
+    $\;0 = \tfrac{d}{d\alpha}f(\x_k-\alpha\g_k)\big|_{\alpha_k} = -\nabla f(\x_{k+1})\T\g_k$, so $\;\g_{k+1}\perp\g_k$.
+  \end{thmbox}
+  \small So every step turns exactly $90^\circ$. In a long narrow valley that produces the famous
+  \alert{zig-zag} (Problem M4 proves it and gives the iterates in closed form).
+\end{frame}
+
+\begin{frame}{The Kantorovich bound, with a short proof}
+  \begin{thmbox}[Theorem (steepest descent with exact line search, quadratic $f$)]
+    \[ f(\x_{k+1})-f^\star \le \Bigl(\frac{\kappa-1}{\kappa+1}\Bigr)^2\bigl(f(\x_k)-f^\star\bigr). \]
+  \end{thmbox}
+  \small\textbf{Proof.}
+  \pause
+  Shift so that $f - f^\star = \tfrac12\e\T\bA\e = \tfrac12\g\T\bA^{-1}\g$ with $\g = \bA\e$. The exact step gives
+  $f(\x_{k+1}) = f(\x_k) - \frac{(\g\T\g)^2}{2\,\g\T\bA\g}$, hence
+  \[
+    \frac{f(\x_{k+1})-f^\star}{f(\x_k)-f^\star} = 1-\frac{(\g\T\g)^2}{(\g\T\bA\g)(\g\T\bA^{-1}\g)} .
+  \]
+  \pause
+  The \textbf{Kantorovich inequality} says the fraction is at least $\frac{4\lmin\lmax}{(\lmin+\lmax)^2}$, so the ratio is at most
+  $1-\frac{4\kappa}{(1+\kappa)^2} = \bigl(\frac{\kappa-1}{\kappa+1}\bigr)^2$. $\blacksquare$
+  \pause
+
+  \vspace{2pt}
+  \footnotesize And the bound is \alert{sharp}. Problem M4 finds a starting point that hits it exactly, at every single step~\cite{nocedal2006,boyd2004}.
+\end{frame}
+
+\begin{frame}{The zig-zag in pictures}
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig_zigzag}\hfill
+  \includegraphics[width=0.37\textwidth]{fig_error_curves}
+
+  \vspace{4pt}
+  \raggedright
+  \begin{itemize}\small
+    \item On $f = \tfrac12(x^2+\gamma y^2)$ from $(\gamma,1)$, cutting $f$ by $10^6$ takes \textbf{35} steps when $\gamma = 10$
+          and \textbf{346} when $\gamma=100$. That is about $3.45\,\kappa$.
+    \item A perfect \emph{step length} cannot rescue a bad \emph{direction}. There are two ways out:
+          change the geometry (preconditioning, next slide) or remember where you have been (momentum, Section~11).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The fix: change the geometry (preconditioning)}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small
+      Run GD on $\tilde f(\y) = f(\bP^{-1/2}\y)$. In the original variables that is
+      \[
+        \x_{k+1} = \x_k - \alpha\,\bP^{-1}\nabla f(\x_k),
+      \]
+      with Hessian $\bP^{-1/2}\bA\bP^{-1/2}$. Pick $\bP\approx\bA$ and $\tilde\kappa\approx1$.
+      \begin{itemize}\footnotesize
+        \item \textbf{Centring features} (A1): $\kappa$ from $46.1$ to $1.5$, iterations from $319$ to $9$.
+        \item \textbf{Jacobi scaling} $\bP = \diag(\bA)$ (A2): $\kappa$ from $1002$ to $1.065$.
+        \item $\bP = \nabla^2 f$ is ideal but costly: Newton's method, left aside here.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_scaling}
+
+      \footnotesize The A1 regression before and after centring. The valley turns into a bowl.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\statement{WHY IT IS SLOW}{The step length is not the problem.\\ The direction is.}{Fix the geometry (preconditioning) or remember the past (momentum).}

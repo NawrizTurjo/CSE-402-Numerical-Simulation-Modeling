@@ -1,0 +1,307 @@
+% =====================================================================
+%  paper-navy-beamer :: preamble.tex
+%  A light "paper" Beamer theme built on Metropolis (pdfLaTeX, no shell-escape).
+%
+%  Visual system:
+%    * light paper content slides; dark navy only for the title slide and
+%      big-statement slides (projector friendly);
+%    * three colours with fixed jobs: navy = structure, orange = attention,
+%      teal = answers / key results (all >= 4.5:1 on the paper background);
+%    * white frame header: title left, current section right, orange rule
+%      underneath that doubles as a progress bar;
+%    * numbered section dividers with an optional "you are here" stop strip;
+%    * left-accent boxes; optional navy edge strip for problem/exercise frames.
+%
+%  Deck-level settings (redefine with \renewcommand after \input{preamble}):
+%    \deckfooter   footer text                (default: short title | short author)
+%    \deckkicker   small caps line above the title on the title slide (default empty)
+%    \deckmeta     line under the author on the title slide (default: date)
+%    \deckart      basename of the title-slide artwork PDF (default fig_title_bg)
+%    \deckstops    comma list of roadmap stop labels for the section strip (default empty = no strip)
+%    \stripprefix  word on the problem edge strip (default PROBLEM)
+%  Per-section overrides (place right before \section):
+%    \nextsectionstop{n}   which stop to highlight (0 = hide strip, > #stops = "all done")
+%    \nextsectionlabel{B}  text of the big number (default: two-digit section number)
+% =====================================================================
+
+% ---------- theme ----------
+\usetheme[progressbar=none, numbering=fraction, block=fill]{metropolis}
+\setbeamersize{text margin left=0.9cm, text margin right=0.9cm}
+
+% ---------- encoding / fonts ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[sfdefault, lining, scaled=0.92]{FiraSans}   % text
+\usepackage[scaled=0.86]{FiraMono}                       % code
+\renewcommand*\familydefault{\sfdefault}
+
+% ---------- mathematics ----------
+\usepackage{amsmath, amsthm, mathtools}
+\usefonttheme{professionalfonts}       % let newtxsf set the maths fonts
+\usepackage{newtxsf}                   % sans-serif maths matching Fira (load after amsmath; no amssymb, no bm)
+\usepackage{nicefrac}
+
+% ---------- graphics / tables ----------
+\usepackage{graphicx}
+\graphicspath{{figures/generated/}{figures/tikz/}{figures/}}
+\usepackage{booktabs, array, multirow, makecell}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, positioning, shapes.geometric, shadows, fadings,
+                decorations.pathmorphing, decorations.pathreplacing, patterns, backgrounds}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+
+% ---------- boxes / code / links ----------
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{appendixnumberbeamer}
+\usepackage{hyperref}
+
+% =====================================================================
+%  Colours
+% =====================================================================
+\definecolor{mNavy}{HTML}{1E3A5F}       % structure: headers, theorems   (10.9:1)
+\definecolor{mOrange}{HTML}{C2410C}     % attention: alerts, problems    (5.0:1)
+\definecolor{mTeal}{HTML}{0F766E}       % answers, key results           (5.3:1)
+\definecolor{mRed}{HTML}{B91C1C}        % warnings / failure             (6.3:1)
+\definecolor{mBlue}{HTML}{1D4ED8}       % secondary series colour         (6.5:1)
+\definecolor{mGrey}{HTML}{4B5563}       % secondary text                  (7.4:1)
+\definecolor{mInk}{HTML}{111827}        % body text
+\definecolor{mPaper}{HTML}{FBFAF7}      % warm off-white slide background
+\definecolor{mLight}{HTML}{F3F1EC}      % code background
+\definecolor{mOrangeLt}{HTML}{FDBA74}   % accent text on the dark navy slides
+\definecolor{mSky}{HTML}{BFDBFE}        % secondary text on the dark navy slides
+\colorlet{mDarkTeal}{mNavy}             % aliases so older snippets keep working
+\colorlet{mGreen}{mTeal}
+
+\setbeamercolor{normal text}{fg=mInk, bg=mPaper}
+\setbeamercolor{background canvas}{bg=mPaper}
+\setbeamercolor{alerted text}{fg=mOrange}
+\setbeamercolor{example text}{fg=mTeal}
+\setbeamercolor{frametitle}{fg=mNavy, bg=mPaper}
+\setbeamercolor{palette primary}{fg=white, bg=mNavy}     % standout (statement) slides
+\setbeamercolor{footline}{fg=mGrey}
+\setbeamercolor{page number in head/foot}{fg=mGrey}
+\setbeamercolor{itemize item}{fg=mOrange}
+\setbeamercolor{itemize subitem}{fg=mOrange}
+\setbeamercolor{enumerate item}{fg=mNavy}
+\setbeamercolor{section title}{fg=mNavy}
+
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+\setbeamerfont{section title}{size=\LARGE, series=\bfseries}
+\setbeamerfont{standout}{size=\LARGE, series=\bfseries}
+
+% =====================================================================
+%  Deck-level settings (defaults)
+% =====================================================================
+\newcommand{\deckfooter}{\insertshorttitle\quad|\quad\insertshortauthor}
+\newcommand{\deckkicker}{}
+\newcommand{\deckmeta}{\insertdate}
+\newcommand{\deckart}{fig_title_bg}
+\newcommand{\deckstops}{}
+\newcommand{\stripprefix}{PROBLEM}
+\setbeamertemplate{frame footer}{\deckfooter}
+
+\makeatletter
+% =====================================================================
+%  Frame header: title left, current section right, progress rule below.
+% =====================================================================
+\newlength{\gm@track}
+\newlength{\gm@prog}
+\newcommand{\gm@progressrule}{%
+  \setlength{\gm@track}{\textwidth}%
+  \pgfmathsetlength{\gm@prog}{min(1,\insertframenumber/max(1,\inserttotalframenumber))*\gm@track}%
+  {\color{mOrange}\rule{\gm@prog}{1.4pt}}{\color{mNavy!12}\rule{\dimexpr\gm@track-\gm@prog\relax}{1.4pt}}}
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \vskip 5pt
+  \sbox0{\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle}%
+  \sbox1{\scriptsize\bfseries\color{mOrange}\insertsectionhead}%
+  \hbox to \textwidth{%
+    \ifdim\dimexpr\wd0+\wd1+1.0cm\relax<\textwidth
+      \box0\hfill\raise1.5pt\box1%
+    \else
+      \parbox[b]{\textwidth}{\raggedright
+        \usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle}%
+    \fi}%
+  \vskip 3pt
+  \hbox to \textwidth{\gm@progressrule\hfil}%
+}
+
+% =====================================================================
+%  Title slide: full-bleed navy, faded artwork on the right, author block.
+% =====================================================================
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[mNavy] (current page.south west) rectangle (current page.north east);
+    % \IfFileExists ignores \graphicspath, so look in the usual figure folders explicitly
+    \gdef\gm@artfile{}%
+    \IfFileExists{\deckart.pdf}{\xdef\gm@artfile{\deckart}}{%
+      \IfFileExists{figures/generated/\deckart.pdf}{\xdef\gm@artfile{figures/generated/\deckart}}{%
+        \IfFileExists{figures/\deckart.pdf}{\xdef\gm@artfile{figures/\deckart}}{}}}%
+    \ifx\gm@artfile\empty\else
+      \node[anchor=east, inner sep=0pt, opacity=0.9] at ([xshift=0.4cm]current page.east)
+        {\includegraphics[height=1.05\paperheight]{\gm@artfile}};
+      \fill[mNavy, path fading=east] (current page.south west) rectangle ([xshift=-3.4cm]current page.north east);
+    \fi
+    \node[anchor=north west, text width=0.62\paperwidth, align=left, inner sep=0pt]
+      at ([xshift=1.0cm, yshift=-1.55cm]current page.north west) {%
+        \ifx\deckkicker\empty\else{\color{mOrangeLt}\scriptsize\bfseries\deckkicker}\\[10pt]\fi
+        {\color{white}\fontsize{28}{30}\selectfont\bfseries \inserttitle}\\[8pt]
+        \ifx\beamer@subtitle\@empty\else{\color{mSky}\normalsize \insertsubtitle}\\[12pt]\fi
+        {\color{mOrangeLt}\rule{2.2cm}{2pt}}\\[14pt]
+        {\color{white}\large\bfseries \insertauthor}\\[3pt]
+        {\color{mSky}\small \deckmeta}};
+  \end{tikzpicture}}
+
+% =====================================================================
+%  Section dividers: big number, title, optional stop strip.
+% =====================================================================
+\let\gm@nextstop\relax
+\let\gm@nextlabel\relax
+\newcommand{\nextsectionstop}[1]{\gdef\gm@nextstop{#1}}
+\newcommand{\nextsectionlabel}[1]{\gdef\gm@nextlabel{#1}}
+\newcommand{\gm@secnum}{%
+  \ifx\gm@nextlabel\relax\ifnum\value{section}<10 0\fi\arabic{section}\else\gm@nextlabel\fi}
+\newcommand{\gm@stopstrip}{%
+  \ifx\deckstops\empty\else
+    \def\gm@n{0}%
+    \foreach \gm@lab in \deckstops {\xdef\gm@n{\the\numexpr\gm@n+1\relax}}%
+    \ifx\gm@nextstop\relax\edef\gm@cur{\arabic{section}}\else\edef\gm@cur{\gm@nextstop}\fi
+    \ifnum\gm@cur>0
+      \pgfmathsetmacro\gm@dx{9.6/max(1,\gm@n-1)}%
+      \begin{tikzpicture}[x=\gm@dx cm]
+        \draw[mNavy!25, line width=1.2pt] (1,0) -- (\gm@n,0);
+        \foreach \gm@lab [count=\i] in \deckstops {%
+          \ifnum\gm@cur>\gm@n
+            \fill[mNavy] (\i,0) circle (2.6pt);
+          \else\ifnum\i<\gm@cur
+            \fill[mNavy] (\i,0) circle (2.6pt);
+          \else\ifnum\i=\gm@cur
+            \fill[mOrange] (\i,0) circle (4.6pt); \fill[mPaper] (\i,0) circle (1.6pt);
+            \node[below=5pt, font=\scriptsize\bfseries, mOrange] at (\i,0) {\gm@lab};
+          \else
+            \fill[mPaper] (\i,0) circle (2.6pt); \draw[mNavy!45, line width=0.8pt] (\i,0) circle (2.6pt);
+          \fi\fi\fi}
+        \ifnum\gm@cur>\gm@n \node[below=5pt, font=\scriptsize\bfseries, mOrange] at ({(1+\gm@n)/2},0) {recap}; \fi
+      \end{tikzpicture}%
+    \fi
+  \fi}
+\setbeamertemplate{section page}{%
+  \begin{minipage}{0.86\textwidth}
+    \raggedright
+    {\fontsize{46}{46}\selectfont\bfseries\color{mOrange}\gm@secnum}\\[4pt]
+    {\usebeamerfont{section title}\usebeamercolor[fg]{section title}\insertsectionhead}\\[2pt]
+    {\color{mOrange}\rule{1.6cm}{2pt}}\\[18pt]
+    \gm@stopstrip
+  \end{minipage}%
+  \global\let\gm@nextstop\relax
+  \global\let\gm@nextlabel\relax}
+
+% =====================================================================
+%  Tighter display maths and lists (Fira Sans is taller than CM).
+% =====================================================================
+\newcommand{\gm@tightdisplay}{%
+  \setlength{\abovedisplayskip}{5pt plus 2pt minus 2pt}%
+  \setlength{\belowdisplayskip}{5pt plus 2pt minus 2pt}%
+  \setlength{\abovedisplayshortskip}{2pt plus 2pt}%
+  \setlength{\belowdisplayshortskip}{4pt plus 2pt minus 2pt}}
+\appto\normalsize{\gm@tightdisplay}
+\appto\small{\gm@tightdisplay}
+\appto\footnotesize{\gm@tightdisplay}
+\setbeamertemplate{itemize/enumerate body begin}{\setlength{\itemsep}{1pt}}
+\setbeamertemplate{itemize/enumerate subbody begin}{\setlength{\itemsep}{0pt}}
+\setlength{\leftmargini}{1.2em}
+
+% =====================================================================
+%  Problem / exercise frames: navy edge strip with an id, step dots.
+% =====================================================================
+\gdef\gmprob{}
+\newcommand{\setprob}[1]{\gdef\gmprob{#1}}
+\setbeamertemplate{background}{%
+  \ifx\gmprob\empty\else
+  \begin{tikzpicture}
+    \useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
+    \fill[mNavy] (0,0.8cm) rectangle (0.36cm,\paperheight);   % stops above the footer
+    \node[rotate=90, text=white, font=\scriptsize\bfseries, inner sep=0pt] at (0.18cm,0.55\paperheight)
+      {\stripprefix\ \gmprob};
+  \end{tikzpicture}%
+  \fi}
+\def\gm@dots#1#2#3{%
+  \ifnum#1>#3\relax\else
+    \ifnum#1>#2\relax{\color{mNavy!25}\textbullet}\else{\color{mOrange}\textbullet}\fi
+    \expandafter\gm@dots\expandafter{\the\numexpr#1+1\relax}{#2}{#3}%
+  \fi}
+\newcommand{\stepdots}[2]{{\normalsize\gm@dots{1}{#1}{#2}}}
+\makeatother
+
+% \probtitle{M1}{Stationary points}  -> "Problem M1 · Stationary points"
+% \soltitle{M1}{2}{4}                 -> "Problem M1 · Solution 2/4 ••○○"
+\newcommand{\probtitle}[2]{Problem #1 \textperiodcentered\ #2}
+\newcommand{\soltitle}[3]{Problem #1 \textperiodcentered\ Solution #2/#3 \;\stepdots{#2}{#3}}
+
+% =====================================================================
+%  Boxes: coloured bar on the left, tinted background, coloured title.
+% =====================================================================
+\tcbset{
+  gmbase/.style={enhanced, breakable=false, frame hidden, sharp corners,
+                 borderline west={2.6pt}{0pt}{#1},
+                 colback=#1!6!mPaper, colbacktitle=#1!6!mPaper, coltitle=#1,
+                 titlerule=0pt, toptitle=3pt, bottomtitle=-1pt,
+                 left=8pt, right=6pt, top=3pt, bottom=4pt,
+                 fonttitle=\bfseries\small, fontupper=\small,
+                 before skip=5pt, after skip=5pt}
+}
+\newtcolorbox{probbox}[1][]{gmbase=mOrange, title={#1}}   % problem statements, tasks
+\newtcolorbox{thmbox}[1][]{gmbase=mNavy, title={#1}}      % theorems, definitions, algorithms
+\newtcolorbox{keybox}[1][]{gmbase=mTeal, title={#1}}      % key ideas, insights, takeaways
+\newtcolorbox{warnbox}[1][]{gmbase=mRed, title={#1}}      % caveats, pitfalls
+
+% boxed answers (works in text and in maths): rounded teal outline
+\newtcbox{\anstcb}{on line, enhanced, colback=mTeal!8!mPaper, colframe=mTeal, boxrule=0.7pt,
+  arc=2.5pt, left=2.5pt, right=2.5pt, top=1pt, bottom=1pt, boxsep=0.6pt}
+\newcommand{\ans}[1]{\text{\anstcb{$\displaystyle #1$}}}
+
+% =====================================================================
+%  Statement slides: dark navy, one big idea in large type.
+%  \statement{KICKER}{Big sentence (\\ allowed)}{small follow-up}
+% =====================================================================
+\newcommand{\statement}[3]{%
+  \begin{frame}[standout]
+    \begin{minipage}{0.84\textwidth}\centering
+      {\color{mOrangeLt}\scriptsize\bfseries #1\par}\vspace{10pt}
+      {\LARGE\bfseries\color{white} #2\par}\vspace{12pt}
+      {\color{mOrangeLt}\rule{1.6cm}{1.6pt}\par}\vspace{10pt}
+      {\color{mSky}\normalsize\mdseries #3\par}
+    \end{minipage}
+  \end{frame}}
+
+% =====================================================================
+%  Small generic maths helpers
+% =====================================================================
+\providecommand{\R}{\mathbb{R}}
+\providecommand{\E}{\mathbb{E}}
+\providecommand{\T}{^{\mathsf T}}
+\providecommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\providecommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\diag}{diag}
+
+% =====================================================================
+%  Code listings
+% =====================================================================
+\lstdefinestyle{py}{
+  language=Python, basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{mBlue}\bfseries, commentstyle=\color{mGrey}\itshape,
+  stringstyle=\color{mTeal}, showstringspaces=false,
+  frame=leftline, framerule=2.6pt, rulecolor=\color{mNavy}, backgroundcolor=\color{mLight},
+  xleftmargin=6pt, xrightmargin=2pt, framesep=5pt, columns=fullflexible, keepspaces=true}
+
+% =====================================================================
+%  Bibliography: numbered labels, compact entries
+% =====================================================================
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+\setbeamertemplate{bibliography entry title}{}
+\setbeamertemplate{bibliography entry location}{}
+\setbeamertemplate{bibliography entry note}{}

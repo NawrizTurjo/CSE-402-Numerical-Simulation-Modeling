@@ -1,0 +1,81 @@
+% =====================================================================
+%  M1 -- Stationary points and local minima of a quartic
+% =====================================================================
+\subsection{M1: Stationary points of a quartic}
+\setprob{M1}
+
+\begin{frame}{\probtitle{M1}{Stationary points and two valleys}}
+  \begin{probbox}[Problem M1 \hfill Mathematical \quad $\star\star$]
+    Let $J(x) = x^4 - 6x^3 + 8x^2$.
+    \begin{enumerate}[(a)]
+      \item Find every stationary point of $J$.
+      \item Use $J''$ to say which are minima and which are maxima. Which minimum is the lowest?
+      \item Run three GD steps with $\alpha = 0.05$ from $x_0 = 1.0$, and again from $x_0 = 1.5$.
+            Where does each run end up?
+      \item How reliable is the result from a single GD run?
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{Practice: $J' = 0$, the second-derivative test, and the effect of the starting point.}
+\end{frame}
+
+\begin{frame}{\soltitle{M1}{1}{3}}
+  \textbf{(a) Stationary points.} Set the slope to zero and factor out $2x$:
+  \[
+    J'(x) = 4x^3 - 18x^2 + 16x = 2x\,(2x^2 - 9x + 8) = 0 .
+  \]
+  So $x = 0$, or $x = \dfrac{9 \pm \sqrt{81 - 64}}{4} = \dfrac{9\pm\sqrt{17}}{4}$, which gives
+  \[
+    \ans{x = 0,\qquad x \approx 1.2192,\qquad x \approx 3.2808}
+  \]
+  \textbf{(b) Classify} with $J''(x) = 12x^2 - 36x + 16$:
+  \begin{center}\small
+  \begin{tabular}{@{}c c c l@{}}
+    \toprule
+    $x$ & $J''(x)$ & $J(x)$ & type \\
+    \midrule
+    $0$ & $16 > 0$ & $0$ & \textcolor{mTeal}{\textbf{local minimum}} \\
+    $1.2192$ & $-10.05 < 0$ & $3.227$ & \textcolor{mOrange}{\textbf{maximum}} (the hill) \\
+    $3.2808$ & $27.05 > 0$ & $-9.915$ & \textcolor{mTeal}{\textbf{global minimum}} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{\soltitle{M1}{2}{3}}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      \textbf{(c) GD with $\alpha = 0.05$}, $x_{k+1} = x_k - 0.05\,J'(x_k)$.
+
+      \vspace{3pt}
+      From $x_0 = 1.0$: $J'(1) = 4 - 18 + 16 = 2$, so $x_1 = 1 - 0.1 = 0.9$.
+      \[
+        1 \to 0.9 \to 0.763 \to 0.588 \to \ans{0}
+      \]
+      From $x_0 = 1.5$: $J'(1.5) = 13.5 - 40.5 + 24 = -3$, so $x_1 = 1.65$.
+      \[
+        1.5 \to 1.65 \to 1.882 \to 2.231 \to \ans{3.281}
+      \]
+      The two starts sit on opposite sides of the hill at $1.2192$.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.62\textheight, keepaspectratio]{fig_local_minima}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\soltitle{M1}{3}{3}}
+  \textbf{(d) What it means.}
+  \begin{itemize}
+    \item GD only follows the local slope. Start left of the hill and it settles at $x = 0$ with $J = 0$.
+          Start right of it and it reaches $x \approx 3.28$ with $J \approx -9.92$.
+    \item Both runs \emph{converged}: the step size went to zero in each. Convergence tells you that you reached
+          a stationary point, not that you reached the best one.
+    \item In practice, try several starting points and keep the lowest $J$.
+  \end{itemize}
+  \begin{keybox}[Answer]
+    Stationary points $0,\ (9\pm\sqrt{17})/4$. The global minimum is $x^\star \approx 3.2808$, $J^\star \approx -9.915$.
+    GD finds it only from starts to the right of the hill at $x \approx 1.2192$.
+  \end{keybox}
+\end{frame}

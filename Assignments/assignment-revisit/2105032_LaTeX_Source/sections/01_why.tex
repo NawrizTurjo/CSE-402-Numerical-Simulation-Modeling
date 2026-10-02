@@ -1,0 +1,55 @@
+% =====================================================================
+%  1. Why gradient descent?
+% =====================================================================
+\section{Why gradient descent?}
+
+\begin{frame}{The question behind it: fit a line to data}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      Predict height from weight with a straight line, $\hat y = b + m x$
+      (intercept $b$, slope $m$).
+      How good is a line? Add up the squared \alert{residuals} $r_i = y_i - (b + m x_i)$:
+      \[
+        \SSR(b, m) = \sum_{i=1}^{n}\bigl(y_i - b - m x_i\bigr)^2 .
+      \]
+      This is the \textbf{loss function}. The best line is the one with the smallest SSR.
+      \begin{keybox}[Other uses]
+        \footnotesize Linear and logistic regression, t-SNE: each one is ``pick the parameters that make a loss smallest''.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \only<1>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_0}}%
+      \only<2>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_1}}%
+      \only<3>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_2}}%
+      \only<4>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_3}}%
+      \only<5>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_4}}%
+      \only<6>{\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{fig_line_frame_5}}%
+
+      \footnotesize Data: weights $0.5, 2.3, 2.9$, heights $1.4, 1.9, 3.2$. Each click shows smaller residuals.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Why not just set the slope of the loss to zero?}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small
+      At the best value the loss is flat, so solve loss$'=0$. For a line we \emph{can} (least squares).
+      But often we \alert{cannot}: there is no closed form (logistic regression, neural nets),
+      there are millions of parameters, or new data keeps arriving.
+      \begin{thmbox}[The idea of gradient descent]
+        \footnotesize Start from a guess and step downhill until the loss stops improving:
+        \alert{big steps} far away, \alert{small steps} near the optimum.
+        Cauchy proposed it in 1847~\cite{cauchy1847}; it is still used to train large models~\cite{bottou2018}.
+      \end{thmbox}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.55\textheight, keepaspectratio]{fig_ssr_intercept}
+
+      \footnotesize SSR against the intercept (slope $0.64$). Steps shrink as the slope flattens.
+    \end{column}
+  \end{columns}
+\end{frame}

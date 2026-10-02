@@ -1,0 +1,35 @@
+\frametitle{The whole method in a dozen lines}
+\begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+\begin{lstlisting}[style=py]
+import numpy as np
+
+def gradient_descent(grad, x0, alpha,
+                     rtol=1e-8, maxit=10_000):
+    x = np.asarray(x0, dtype=float).copy()
+    g0 = np.linalg.norm(grad(x))
+    for k in range(maxit):
+        g = grad(x)
+        if np.linalg.norm(g) <= rtol * g0:
+            break
+        x -= alpha * g       # O(n) update
+    return x, k
+
+# least squares: f(w) = ||Xw - y||^2 / (2m)
+def ls_grad(w, X, y):
+    return X.T @ (X @ w - y) / len(y)
+\end{lstlisting}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \small\textbf{What one iteration costs}
+      \begin{itemize}\footnotesize
+        \item One gradient and an $O(n)$ vector update, with $O(n)$ memory.
+        \item For least squares with $\mathbf X\in\R^{m\times n}$, that is two matrix--vector products, $O(mn)$.
+              Nothing gets factorised.
+        \item Written with array operations (BLAS, GPUs) instead of Python loops, the same code runs for
+              $n = 2$ or for millions of variables.
+        \item Total cost is (number of iterations) $\times$ (cost of $\nabla f$). The rest of the module is
+              about that first factor.
+      \end{itemize}
+    \end{column}
+  \end{columns}

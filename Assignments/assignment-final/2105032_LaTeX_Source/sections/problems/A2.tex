@@ -1,0 +1,112 @@
+% =====================================================================
+%  A2 -- Structural mechanics: spring-chain equilibrium
+% =====================================================================
+\subsection{A2: Structural mechanics, a spring chain at rest}
+\setprob{A2}
+
+\begin{frame}{\probtitle{A2}{Where does a spring chain settle? Energy minimisation}}
+  \begin{probbox}[Problem A2 \hfill Application: Structural Mechanics \quad $\star\star$]
+    \begin{columns}[T]
+      \begin{column}{0.47\textwidth}
+        \centering
+        \input{figures/tikz/spring_chain.tikz}
+      \end{column}
+      \begin{column}{0.5\textwidth}
+        \small
+        Two masses are joined by springs and a load $F$ pulls on mass 2. The chain comes to rest where the
+        potential energy is smallest:
+        \[
+          \Pi(\vu) = \tfrac12k_1u_1^2 + \tfrac12k_2(u_2-u_1)^2 - Fu_2 .
+        \]
+      \end{column}
+    \end{columns}
+    \vspace{-2pt}
+    \begin{enumerate}[(a)]
+      \item Write $\Pi = \tfrac12\vu\T\bK\vu - \vf\T\vu$ and show that $\nabla\Pi = \mathbf 0$ is force balance.
+      \item With $k_1 = 3$, $k_2 = 1$ kN/mm and $F = 1$ kN, find $\vu^\star$, $\operatorname{eig}(\bK)$, $\kappa$, the stable range of $\alpha$,
+            the best $\alpha$ and its rate.
+      \item Take two GD iterations from $\vu_0 = \mathbf 0$ with $\alpha = 0.4$.
+      \item Make the support very stiff, $k_1 = 1000$. What changes, and why is this a \emph{stiff} problem?
+    \end{enumerate}
+  \end{probbox}
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{1}{4}}
+  \textbf{(a)} Expand $\tfrac12k_2(u_2^2 - 2u_1u_2 + u_1^2)$ to read off
+  \[
+    \bK = \begin{pmatrix}k_1+k_2 & -k_2\\ -k_2 & k_2\end{pmatrix}, \qquad
+    \vf = \begin{pmatrix}0\\ F\end{pmatrix}, \qquad
+    \nabla\Pi = \bK\vu - \vf .
+  \]
+  Setting each component to zero:
+  \begin{align*}
+    (k_1+k_2)u_1 - k_2u_2 = 0 &\iff k_1u_1 = k_2(u_2-u_1) \quad\text{(balance at mass 1)}\\
+    k_2(u_2 - u_1) = F &\iff \text{spring 2 carries the load} \quad\text{(balance at mass 2)}
+  \end{align*}
+  \begin{keybox}[What GD is doing physically]
+    $-\nabla\Pi = \vf - \bK\vu$ is the \alert{unbalanced force} on each mass, and GD nudges each mass along it:
+    relaxation in pseudo-time. Since $\bK\succ0$, there is exactly one resting position.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{2}{4}}
+  \textbf{(b)} $\bK = \begin{pmatrix}4&-1\\-1&1\end{pmatrix}$ and $\det\bK = 3$:
+  \[
+    \vu^\star = \bK^{-1}\vf = \frac13\begin{pmatrix}1&1\\1&4\end{pmatrix}\begin{pmatrix}0\\1\end{pmatrix}
+    = \ans{\bigl(\tfrac13,\ \tfrac43\bigr)\ \text{mm}}
+  \]
+  Sanity check with springs in series: $u_1 = F/k_1 = \tfrac13$ and $\;u_2 = u_1 + F/k_2 = \tfrac43$ \checkmark.
+
+  \vspace{2pt}
+  $\lambda^2 - 5\lambda + 3 = 0 \Rightarrow \lambda = \tfrac{5\mp\sqrt{13}}{2} = 0.6972,\ 4.3028$, so $\ans{\kappa = 6.17}$.
+  \[
+    0 < \alpha < \frac{2}{4.3028} = \ans{0.4648},\qquad
+    \alpha^\star = \frac{2}{\lambda_1+\lambda_2} = \ans{0.4},\qquad
+    \rho = \frac{\sqrt{13}}{5} = \ans{0.7211}.
+  \]
+  Getting to $10^{-6}$ accuracy takes $\lceil\ln10^6/\ln(1/0.7211)\rceil = 43$ iterations.
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{3}{4}}
+  \textbf{(c) Two iterations} with $\alpha = 0.4$ and $\g_k = \bK\vu_k - \vf$:
+
+  \vspace{2pt}
+  \centering
+  \begin{tabular}{@{}c c c c@{}}
+    \toprule
+    $k$ & $\vu_k$ (mm) & $\g_k$ & $\Pi(\vu_k)$ \\
+    \midrule
+    0 & $(0,\ 0)$ & $(0,\ -1)$ & $0$ \\
+    1 & $(0,\ 0.4)$ & $(-0.4,\ -0.6)$ & $-0.3200$ \\
+    2 & $\ans{(0.16,\ 0.64)}$ & $(0,\ -0.52)$ & $-0.4864$ \\
+    $\star$ & $(0.3333,\ 1.3333)$ & $(0,\ 0)$ & $-0.6667$ \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \begin{keybox}[Insight: news travels one spring per iteration]
+    After step 1 only mass 2 has moved; mass 1 ``hears'' about the load at step 2. Since
+    $\vu_k \in \operatorname{span}\{\vf,\bK\vf,\dots,\bK^{k-1}\vf\}$ and $\bK$ is tridiagonal, a chain of $N$ springs
+    needs at least $N$ iterations before every mass has moved.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{A2}{4}{4}}
+  \textbf{(d) A stiff support, $k_1 = 1000$:} $\;\bK = \begin{pmatrix}1001 & -1\\ -1 & 1\end{pmatrix}$.
+  \vspace{-4pt}
+  \[
+    \lambda \approx 0.999,\ 1001.001 \;\Rightarrow\; \ans{\kappa \approx 1002},\qquad
+    \alpha_{\max} \approx 0.0020,\qquad \rho \approx 0.998 .
+  \]
+  \vspace{-6pt}
+  Iterations for $10^{-6}$: \alert{about 6922} instead of 43, for the easy answer $\vu^\star = (0.001,\ 1.001)$ mm.
+  \begin{itemize}\footnotesize
+    \item The stiff spring forces a tiny $\alpha$ for stability, and then the soft mode crawls. GD is explicit Euler on
+          $\dot\vu = -(\bK\vu - \vf)$, whose eigenvalues span three orders of magnitude. That is a textbook \alert{stiff ODE}.
+    \item \textbf{The fix is Jacobi scaling:} $\mathbf D^{-1/2}\bK\mathbf D^{-1/2}$ with $\mathbf D = \diag(\bK)$ has
+          eigenvalues $1\pm\tfrac1{\sqrt{1001}}$, so $\kappa \approx 1.065$.
+  \end{itemize}
+  \begin{keybox}[Engineering lesson]
+    Stiff members next to soft ones make the landscape ill-conditioned: rescale before using a first-order solver.
+  \end{keybox}
+\end{frame}

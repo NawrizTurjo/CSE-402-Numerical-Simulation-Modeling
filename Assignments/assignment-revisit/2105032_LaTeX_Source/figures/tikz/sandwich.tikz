@@ -1,0 +1,21 @@
+% Quadratic sandwich: mu-strong convexity (lower) and L-smoothness (upper) at x.
+% f(y) = 0.5 y^2 + 0.6 log(cosh(1.5 y)), so f'' lies in [1, 1 + 1.35] = [1, 2.35]
+\begin{tikzpicture}[scale=1.1, >={Stealth[length=5pt]},
+  declare function={
+    lc(\y)=ln(cosh(1.5*\y));
+    f(\y)=0.5*\y*\y + 0.6*lc(\y);
+    fp(\y)=\y + 0.9*tanh(1.5*\y);
+    up(\y)=f(-0.6) + fp(-0.6)*(\y+0.6) + 0.5*2.35*(\y+0.6)*(\y+0.6);
+    lo(\y)=f(-0.6) + fp(-0.6)*(\y+0.6) + 0.5*1.0*(\y+0.6)*(\y+0.6);}]
+  % the corridor where f must live
+  \fill[mBlue!8, domain=-1.7:1.1, samples=60]
+    plot (\x, {up(\x)}) -- plot[domain=1.1:-1.7, samples=60] (\x, {lo(\x)}) -- cycle;
+  \draw[->, mGrey] (-2.6,0) -- (2.4,0) node[right, font=\scriptsize] {$\y$};
+  \draw[line width=1.1pt, mRed, domain=-1.7:1.1, samples=60] plot (\x, {up(\x)});
+  \draw[line width=1.1pt, mBlue, domain=-2.2:2.0, samples=60] plot (\x, {lo(\x)});
+  \draw[line width=1.9pt, mInk, domain=-2.2:2.0, samples=100] plot (\x, {f(\x)});
+  \fill[mInk] (-0.6,{f(-0.6)}) circle (1.8pt);
+  \draw[mGrey, densely dotted] (-0.6,0) node[below, font=\scriptsize, mInk] {$\x$} -- (-0.6,{f(-0.6)});
+  \node[font=\scriptsize, mRed, anchor=south east, inner sep=3pt] at (1.1,{up(1.1)}) {$L$};
+  \node[font=\scriptsize, mBlue, anchor=north west, inner sep=3pt] at (2.0,{lo(2.0)}) {$\mu$};
+\end{tikzpicture}

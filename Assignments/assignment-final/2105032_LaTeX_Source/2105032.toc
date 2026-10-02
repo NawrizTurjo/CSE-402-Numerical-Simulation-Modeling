@@ -1,0 +1,26 @@
+\beamer@sectionintoc {1}{The optimization problem}{5}{0}{1}
+\beamer@sectionintoc {2}{The gradient: which way is downhill?}{15}{0}{2}
+\beamer@sectionintoc {3}{Three ways to arrive at gradient descent}{22}{0}{3}
+\beamer@sectionintoc {4}{Watching it move}{31}{0}{4}
+\beamer@sectionintoc {5}{How big a step can we take?}{50}{0}{5}
+\beamer@sectionintoc {6}{What we need to assume about $f$}{55}{0}{6}
+\beamer@sectionintoc {7}{How fast does it converge?}{59}{0}{7}
+\beamer@sectionintoc {8}{Why it can be so slow: conditioning}{76}{0}{8}
+\beamer@sectionintoc {9}{When gradient descent goes wrong}{85}{0}{9}
+\beamer@sectionintoc {10}{Letting the method choose its own step}{92}{0}{10}
+\beamer@sectionintoc {11}{Momentum and acceleration}{98}{0}{11}
+\beamer@sectionintoc {12}{Stochastic gradient descent}{105}{0}{12}
+\beamer@sectionintoc {13}{Gradient methods today}{110}{0}{13}
+\beamer@sectionintoc {14}{Summary}{113}{0}{14}
+\beamer@sectionintoc {15}{Part B: problems and complete solutions}{117}{0}{15}
+\beamer@subsectionintoc {15}{1}{M1: Stationary points of a quartic landscape}{119}{0}{15}
+\beamer@subsectionintoc {15}{2}{M2: Descent lemma and the nonconvex rate}{124}{0}{15}
+\beamer@subsectionintoc {15}{3}{M3: Step-size stability on a coupled quadratic}{129}{0}{15}
+\beamer@subsectionintoc {15}{4}{M4: Exact line search and the zig-zag}{134}{0}{15}
+\beamer@subsectionintoc {15}{5}{M5: Heavy-ball momentum vs.\ plain GD}{139}{0}{15}
+\beamer@subsectionintoc {15}{6}{A1: Machine learning, regression and feature scaling}{144}{0}{15}
+\beamer@subsectionintoc {15}{7}{A2: Structural mechanics, a spring chain at rest}{149}{0}{15}
+\beamer@subsectionintoc {15}{8}{A3: Economics, two-product profit maximisation}{154}{0}{15}
+\beamer@subsectionintoc {15}{9}{A4: Parameter estimation, Newton's law of cooling}{158}{0}{15}
+\beamer@subsectionintoc {15}{10}{A5: Signal processing, calibrating a sensor with SGD}{163}{0}{15}
+\beamer@sectionintoc {16}{References}{169}{0}{16}

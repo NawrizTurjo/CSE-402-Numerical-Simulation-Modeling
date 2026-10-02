@@ -1,0 +1,118 @@
+% =====================================================================
+%  2. The gradient: direction of steepest slope
+% =====================================================================
+\section{The gradient: direction of steepest slope}
+
+\begin{frame}{From derivative to gradient}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      One variable: $J'(x)$ is the slope. Several: stack the partial derivative for \alert{each} variable,
+      \[
+        \nabla J(\x) = \begin{pmatrix}\partial J/\partial x_1\\ \vdots \\ \partial J/\partial x_n\end{pmatrix}.
+      \]
+      Example: $J = x_1^2 + x_2^2$ gives $\nabla J = (2x_1,\ 2x_2)$.
+
+      \begin{keybox}[What the gradient tells us]
+        \footnotesize At every point, $\nabla J$ is a vector that gives the \textbf{direction} and the \textbf{size} of the steepest
+        slope. Moving along $-\nabla J$ goes downhill fastest.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.56\textheight,keepaspectratio]{fig_gradient_field}
+
+      \footnotesize Arrows: $-\nabla J$ on $J = x_1^2 + x_2^2$, pointing towards the minimum.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Why $-\nabla J$ is the steepest way down}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \small
+      Take a small step $t$ in a unit direction $\vd$. By Taylor,
+      $J(\x + t\vd) \approx J(\x) + t\,\nabla J(\x)\T\vd$, so the rate of change along $\vd$ is
+      $\nabla J\T\vd$.
+      \begin{thmbox}[Claim]
+        Among all unit directions, $\nabla J\T\vd$ is smallest at $\vd^\star = -\nabla J/\norm{\nabla J}$,
+        where it equals $-\norm{\nabla J}$.
+      \end{thmbox}
+      \textbf{Proof.} By Cauchy--Schwarz, $|\nabla J\T\vd|\le\norm{\nabla J}\norm{\vd} = \norm{\nabla J}$, so
+      $\nabla J\T\vd\ge-\norm{\nabla J}$. Equality holds when $\vd$ parallel to $\nabla J$, pointing the opposite way. $\blacksquare$
+
+      \vspace{3pt}
+      \footnotesize This identifies the direction of steepest descent~\cite{boyd2004,cauchy1847}.
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \input{figures/tikz/steepest_dir.tikz}
+
+      \footnotesize The rate along $\vd$ is $\norm{\nabla J}\cos\theta$, lowest at $\theta = 180^\circ$.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Contour plots, and why GD crosses them at right angles}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      A contour plot draws $J(x_1, x_2)$ as rings of equal height.
+
+      \textbf{Why $\nabla J\perp$ contour.} Move along a contour by a small $\mathbf t$; the height does not change:
+      \[
+        J(\x + \mathbf t) - J(\x)\approx\nabla J\T\mathbf t = 0 .
+      \]
+      So each GD step leaves its contour at a right angle.
+      \begin{keybox}[Reading a contour plot]
+        \footnotesize Close contours: steeper slopes, larger steps. Wide gaps: smaller steps.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{fig_gradient_field}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{When the gradient is zero}
+  \small
+  Setting $\nabla J = \mathbf 0$ finds \emph{stationary} points. The second derivative tells them apart:
+
+  \vspace{4pt}
+  \centering
+  \begin{tabular}{@{}l l l l@{}}
+    \toprule
+    Function & Stationary point & Second derivative & Type \\
+    \midrule
+    $J = x^2$ & $J' = 2x = 0\Rightarrow x = 0$ & $J'' = 2 > 0$ & \textcolor{mTeal}{\textbf{minimum}} \\
+    $J = -x^2$ & $x = 0$ & $J'' = -2 < 0$ & \textcolor{mOrange}{\textbf{maximum}} \\
+    $J = x^3$ & $J' = 3x^2 = 0\Rightarrow x = 0$ & $J'' = 6x = 0$, sign changes & \textcolor{mRed}{\textbf{saddle}} \\
+    $J = x_1^2 + x_2^2$ & $\nabla J = (2x_1, 2x_2) = \mathbf 0$ & both curvatures $2 > 0$ & \textcolor{mTeal}{\textbf{minimum}} at $(0,0)$ \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  \raggedright
+  \begin{warnbox}[Zero gradient is not the same as a minimum]
+    GD stops wherever the gradient vanishes, so it can stall at a saddle or settle in a \emph{local} minimum.
+    Problem M1 shows this on the quartic $J = x^4 - 6x^3 + 8x^2$.
+  \end{warnbox}
+\end{frame}
+
+\begin{frame}{What the three kinds of point look like}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.62\textheight, keepaspectratio]{fig_quartic_surface}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.62\textheight, keepaspectratio]{fig_quartic_contour}
+    \end{column}
+  \end{columns}
+  \vspace{2pt}
+  \footnotesize $J = x_1^4 + x_2^4 - 4x_1x_2$ has $\nabla J = \mathbf 0$ at three points: two \textcolor{mTeal}{\textbf{minima}}
+  at $\pm(1, 1)$ and a \textcolor{mRed}{\textbf{saddle}} at the origin. The arrows ($-\nabla J$) flow into the valleys,
+  and at the saddle they arrive along one direction and leave along the other.
+\end{frame}

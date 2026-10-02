@@ -1,0 +1,129 @@
+% =====================================================================
+%  8. Making it work better
+% =====================================================================
+\section{Making it work better}
+
+\begin{frame}{Changing the learning rate as we go}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      \textbf{Schedule}~\cite{bottou2018}: start large, then shrink $\alpha$, e.g.
+      \[
+        \alpha_k = \frac{\alpha_0}{1 + \gamma k}.
+      \]
+      Smaller late steps help SGD settle (Section 9).
+
+      \vspace{4pt}
+      \textbf{Backtracking line search}~\cite{armijo1966}
+      \par\footnotesize Try a step; if the loss did not drop enough, halve $\alpha$ and try again:
+      \[
+        \text{accept }\alpha\text{ if } J(\x - \alpha\g) \le J(\x) - c\,\alpha\norm{\g}^2 .
+      \]
+      This picks a safe step automatically, without knowing $f''$.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{thmbox}[Rules of thumb]
+        \small
+        \begin{itemize}
+          \item If the loss goes \emph{up}, $\alpha$ is too big: cut it by a factor of $10$.
+          \item If the loss falls very slowly in a straight line, $\alpha$ is too small.
+          \item Always keep a maximum number of steps.
+          \item Scale the features first (Section 4): it widens the range of good $\alpha$.
+        \end{itemize}
+      \end{thmbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Heavy-ball momentum: give the point some mass}
+  \small
+  \textbf{Polyak's heavy ball}~\cite{polyak1964} adds a fraction $\beta$ of the last move:
+  \[
+    \x_{k+1} = \x_k - \alpha\nabla J(\x_k) + \beta\,(\x_k - \x_{k-1}),\qquad 0 \le \beta < 1 .
+  \]
+  Where it comes from: a ball of mass $m$ with friction $\gamma$ obeys $m\ddot\x + \gamma\dot\x = -\nabla J(\x)$.
+  Replace the derivatives by finite differences with step $h$ and solve for $\x_{k+1}$:
+  \[
+    \x_{k+1} = \x_k - \underbrace{\tfrac{h^2}{m + \gamma h}}_{\alpha}\nabla J(\x_k) + \underbrace{\tfrac{m}{m + \gamma h}}_{\beta}(\x_k - \x_{k-1}).
+  \]
+  \begin{itemize}\footnotesize
+    \item Along the valley the gradient keeps its sign, so the velocity \alert{builds up}.
+          Across it the sign flips, so the moves \alert{cancel}: the zig-zag is damped.
+    \item Plain GD is the massless ball, $\beta = 0$: the gradient-flow ODE of Section 3.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why momentum is faster: $\kappa$ becomes $\sqrt\kappa$}
+  \centering
+  \includegraphics[width=0.86\textwidth, height=0.44\textheight, keepaspectratio]{fig_momentum}
+
+  \raggedright\small
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
+      On a quadratic, with the best $\alpha$ and $\beta$, the error factor per step is
+      \[
+        \rho_{\text{HB}} = \tfrac{\sqrt\kappa - 1}{\sqrt\kappa + 1}
+        \quad\text{vs.}\quad
+        \rho_{\text{GD}} = \tfrac{\kappa - 1}{\kappa + 1}.
+      \]
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \begin{itemize}\footnotesize
+        \item $J = \tfrac12(x_1^2 + 100x_2^2)$, $\kappa = 100$: $0.818$ against $0.980$, about \alert{69} steps instead of
+              \alert{691} for six digits. In the run: GD $691$, heavy ball $85$, Nesterov $158$.
+        \item For nonquadratic losses, heavy ball can fail~\cite{lessard2016}. For illustrations, see~\cite{goh2017}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nesterov: look ahead, then step}
+  \small
+  Take the gradient at a \textbf{look-ahead point}~\cite{nesterov1983}:
+  \[
+    \y_k = \x_k + \beta_k(\x_k - \x_{k-1}),\qquad \x_{k+1} = \y_k - \tfrac1L\nabla J(\y_k).
+  \]
+  This gives guarantees for \emph{every} smooth convex $J$, not just quadratics, and no first-order method can beat
+  them by more than a constant~\cite{nesterov2018}:
+  \begin{center}\footnotesize
+  \begin{tabular}{@{}l c c c@{}}
+    \toprule
+    & GD & Nesterov & best possible \\
+    \midrule
+    convex, error after $k$ steps & $O(1/k)$ & $O(1/k^2)$ & $\Omega(1/k^2)$ \\
+    strongly convex, steps to $\varepsilon$ & $O(\kappa\log\frac1\varepsilon)$ & $O(\sqrt\kappa\log\frac1\varepsilon)$ & $\Omega(\sqrt\kappa\log\frac1\varepsilon)$ \\
+    $J$ goes down every step? & yes & no (it ripples) & \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \footnotesize Where GD needs $10^4$ steps, Nesterov needs about $200$. Its continuous-time limit is
+  $\ddot\x + \frac3t\dot\x + \nabla J = 0$, a heavy ball whose friction fades~\cite{su2016}.
+\end{frame}
+
+\statement{CONDITIONING AND SPEED}{The condition number $\kappa$\\ controls the iteration count.}{GD needs about $\kappa$. Momentum and Nesterov need about $\sqrt\kappa$, and these rates are optimal for first-order methods.}
+
+\begin{frame}{Adam: momentum plus a step size for every parameter}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      \textbf{Adam}~\cite{kingma2015}, all operations element-wise:
+      \vspace{-4pt}
+      \begin{align*}
+        \mathbf m_k &= \beta_1\mathbf m_{k-1} + (1 - \beta_1)\g_k \\
+        \mathbf v_k &= \beta_2\mathbf v_{k-1} + (1 - \beta_2)\g_k^{2} \\
+        \x_{k+1} &= \x_k - \alpha\,\hat{\mathbf m}_k\big/\bigl(\sqrt{\hat{\mathbf v}_k} + \epsilon\bigr)
+      \end{align*}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}\footnotesize
+        \item $\mathbf m$ is \alert{momentum}, as above.
+        \item Dividing by $\sqrt{\mathbf v}$ gives each parameter its \alert{own learning rate}: automatic feature scaling (Section 4).
+        \item The hats correct the start-up bias. Adam is a common deep learning optimiser.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \centering
+  \includegraphics[width=0.86\textwidth, height=0.34\textheight, keepaspectratio]{fig_rosenbrock_race}
+
+  \footnotesize Rosenbrock, $5000$ steps: GD is slow ($J \approx 4\times10^{-3}$), heavy ball reaches $2\times10^{-10}$, Adam reaches $(1, 1)$.
+\end{frame}

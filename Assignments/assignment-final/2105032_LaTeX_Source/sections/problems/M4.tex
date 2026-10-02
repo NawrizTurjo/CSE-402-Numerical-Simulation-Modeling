@@ -1,0 +1,93 @@
+% =====================================================================
+%  M4 -- Exact line search, orthogonal zig-zag, conditioning
+% =====================================================================
+\subsection{M4: Exact line search and the zig-zag}
+\setprob{M4}
+
+\begin{frame}{\probtitle{M4}{Exact line search, the zig-zag, and conditioning}}
+  \begin{probbox}[Problem M4 \hfill Mathematical \quad $\star\star\star$]
+    Steepest descent with \emph{exact line search}:
+    $\x_{k+1} = \x_k - \alpha_k\g_k$, $\;\alpha_k = \argmin_{\alpha>0} f(\x_k - \alpha\g_k)$.
+    \begin{enumerate}[(a)]
+      \item For $f(\x) = \tfrac12\x\T\bA\x$ with $\bA \succ 0$, show that $\alpha_k = \dfrac{\g_k\T\g_k}{\g_k\T\bA\g_k}$.
+      \item Prove that consecutive gradients are orthogonal: $\g_{k+1}\T\g_k = 0$.
+      \item For $f(x,y) = \tfrac12(x^2 + \gamma y^2)$, $\gamma\ge1$, $\x_0 = (\gamma,1)$, prove by induction that
+            $x_k = \gamma r^k$ and $y_k = (-r)^k$, with $r = \frac{\gamma-1}{\gamma+1}$.
+      \item Deduce $f(\x_k) = r^{2k}f(\x_0)$ and compare it with the Kantorovich bound.
+      \item How many iterations reduce $f$ by a factor $10^6$ when $\gamma = 10$, and when $\gamma = 100$?
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{What this practises: a derivation, a proof by induction, and how conditioning sets the rate.
+  The closed form in (c) is a classical example (Boyd \& Vandenberghe~\cite{boyd2004}, Section~9.3.2).}
+\end{frame}
+
+\begin{frame}{\soltitle{M4}{1}{4}}
+  \textbf{(a)} Let $\varphi(\alpha) = f(\x - \alpha\g) = \tfrac12(\x-\alpha\g)\T\bA(\x-\alpha\g)$, where $\g = \bA\x$.
+  \[
+    \varphi'(\alpha) = -\g\T\bA(\x - \alpha\g) = -\g\T\g + \alpha\,\g\T\bA\g = 0
+    \;\Longrightarrow\; \ans{\alpha_k = \frac{\g_k\T\g_k}{\g_k\T\bA\g_k}}
+  \]
+  Since $\varphi''(\alpha) = \g\T\bA\g > 0$, this is a minimum.
+
+  \vspace{4pt}
+  \textbf{(b)} From $\g_{k+1} = \bA\x_{k+1} = \g_k - \alpha_k\bA\g_k$,
+  \[
+    \g_k\T\g_{k+1} = \g_k\T\g_k - \alpha_k\,\g_k\T\bA\g_k = 0 \qquad\blacksquare
+  \]
+  \begin{keybox}[This is true for any smooth $f$]
+    Exact line search means $\varphi'(\alpha_k) = -\nabla f(\x_{k+1})\T\g_k = 0$.
+    So each step is at a \alert{right angle} to the one before it, and that is where the zig-zag comes from.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{M4}{2}{4}}
+  \textbf{(c) Induction.} The base case $k = 0$ is $\x_0 = (\gamma, 1)$ \checkmark.
+  Now assume $\x_k = (\gamma r^k, (-r)^k)$. Here $\bA = \diag(1,\gamma)$, so
+  \[
+    \g_k = \bigl(\gamma r^k,\ \gamma(-r)^k\bigr),\quad
+    \g_k\T\g_k = 2\gamma^2 r^{2k},\quad
+    \g_k\T\bA\g_k = \gamma^2 r^{2k}(1+\gamma).
+  \]
+  The step turns out to be \emph{the same every time}: $\alpha_k = \dfrac{2}{1+\gamma}$. Then
+  \begin{align*}
+    x_{k+1} &= \gamma r^k\Bigl(1 - \tfrac{2}{1+\gamma}\Bigr) = \gamma r^k\cdot\tfrac{\gamma-1}{\gamma+1} = \gamma r^{k+1},\\
+    y_{k+1} &= (-r)^k\Bigl(1 - \tfrac{2\gamma}{1+\gamma}\Bigr) = (-r)^k\cdot\tfrac{1-\gamma}{1+\gamma} = (-r)^{k+1}.
+    \qquad\blacksquare
+  \end{align*}
+  \small The $y$-coordinate changes sign at every step: that is the zig-zag. For $\gamma = 10$, $\x_1 = (8.18,\,-0.818)$.
+\end{frame}
+
+\begin{frame}{\soltitle{M4}{3}{4}}
+  \textbf{(d)}
+  $\displaystyle f(\x_k) = \tfrac12\bigl(\gamma^2 r^{2k} + \gamma r^{2k}\bigr) = r^{2k}\cdot\tfrac12(\gamma^2+\gamma) = \ans{r^{2k}f(\x_0)}$.
+
+  \smallskip
+  The Kantorovich bound for steepest descent with exact line search says
+  $f_{k+1} - f^\star \le \bigl(\tfrac{\kappa-1}{\kappa+1}\bigr)^2 (f_k - f^\star)$, and here $\kappa = \gamma$.
+  This example \alert{hits the bound exactly}, so the bound cannot be improved.
+
+  \vspace{4pt}
+  \textbf{(e)} $r^{2k}\le10^{-6} \iff k \ge \dfrac{3\ln10}{\ln\frac{\gamma+1}{\gamma-1}}$:
+  \[
+    \gamma = 10:\; k \ge \frac{6.9078}{0.20067} = 34.4 \Rightarrow \ans{35},
+    \qquad
+    \gamma = 100:\; k \ge \frac{6.9078}{0.020001} = 345.4 \Rightarrow \ans{346}.
+  \]
+  For large $\gamma$, $\ln\frac{\gamma+1}{\gamma-1}\approx\frac2\gamma$, so $k \approx 3.45\,\gamma$.
+  \alert{The work grows in proportion to the condition number.}
+\end{frame}
+
+\begin{frame}{\soltitle{M4}{4}{4}}
+  \centering
+  \includegraphics[width=0.56\textwidth]{fig_zigzag}\hfill
+  \includegraphics[width=0.34\textwidth]{fig_error_curves}
+
+  \begin{keybox}[Takeaways]
+    \small
+    \begin{itemize}
+      \item Even the \emph{best} step length along $-\g$ is slow: the \alert{direction} is the problem, which is why we need
+            momentum (M5) and preconditioning (A1, A2).
+      \item Start on an eigenvector, say $(1,0)$, and one step lands on the minimum. The worst case depends on $\x_0$.
+    \end{itemize}
+  \end{keybox}
+\end{frame}

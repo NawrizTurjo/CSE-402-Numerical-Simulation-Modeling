@@ -1,0 +1,101 @@
+% =====================================================================
+%  5. How big a step? When GD works
+% =====================================================================
+\section{How big a step? When GD works}
+
+\begin{frame}{Learning rate and the path}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.78\textheight, keepaspectratio]{fig_lr_regimes}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      GD on $f(x) = (x-3)^2 + 2$ from $x_0 = 0$ with four learning rates:
+      \begin{itemize}\footnotesize
+        \item $\alpha = 0.1$: every step goes the right way, but slowly.
+        \item $\alpha = 0.5$: lands on $x = 3$ in \emph{one} step.
+        \item $\alpha = 0.9$: jumps over the minimum each time, but still closes in.
+        \item $\alpha = 1.05$: each jump is bigger than the last. It \alert{diverges}.
+      \end{itemize}
+      \footnotesize\textcolor{mGrey}{Same function, same start: only $\alpha$ changed.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exactly when does GD converge?}
+  \small
+  For $f(x) = (x-3)^2 + 2$: $f'(x) = 2(x-3)$. Write the error as $e_k = x_k - 3$:
+  \[
+    x_{k+1} = x_k - 2\alpha(x_k - 3) \quad\Longrightarrow\quad \ans{e_{k+1} = (1 - 2\alpha)\,e_k}
+    \quad\Longrightarrow\quad e_k = (1-2\alpha)^k e_0 .
+  \]
+  \centering\footnotesize
+  \begin{tabular}{@{}l c l@{}}
+    \toprule
+    learning rate & factor $1 - 2\alpha$ & what happens \\
+    \midrule
+    $0 < \alpha < 0.5$ & between $0$ and $1$ & steady approach from one side \\
+    $\alpha = 0.5$ & $0$ & exact in one step \\
+    $0.5 < \alpha < 1$ & between $-1$ and $0$ & overshoots, oscillates inwards \\
+    $\alpha > 1$ & below $-1$ & \textcolor{mRed}{\textbf{diverges}} \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \vspace{4pt}
+  \begin{keybox}[The general rule]
+    \footnotesize With curvature $f'' > 0$ the error factor is $1 - \alpha f''$, so GD is stable only if
+    $\ans{0 < \alpha < 2/f''}$; best fixed step $\alpha = 1/f''$. Running example: $f'' = 6$, so $\alpha < 1/3$, and
+    $\alpha = 0.1$ gives factor $0.4$, the shrink in the table.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Euler's stability region explains the learning-rate limit}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \small
+      Take $J = x_1^2 + 4x_2^2$ (Problem M3). Its curvatures are $\lambda = 2$ and $8$, and each direction
+      is the test equation $\dot y = -\lambda y$.
+      \begin{itemize}\footnotesize
+        \item The \textbf{exact flow} decays for every $\lambda > 0$: the continuous system is stable.
+        \item \textbf{Forward Euler} multiplies $y$ by $1 + z$ with $z = -\alpha\lambda$. It is stable only inside the disk
+              $|1 + z| < 1$, i.e.\ $\alpha < 2/\lambda$ for \emph{every} $\lambda$: $\alpha < 2/8$.
+        \item This is \textbf{stiffness}: the steepest direction caps the step, the flattest one slows convergence.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \input{figures/tikz/euler_disk.tikz}
+
+      \footnotesize
+      \textcolor{mBlue}{$\bullet$} $\alpha = 0.1$: $z = -0.2, -0.8$, both inside.\\
+      \textcolor{mRed}{$\circ$} $\alpha = 0.3$: $z = -0.6, -2.4$, one is outside.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The stable window and the best fixed step}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{thmbox}[Theorem (quadratics)~\cite{nocedal2006}]
+        \small With curvatures $\lmin \le \lambda_i \le \lmax$, GD converges from every start iff $0 < \alpha < 2/\lmax$, with rate
+        \[
+          \rho(\alpha) = \max\{|1 - \alpha\lmin|,\ |1 - \alpha\lmax|\}.
+        \]
+        The best step is $\alpha^\star = \frac{2}{\lmin + \lmax}$, giving $\rho^\star = \frac{\kappa - 1}{\kappa + 1}$, $\kappa = \frac{\lmax}{\lmin}$.
+      \end{thmbox}
+      \footnotesize\textbf{Proof.} $|1 - \alpha\lambda|$ is largest at an end of $[\lmin, \lmax]$; the best $\alpha$ makes the
+      two ends equal, $1 - \alpha\lmin = \alpha\lmax - 1$. $\blacksquare$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.5\textheight, keepaspectratio]{fig_stability_window}
+
+      \footnotesize For M3: $\alpha^\star = 2/10 = 0.2$ and $\rho^\star = 3/5 = 0.6$. Close to a minimum every smooth $J$
+      looks like a quadratic, so this describes GD near the minimum.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\statement{THE LEARNING RATE}{The learning rate controls\\ whether GD converges.}{Below $2/f''$ it converges. Above it, the error grows.}

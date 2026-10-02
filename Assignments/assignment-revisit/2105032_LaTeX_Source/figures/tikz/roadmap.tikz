@@ -1,0 +1,34 @@
+% Roadmap: nine stops in three snake rows, plus Part B, coloured by phase
+\begin{tikzpicture}[
+  node distance=0.36cm and 0.4cm,
+  stop/.style={draw=#1, line width=0.8pt, rounded corners=4pt, fill=white,
+               drop shadow={opacity=0.18, shadow xshift=0.6pt, shadow yshift=-0.8pt},
+               minimum height=1.05cm, text width=2.3cm, align=center, font=\scriptsize\color{mInk}},
+  badge/.style={circle, fill=#1, text=white, font=\tiny\bfseries, inner sep=1.2pt, minimum size=10.5pt},
+  arr/.style={-{Stealth[length=5pt]}, line width=0.9pt, #1},
+  arr/.default=mGrey]
+  % row 1: how it works
+  \node[stop=mNavy] (s1) {\textbf{Why GD}\\ fitting a line};
+  \node[stop=mNavy, right=of s1] (s2) {\textbf{Gradient}\\ steepest slope};
+  \node[stop=mNavy, right=of s2] (s3) {\textbf{Update rule}\\ slope $\times$ learning rate};
+  \node[stop=mNavy, right=of s3] (s4) {\textbf{Watch it move}\\ contours and 3D};
+  % row 2: when it works, when it fails (right to left)
+  \node[stop=mOrange, below=0.55cm of s4] (s5) {\textbf{Step size}\\ stable or not};
+  \node[stop=mOrange, left=of s5] (s6) {\textbf{Convergence}\\ speed, guarantees};
+  \node[stop=mOrange, left=of s6] (s7) {\textbf{Failures}\\ when GD goes wrong};
+  % row 3: fixes and scale
+  \node[stop=mTeal, below=0.55cm of s7] (s8) {\textbf{Fixes}\\ momentum, Adam};
+  \node[stop=mTeal, right=of s8] (s9) {\textbf{At scale}\\ SGD, autodiff};
+  \node[stop=mTeal, right=of s9, text width=2.3cm] (s10) {\textbf{Part B}\\ 10 worked problems};
+  % arrows
+  \draw[arr=mNavy] (s1) -- (s2);  \draw[arr=mNavy] (s2) -- (s3);  \draw[arr=mNavy] (s3) -- (s4);
+  \draw[arr] (s4.south) -- (s5.north);
+  \draw[arr=mOrange] (s5) -- (s6);  \draw[arr=mOrange] (s6) -- (s7);
+  \draw[arr] (s7.south) -- (s8.north);
+  \draw[arr=mTeal] (s8) -- (s9);  \draw[arr=mTeal] (s9) -- (s10);
+  % badges
+  \foreach \n/\lab in {s1/1, s2/2, s3/3, s4/4} \node[badge=mNavy] at (\n.north west) {\lab};
+  \foreach \n/\lab in {s5/5, s6/6, s7/7} \node[badge=mOrange] at (\n.north west) {\lab};
+  \foreach \n/\lab in {s8/8, s9/9} \node[badge=mTeal] at (\n.north west) {\lab};
+  \node[badge=mTeal] at (s10.north west) {B};
+\end{tikzpicture}

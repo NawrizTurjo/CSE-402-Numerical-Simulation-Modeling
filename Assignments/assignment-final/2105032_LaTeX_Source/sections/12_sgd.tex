@@ -1,0 +1,80 @@
+% =====================================================================
+%  12. Stochastic gradient descent
+% =====================================================================
+\section{Stochastic gradient descent}
+
+\begin{frame}{When even one gradient is too expensive}
+  A training loss averages over $N$ data points:
+  \[
+    f(\x) = \frac1N\sum_{i=1}^N f_i(\x), \qquad \text{so one } \nabla f \text{ costs } N \text{ component gradients.}
+  \]
+  \textbf{SGD} cheats: pick one $i_k$ at random and step $\;\x_{k+1} = \x_k-\alpha_k\nabla f_{i_k}(\x_k)$.
+  \begin{itemize}\small
+    \item It is \textbf{unbiased}: $\E_{i}[\nabla f_i(\x)] = \nabla f(\x)$, so SGD is gradient descent \emph{on average}.
+    \item A step costs the same whatever $N$ is. With $N = 10^6$, one GD step buys a million SGD steps.
+    \item A \textbf{mini-batch} of $B$ samples cuts the gradient variance to $\sigma^2/B$, at $B$ times the cost.
+  \end{itemize}
+  \begin{keybox}[The catch]
+    \small The noise does \emph{not} switch off at the answer: $\nabla f(\x^\star) = \mathbf 0$, but $\nabla f_i(\x^\star)\ne\mathbf 0$.
+    With a constant step, SGD keeps jittering and never settles exactly.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{Batch, stochastic and mini-batch on the line fit}
+  \centering
+  \includegraphics[width=\textwidth, height=0.55\textheight, keepaspectratio]{fig_sgd_paths}
+
+  \raggedright\small
+  \begin{itemize}
+    \item One-point gradients are \emph{unbiased}: on average they equal the full gradient.
+    \item Their noise does not vanish at the minimum, so with a fixed $\alpha$ SGD keeps jittering.
+          Averaging $B$ points cuts the variance by $B$; a decaying $\alpha$ lets the path settle.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The noise ball, and how to shrink it}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \small
+      \textbf{Solvable case} (A5): $F = \frac12\E(x-\xi)^2$, constant $\alpha$:
+      \[ \operatorname{Var}(x_k)\to\frac{\alpha\sigma^2}{2-\alpha}. \]
+      \textbf{Any strongly convex $f$}~\cite{bottou2018}:
+      \begin{itemize}\footnotesize
+        \item fixed $\alpha$: linear drop, but only to a floor $\propto\alpha$;
+        \item $\alpha_k = O(1/k)$: $\E[f(\x_k)-f^\star] = O(1/k)$ all the way.
+      \end{itemize}
+      \textbf{Robbins--Monro}~\cite{robbins1951}: $\sum_k\alpha_k = \infty$ (travel far enough) and
+      $\sum_k\alpha_k^2<\infty$ (noise averages out).
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{fig_sgd}
+
+      \footnotesize With constant $\alpha = 0.1$ the error stalls at $\frac{\alpha\sigma^2}{2-\alpha}$; with $\alpha_k = \frac1{k+1}$
+      it keeps falling like $\sigma^2/k$ (averaged over 500 runs).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{SGD in practice}
+  \begin{itemize}\small
+    \item \textbf{Schedules.} Start with a large constant step for fast progress, then decay it to shrink the noise ball.
+          Warm-up and step decay are the usual heuristics.
+    \item \textbf{Epochs and shuffling.} Sweep through the data in a random order instead of sampling with replacement.
+    \item \textbf{Batch size against step size.} A bigger $B$ gives a cleaner gradient but fewer steps for the same compute.
+    \item \textbf{Total work} to reach accuracy $\varepsilon$ on a strongly convex problem, roughly:
+  \end{itemize}
+  \vspace{2pt}
+  \centering\small
+  \begin{tabular}{@{}l c c@{}}
+    \toprule
+    & Work per iteration & Iterations \\
+    \midrule
+    GD & $N$ & $O(\kappa\log\frac1\varepsilon)$ \\
+    SGD & $1$ & $O(1/\varepsilon)$ (constants depend on $\kappa$ and the noise) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  \raggedright\footnotesize\textcolor{mGrey}{Huge $N$ and moderate accuracy (the usual ML situation): SGD's $N$-free step cost wins~\cite{bottou2018}.}
+\end{frame}

@@ -1,0 +1,68 @@
+% =====================================================================
+%  7. When and why GD fails
+% =====================================================================
+\section{When and why GD fails}
+
+\begin{frame}{The condition number in our own problems}
+  \small
+  $\kappa = \lmax/\lmin$ of the Hessian indicates how slowly GD may converge.
+  \vspace{4pt}
+  \begin{center}
+  \begin{tabular}{@{}l c l@{}}
+    \toprule
+    Problem & $\kappa$ & Why \\
+    \midrule
+    M3: $x_1^2 + 4x_2^2$ & $4$ & curvatures $2$ and $8$ \\
+    A1: line fit, raw weights & $28.7$ & columns $[\mathbf 1, x]$ point in similar directions \\
+    A1: after centring $x$ & $1.04$ & centring removes the overlap \\
+    A2: houses, raw features & $4.3\times10^{7}$ & sizes in the hundreds, bedrooms in units \\
+    A2: after standardising & $14.4$ & same scale; size and bedrooms still move together \\
+    Rosenbrock valley at $(1,1)$ & $2508$ & a narrow curved valley \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \footnotesize GD needs about $\kappa$ steps per digit of accuracy, so preprocessing that reduces $\kappa$ can speed up convergence.
+\end{frame}
+
+\begin{frame}{Why GD can fail}
+  \centering
+  \includegraphics[width=\textwidth, height=0.36\textheight, keepaspectratio]{fig_failure_gallery}
+
+  \raggedright\footnotesize
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Step too big}: $\alpha > 2/f''$, each step overshoots further (Section 5).
+        \item \textbf{Saddle}: on $x^3$ the slope $3x^2\to0$, so GD stalls at a point that is not a minimum. Saddles with some negative curvature are escaped almost surely from a random start~\cite{lee2016}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \textbf{Plateau}: the gradient is nearly zero, so GD barely moves.
+        \item \textbf{Not smooth}: $|x|$ has no derivative at $0$; a fixed step keeps jumping across it.
+              GD needs a smooth loss.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Local minima and starting points}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=0.6\textheight, keepaspectratio]{fig_local_minima}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \small
+      $J(x) = x^4 - 6x^3 + 8x^2$ has two valleys with a hill at $x\approx1.22$.
+      \begin{itemize}\footnotesize
+        \item From $x_0 = 1.0$ GD rolls left into the \emph{local} minimum $x = 0$.
+        \item From $x_0 = 1.5$ it rolls right into the \emph{global} minimum $x\approx3.28$.
+      \end{itemize}
+      GD may find \emph{a} minimum and miss \emph{the} best one.
+      \begin{warnbox}[In practice]
+        \footnotesize Try several starts and keep the best. The SSR of a line is convex: one minimum only.
+      \end{warnbox}
+    \end{column}
+  \end{columns}
+\end{frame}

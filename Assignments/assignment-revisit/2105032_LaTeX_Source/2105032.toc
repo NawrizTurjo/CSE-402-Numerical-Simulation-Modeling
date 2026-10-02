@@ -1,0 +1,22 @@
+\beamer@sectionintoc {1}{Why gradient descent?}{5}{0}{1}
+\beamer@sectionintoc {2}{The gradient: direction of steepest slope}{13}{0}{2}
+\beamer@sectionintoc {3}{The update rule: step = slope $\times $ learning rate}{19}{0}{3}
+\beamer@sectionintoc {4}{Watching it move}{26}{0}{4}
+\beamer@sectionintoc {5}{How big a step? When GD works}{37}{0}{5}
+\beamer@sectionintoc {6}{How fast does it converge?}{43}{0}{6}
+\beamer@sectionintoc {7}{When and why GD fails}{51}{0}{7}
+\beamer@sectionintoc {8}{Making it work better}{55}{0}{8}
+\beamer@sectionintoc {9}{At scale: SGD and modern practice}{62}{0}{9}
+\beamer@sectionintoc {10}{Summary}{68}{0}{10}
+\beamer@sectionintoc {11}{Part B: problems and complete solutions}{72}{0}{11}
+\beamer@subsectionintoc {11}{1}{M1: Stationary points of a quartic}{74}{0}{11}
+\beamer@subsectionintoc {11}{2}{M2: Four learning rates}{78}{0}{11}
+\beamer@subsectionintoc {11}{3}{M3: Two variables and the zig-zag}{82}{0}{11}
+\beamer@subsectionintoc {11}{4}{M4: Scaling and shifting the loss}{86}{0}{11}
+\beamer@subsectionintoc {11}{5}{M5: GD against Newton}{89}{0}{11}
+\beamer@subsectionintoc {11}{6}{A1: Health, weight against height}{93}{0}{11}
+\beamer@subsectionintoc {11}{7}{A2: Real estate, house prices}{97}{0}{11}
+\beamer@subsectionintoc {11}{8}{A3: Sensors, streaming data with SGD}{101}{0}{11}
+\beamer@subsectionintoc {11}{9}{A4: Engineering, the cheapest can}{105}{0}{11}
+\beamer@subsectionintoc {11}{10}{A5: Education, pass or fail}{109}{0}{11}
+\beamer@sectionintoc {12}{References}{113}{0}{12}

@@ -1,0 +1,97 @@
+% =====================================================================
+%  M2 -- Descent lemma and the nonconvex O(1/sqrt K) rate
+% =====================================================================
+\subsection{M2: Descent lemma and the nonconvex rate}
+\setprob{M2}
+
+\begin{frame}{\probtitle{M2}{The descent lemma and the nonconvex rate}}
+  \begin{probbox}[Problem M2 \hfill Mathematical \quad $\star\star\star$]
+    Let $f:\R^n\to\R$ be differentiable and bounded below by $f^\star$, with an
+    $L$-Lipschitz gradient: $\norm{\nabla f(\x)-\nabla f(\y)} \le L\norm{\x-\y}$.
+    \begin{enumerate}[(a)]
+      \item Prove the \emph{descent lemma}:
+            $f(\y) \le f(\x) + \nabla f(\x)\T(\y-\x) + \tfrac L2\norm{\y-\x}^2$.
+      \item Show that GD, $\x_{k+1} = \x_k - \alpha\nabla f(\x_k)$, satisfies
+            $f(\x_{k+1}) \le f(\x_k) - \alpha\bigl(1-\tfrac{\alpha L}{2}\bigr)\norm{\nabla f(\x_k)}^2$.
+      \item Which $\alpha$ guarantee a decrease? Which $\alpha$ guarantees the largest one?
+      \item Prove $\displaystyle\min_{0\le k<K}\norm{\nabla f(\x_k)} \le \sqrt{2L\,(f(\x_0)-f^\star)/K}$ for $\alpha = 1/L$.
+      \item Use $f(x) = \tfrac L2 x^2$ to show that the bound in (b) cannot be improved.
+    \end{enumerate}
+  \end{probbox}
+  \footnotesize\textcolor{mGrey}{What this practises: a careful proof, where the $2/L$ step window comes from,
+  and convergence with no convexity at all.}
+\end{frame}
+
+\begin{frame}{\soltitle{M2}{1}{4}}
+  \textbf{(a) The descent lemma.} Let $\vd = \y - \x$. By the fundamental theorem of calculus applied to
+  $t\mapsto f(\x + t\vd)$,
+  \[
+    f(\y) - f(\x) = \int_0^1 \nabla f(\x + t\vd)\T\vd \,dt .
+  \]
+  Subtract $\nabla f(\x)\T\vd = \int_0^1 \nabla f(\x)\T\vd\,dt$ from both sides:
+  \[
+    f(\y) - f(\x) - \nabla f(\x)\T\vd
+    = \int_0^1 \bigl[\nabla f(\x + t\vd) - \nabla f(\x)\bigr]\T\vd \,dt .
+  \]
+  Apply Cauchy--Schwarz, then the Lipschitz bound $\norm{\nabla f(\x+t\vd)-\nabla f(\x)} \le L\,t\norm{\vd}$:
+  \[
+    \le \int_0^1 L\,t\,\norm{\vd}^2\,dt = \frac L2\norm{\vd}^2 .
+    \qquad\blacksquare
+  \]
+  \small\textcolor{mGrey}{In pictures: $f$ always stays below a parabola of curvature $L$ that touches it at $\x$.}
+\end{frame}
+
+\begin{frame}{\soltitle{M2}{2}{4}}
+  \textbf{(b)} Put $\y = \x_{k+1} = \x_k - \alpha\g_k$ (so $\vd = -\alpha\g_k$) into (a):
+  \[
+    f(\x_{k+1}) \le f(\x_k) - \alpha\norm{\g_k}^2 + \frac{L\alpha^2}{2}\norm{\g_k}^2
+    = f(\x_k) - \underbrace{\alpha\Bigl(1 - \frac{\alpha L}{2}\Bigr)}_{\varphi(\alpha)}\norm{\g_k}^2 .
+  \]
+  \textbf{(c)} $\varphi(\alpha) > 0 \iff \ans{0 < \alpha < 2/L}$. \quad
+  $\varphi'(\alpha) = 1 - \alpha L = 0 \Rightarrow \ans{\alpha = 1/L}$, which gives $\varphi = \tfrac1{2L}$:
+  \[
+    f(\x_{k+1}) \le f(\x_k) - \frac{1}{2L}\norm{\nabla f(\x_k)}^2 .
+  \]
+  \begin{keybox}[What this means]
+    The window $(0, 2/L)$ is \emph{exactly} the stability limit we found for quadratics ($\alpha < 2/\lmax$).
+    The descent lemma carries it over to every $L$-smooth function.
+  \end{keybox}
+\end{frame}
+
+\begin{frame}{\soltitle{M2}{3}{4}}
+  \textbf{(d) Telescoping.} Add up the $\alpha = 1/L$ inequality for $k = 0,\dots,K-1$:
+  \[
+    \frac1{2L}\sum_{k=0}^{K-1}\norm{\g_k}^2 \le \sum_{k=0}^{K-1}\bigl(f(\x_k) - f(\x_{k+1})\bigr)
+    = f(\x_0) - f(\x_K) \le f(\x_0) - f^\star .
+  \]
+  The smallest term is no bigger than the average, so
+  \[
+    K\min_{k<K}\norm{\g_k}^2 \le \sum_{k<K}\norm{\g_k}^2 \le 2L\bigl(f(\x_0)-f^\star\bigr)
+    \;\Longrightarrow\;
+    \ans{\min_{k<K}\norm{\g_k} \le \sqrt{\tfrac{2L(f(\x_0)-f^\star)}{K}}} \qquad\blacksquare
+  \]
+  \small
+  \begin{itemize}
+    \item The rate is $O(1/\sqrt K)$: reaching $\norm{\g}\le\varepsilon$ takes $K \ge 2L(f_0-f^\star)/\varepsilon^2$ iterations.
+    \item We never used convexity. The price is that we only get \alert{a small gradient}, and the point we reach could be
+          a saddle (compare M1).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{\soltitle{M2}{4}{4}}
+  \textbf{(e) The bound is tight.} Take $f(x) = \tfrac L2 x^2$, so $g = Lx$ and $x^+ = (1-\alpha L)x$.
+  \[
+    f(x) - f(x^+) = \frac L2 x^2\bigl[1 - (1-\alpha L)^2\bigr]
+    = \frac L2 x^2\,(2\alpha L - \alpha^2L^2)
+    = \alpha\Bigl(1 - \frac{\alpha L}{2}\Bigr)\underbrace{L^2x^2}_{g^2}.
+  \]
+  The inequality in (b) holds with \alert{equality}, so its constant cannot be improved in general.
+  At $\alpha = 2/L$ we get $x^+ = -x$: the iterate bounces between $x$ and $-x$ forever and $f$ never drops.
+
+  \vspace{4pt}
+  \begin{keybox}[A numerical sanity check]
+    For $f(\x) = \log(1+e^{\mathbf a\T\x}) + \tfrac12\norm{\x}^2$ with $L = \norm{\mathbf a}^2/4 + 1 = 2.25$,
+    testing 20\,000 random pairs $(\x,\y)$ gives
+    $\max\,[f(\y) - \text{bound}] = -5.6\times10^{-4} \le 0$. The lemma holds every time.
+  \end{keybox}
+\end{frame}

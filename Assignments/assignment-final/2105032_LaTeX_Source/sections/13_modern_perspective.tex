@@ -1,0 +1,56 @@
+% =====================================================================
+%  13. Modern computational perspective
+% =====================================================================
+\section{Gradient methods today}
+
+\begin{frame}{Why first-order methods won: gradients are cheap}
+  \begin{thmbox}[Cheap gradient principle \normalfont\cite{griewank2008}]
+    Reverse-mode automatic differentiation computes the \emph{whole} gradient $\nabla f\in\R^n$ for a small constant
+    multiple of the cost of evaluating $f$ once, \alert{no matter how large $n$ is}.
+  \end{thmbox}
+  \vspace{2pt}
+  \centering\small
+  \begin{tabular}{@{}l c c@{}}
+    \toprule
+    How you get $\nabla f$ & Cost & Accuracy \\
+    \midrule
+    finite differences (Section~9) & $(n+1)\times$ cost$(f)$ & $\sim\sqrt{\epsilon_{\text{mach}}}$ \\
+    forward-mode AD & $\sim n\times$ cost$(f)$ & machine precision \\
+    reverse-mode AD (backpropagation) & $O(1)\times$ cost$(f)$ & machine precision \\
+    \bottomrule
+  \end{tabular}
+
+  \raggedright
+  \begin{itemize}\footnotesize
+    \item Backpropagation in neural networks \emph{is} reverse-mode AD. That is why the gradient of a $10^9$-parameter
+          model costs about as much as a few forward passes.
+    \item GD itself only needs matrix--vector style operations, which run in parallel on GPUs.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Adam, and a puzzle called the edge of stability}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Adam}~\cite{kingma2015}, with all operations element-wise:
+      \small
+      \begin{align*}
+        \mathbf m_k &= \beta_1\mathbf m_{k-1}+(1-\beta_1)\g_k \\
+        \vv_k &= \beta_2\vv_{k-1}+(1-\beta_2)\g_k^{2}\\
+        \x_{k+1} &= \x_k-\alpha\,\hat{\mathbf m}_k/\bigl(\sqrt{\hat\vv_k}+\epsilon\bigr)
+      \end{align*}
+      \small Read it as \alert{momentum} plus a \alert{diagonal preconditioner} $\bP_k = \diag(\sqrt{\hat\vv_k})$. In the language
+      of Section~2, it is steepest descent in a diagonal norm that keeps changing. (The hats are a bias correction.)
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{The edge of stability}~\cite{cohen2021}
+      \begin{itemize}\small
+        \item Classical theory says to keep $\alpha<2/L$.
+        \item Yet in full-batch GD on neural networks, the \emph{sharpness} $\lmax(\nabla^2 f)$ is observed to climb until it
+              reaches $2/\alpha$ and then hover just above it. The loss keeps going down over long horizons,
+              though not monotonically.
+        \item This is an \emph{empirical} finding that the classical analysis of Section~5 to Section~7 does not explain.
+              It is an open research question.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
